@@ -54,11 +54,13 @@ class PostProcessMethod(object):
 class DataAnalyzer(object):
 
     def config(
-            self,
-            file_path: str = None,
-            tensorboard_path: str = None,
-            online: bool = True,
-            register_default_fn: bool = True
+        self,
+        file_path: str = None,
+        online: bool = False,
+        tensorboard_path: str = None,
+        register_default_fn: bool = False,
+        router: "Parallel" = None,
+        is_writer: bool = False
     ) -> "DataAnalyzer":
         self._file = None
         self._has_file_writer = False
@@ -71,6 +73,20 @@ class DataAnalyzer(object):
             except IOError:
                 logging.error("Invalid file path.")
 
+        self._in_parallel = False
+        self._router = None
+        if router and router.is_active:
+            self._in_parallel = True
+            self._router = router
+            self._has_file_writer = is_writer
+            if is_writer:
+                router.on("_DataAnalyzer_", self._on_data_center)
+
+        self._has_data = False
+        if online:
+            self._has_data = True
+            self._data = []
+
         self._tb_writer = None
         self._has_tb_writer = False
         self._tensorboard_path = None
@@ -81,16 +97,7 @@ class DataAnalyzer(object):
             except IOError:
                 logging.error("Invalid tensorboard file path.")
 
-        self._in_parallel = False
-        self._router = None
-        self._has_data = False
-
         self._analysis_functions = []
-
-        if online:
-            self._has_data = True
-            self._data = []
-
         if register_default_fn:
             self.register_analysis_function(ProcessFunctions.general_process_fun)
 
@@ -125,6 +132,9 @@ class DataAnalyzer(object):
     def analyse(self, feature=None, tensorboard_step_key: Union[str, List[str]] = None, show_result: bool = True):
         results_data_frame = None
         if self._has_data:
+            if not self._data:
+                return results_data_frame
+
             results = []
 
             current_data_frame = pd.DataFrame.from_dict(self._data)
@@ -142,10 +152,10 @@ class DataAnalyzer(object):
             if results:
                 results_data_frame = pd.concat(results)
 
-        if results_data_frame and show_result:
+        if results_data_frame is not None and show_result:
             logging.info(results_data_frame.to_string())
 
-        if results_data_frame and tensorboard_step_key:
+        if results_data_frame is not None and tensorboard_step_key:
             tensorboard_step_key_list = []
             if type(tensorboard_step_key) is str:
                 tensorboard_step_key_list.append(tensorboard_step_key)
