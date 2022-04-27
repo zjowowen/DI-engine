@@ -23,11 +23,7 @@ def data_analyzer_server(cfg: EasyDict, online_analyse: bool = False) -> Callabl
     file_path = "./" + str(cfg.exp_name) + "/data_analyzer/log.txt"
 
     data_analyzer.config(
-        file_path=file_path,
-        online=online_analyse,
-        register_default_fn=online_analyse,
-        router=Parallel(),
-        is_writer=True
+        file_path=file_path, online=online_analyse, register_default_fn=online_analyse, router=Parallel()
     )
 
     atexit.register(data_analyzer.close)
