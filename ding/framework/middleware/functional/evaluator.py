@@ -10,8 +10,9 @@ from ding.envs import BaseEnvManager
 from ding.policy import Policy
 from ding.data import Dataset, DataLoader
 from ding.framework import task
+from ding.framework.parallel import Parallel
 from ding.torch_utils import tensor_to_list
-from ding.utils import lists_to_dicts
+from ding.utils import lists_to_dicts, data_analyzer
 
 if TYPE_CHECKING:
     from ding.framework import Context, OnlineRLContext
@@ -148,6 +149,8 @@ class VectorEvalMonitor(object):
 def interaction_evaluator(cfg: EasyDict, policy: Policy, env: BaseEnvManager) -> Callable:
     env.seed(cfg.seed, dynamic_seed=False)
 
+    data_analyzer.config(router=Parallel())
+
     def _evaluate(ctx: "OnlineRLContext"):
         # evaluation will be executed if the task begins or enough train_iter after last evaluation
         if ctx.last_eval_iter != -1 and \
@@ -176,6 +179,12 @@ def interaction_evaluator(cfg: EasyDict, policy: Policy, env: BaseEnvManager) ->
         eval_reward = np.mean(episode_reward)
         stop_flag = eval_reward >= cfg.env.stop_value and ctx.train_iter > 0
         logging.info('Current Evaluation: Train Iter({})\tEval Reward({:.3f})'.format(ctx.train_iter, eval_reward))
+        data_analyzer.record(
+            {
+                "interaction_evaluator_train_iter": ctx.train_iter,
+                "interaction_evaluator_eval_reward": eval_reward.item()
+            }
+        )
         ctx.last_eval_iter = ctx.train_iter
         ctx.eval_value = eval_reward
 

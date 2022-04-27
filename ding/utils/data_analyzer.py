@@ -1,18 +1,21 @@
 #from ast import Call
 from typing import TYPE_CHECKING, Callable, Union, List
 import time
+import os
 #import math
 import json
 #import sys
 import logging
 import ding.utils
 import pandas as pd
+from pandas import DataFrame
 from tensorboardX import SummaryWriter
 
 if TYPE_CHECKING:
     from ding.framework import Parallel
 
 
+# To do
 class ProcessFunctions(object):
 
     def general_process_fun(data_frame):
@@ -45,65 +48,86 @@ class ProcessFunctions(object):
         return _general_process_fun
 
 
-class PostProcessMethod(object):
-
-    def print_in_tabulate(data_dict: dict):
-        pass
-
-
 class DataAnalyzer(object):
 
     def config(
-        self,
-        file_path: str = None,
-        online: bool = False,
-        tensorboard_path: str = None,
-        register_default_fn: bool = False,
-        router: "Parallel" = None,
-        is_writer: bool = False
+            self,
+            file_path: str = None,
+            online: bool = False,
+            tensorboard_path: str = None,
+            register_default_fn: bool = False,
+            router: "Parallel" = None
     ) -> "DataAnalyzer":
-        self._file = None
-        self._has_file_writer = False
-        self._file_path = None
-        if file_path:
-            try:
-                self._file = open(file_path, "a+")
-                self._has_file_writer = True
-                self._file_path = file_path
-            except IOError:
-                logging.error("Invalid file path.")
+        """
+        Overview:
+            Enable and change the configuration of a DataAnalyzer instance. 
+        Arguments:
+            - file_path (:obj:`str`): File path that offline data are to be saved at. \
+                In local mode, it must be set sucessfully for at least once. \
+                In remote mode, no need to set it for worker, but is necessary for master. \
+            - online (:obj:`bool`): To enable online analysis and maintain data in memory
+            - tensorboard_path (:obj:`str`): Set tensorboard file path , effective when online is enabled.
+            - register_default_fn (:obj:`bool`): To register default analysis functions, \
+                including [default_latest_value, "mean", "max", "min", "std"]
+            - router (:obj:`Parallel`): To enable remote mode.
+        """
 
-        self._in_parallel = False
-        self._router = None
-        if router and router.is_active:
-            self._in_parallel = True
-            self._router = router
-            self._has_file_writer = is_writer
-            if is_writer:
-                router.on("_DataAnalyzer_", self._on_data_center)
+        if not hasattr(self, "_file") or self._file is None:
+            self._file = None
+            self._has_file_writer = False
+            self._file_path = None
+            if file_path:
+                try:
+                    if not os.path.exists(os.path.dirname(file_path)):
+                        os.makedirs(os.path.dirname(file_path))
+                    self._file = open(file_path, "a+")
+                    self._has_file_writer = True
+                    self._file_path = file_path
+                except IOError as error:
+                    logging.error("Invalid file path.")
+                    raise
 
-        self._has_data = False
-        if online:
-            self._has_data = True
-            self._data = []
+        if not hasattr(self, "_router") or self._router is None:
+            self._in_parallel = False
+            self._router = None
+            if router and router.is_active:
+                self._in_parallel = True
+                self._router = router
+                if _has_file_writer:
+                    router.on("_DataAnalyzer_", self._on_data_center)
 
-        self._tb_writer = None
-        self._has_tb_writer = False
-        self._tensorboard_path = None
-        if tensorboard_path:
-            try:
-                self._tb_writer = SummaryWriter(tensorboard_path)
-                self._has_tb_writer = True
-            except IOError:
-                logging.error("Invalid tensorboard file path.")
+        if not hasattr(self, "_has_data") or self._has_data is False:
+            self._has_data = False
+            if online:
+                self._has_data = True
+                self._data = []
 
-        self._analysis_functions = []
-        if register_default_fn:
-            self.register_analysis_function(ProcessFunctions.general_process_fun)
+        if not hasattr(self, "_tb_writer") or self._tb_writer is None:
+            self._tb_writer = None
+            self._has_tb_writer = False
+            self._tensorboard_path = None
+            if online and tensorboard_path:
+                try:
+                    self._tb_writer = SummaryWriter(tensorboard_path)
+                    self._has_tb_writer = True
+                except IOError:
+                    logging.error("Invalid tensorboard file path.")
+
+        if not hasattr(self, "_analysis_functions") or len(self._analysis_functions) == 0:
+            self._analysis_functions = []
+            if register_default_fn:
+                self.register_analysis_function(ProcessFunctions.general_process_fun)
 
         return self
 
-    def record(self, info: dict):
+    def record(self, info: dict) -> None:
+        """
+        Overview:
+            Record information message of a dictionary form, and may save it in local file, or emit it to master, \
+                or save it in memory for online analysis  
+        Arguments:
+            - info (:obj:`dict`): information message of dictionary form
+        """
         dict_to_record = info
         if not "__time" in dict_to_record:
             dict_to_record.update({"__time": time.time()})
@@ -118,7 +142,18 @@ class DataAnalyzer(object):
         if self._has_data:
             self._data.append(dict_to_record)
 
-    def register_analysis_function(self, fn: Callable, variable_name: Union[str, List[str]] = None):
+    def register_analysis_function(self, fn: Callable, variable_name: Union[str, List[str]] = None) -> None:
+        """
+        Overview:
+            Register an analysis function and provide the variable name of the input. \
+                Those funtions would be called for every analyse steps.  
+        Arguments:
+            - fn (:obj:`Callable`): An analysis function that return n output variables. \
+                The input of the analysis function is from the current data in the form of dataframe from pandas.
+            - variable_name (:obj:` Union[str, List[str]]`): Provide the variable name of the input. \
+                If is None, the variables in the whole dataframe will be given 
+        """
+
         variables_name = []
         if variable_name:
             if type(variable_name) is str:
@@ -128,8 +163,22 @@ class DataAnalyzer(object):
 
         self._analysis_functions.append((fn, variables_name))
 
-    #process origin data
-    def analyse(self, feature=None, tensorboard_step_key: Union[str, List[str]] = None, show_result: bool = True):
+    def analyse(
+            self,
+            feature=None,
+            tensorboard_step_key: Union[str, List[str]] = None,
+            show_result: bool = True
+    ) -> "DataFrame":
+        """
+        Overview:
+            Analyse the current data in momery for every analysis function registered. \
+                If no output, the return type is None. 
+        Arguments:
+            - feature (:obj:`str`): #To do# Adjust and limit the range of data that to be analysed.
+            - tensorboard_step_key (:obj:`Union[str, List[str]]`): To record results with respect to every tb_step provided.
+            - show_result (:obj:`bool`): Whether to log and show results. 
+        """
+
         results_data_frame = None
         if self._has_data:
             if not self._data:
@@ -145,9 +194,7 @@ class DataAnalyzer(object):
                         if key != '__time':
                             variables_name.append(key)
 
-                mean_df = fn(current_data_frame)(variables_name)
-
-                results.append(mean_df)
+                results.append(fn(current_data_frame)(variables_name))
 
             if results:
                 results_data_frame = pd.concat(results)
@@ -177,13 +224,20 @@ class DataAnalyzer(object):
 
         return results_data_frame
 
-    #Show all origin data
     def show(self):
+        """
+        Overview:
+            Simply display all data in the current memory.
+        """
         if self._has_data:
             current_data_frame = pd.DataFrame.from_dict(self._data)
             logging.info(current_data_frame.to_string())
 
     def close(self):
+        """
+        Overview:
+            Safely close the module.
+        """
         self._has_file_writer = False
         self._in_parallel = False
         if self._router:
@@ -193,16 +247,12 @@ class DataAnalyzer(object):
             self._file.close()
             self._file = None
 
-    def parallel_config(self, router: "Parallel" = None, is_writer: bool = False) -> "DataAnalyzer":
-        if router and router.is_active:
-            self._in_parallel = True
-            self._router = router
-            self._has_file_writer = is_writer
-            if is_writer:
-                router.on("_DataAnalyzer_", self._on_data_center)
-        return self
-
     def _on_data_center(self, info: object, *args, **kwargs):
+        """
+        Overview:
+            Listen for RPC from non-master instance.
+            *** Private method ***
+        """
         self.record(info)
 
     def __del__(self):

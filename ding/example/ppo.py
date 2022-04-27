@@ -7,7 +7,7 @@ from ding.data import DequeBuffer
 from ding.config import compile_config
 from ding.framework import task
 from ding.framework.context import OnlineRLContext
-from ding.framework.middleware import multistep_trainer, StepCollector, interaction_evaluator, CkptSaver, gae_estimator
+from ding.framework.middleware import multistep_trainer, StepCollector, interaction_evaluator, CkptSaver, gae_estimator, data_analyzer_server
 from ding.utils import set_pkg_seed
 from dizoo.classic_control.cartpole.config.cartpole_ppo_config import main_config, create_config
 
@@ -30,6 +30,7 @@ def main():
         model = VAC(**cfg.policy.model)
         policy = PPOPolicy(cfg.policy, model=model)
 
+        task.use(data_analyzer_server(cfg, online_analyse=True))
         task.use(interaction_evaluator(cfg, policy.eval_mode, evaluator_env))
         task.use(StepCollector(cfg, policy.collect_mode, collector_env))
         task.use(gae_estimator(cfg, policy.collect_mode))
