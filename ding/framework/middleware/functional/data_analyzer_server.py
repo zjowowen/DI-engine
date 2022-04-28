@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, Union, List
 import time
 import atexit
 from easydict import EasyDict
@@ -9,13 +9,17 @@ if TYPE_CHECKING:
     from ding.framework import Context
 
 
-def data_analyzer_server(cfg: EasyDict, online_analyse: bool = False) -> Callable:
+def data_analyzer_server(
+        cfg: EasyDict, online_analyse: bool = False, analysed_variable_name: Union[str, List[str]] = None
+) -> Callable:
     """
     Overview:
         Middleware for data analyser server as a master node that is both effective in local or remote mode. \
     Arguments:
         - cfg (:obj:`EasyDict`): Task configuration dictionary.
         - online_analyse (:obj:`bool`): Whether to enable online analysis. 
+        - analysed_variable_name (:obj:`Union[str, List[str]]`): Names of some more variables that are to be displayed \
+            other than default ones. 
     Returns:
         - _data_analyzer_server_main (:obj:`Callable`): The main function for data analyzer server.
     """
@@ -25,6 +29,9 @@ def data_analyzer_server(cfg: EasyDict, online_analyse: bool = False) -> Callabl
     data_analyzer.config(
         file_path=file_path, online=online_analyse, register_default_fn=online_analyse, router=Parallel()
     )
+
+    if analysed_variable_name:
+        data_analyzer.add_display(fn=data_analyzer.Method["display_data"], variable_name=analysed_variable_name)
 
     atexit.register(data_analyzer.close)
 

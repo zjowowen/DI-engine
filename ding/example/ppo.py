@@ -30,7 +30,11 @@ def main():
         model = VAC(**cfg.policy.model)
         policy = PPOPolicy(cfg.policy, model=model)
 
-        task.use(data_analyzer_server(cfg, online_analyse=True))
+        task.use(
+            data_analyzer_server(
+                cfg, online_analyse=True, analysed_variable_name=["evaluator_eval_reward:max", "trainer_loss:min"]
+            )
+        )
         task.use(interaction_evaluator(cfg, policy.eval_mode, evaluator_env))
         task.use(StepCollector(cfg, policy.collect_mode, collector_env))
         task.use(gae_estimator(cfg, policy.collect_mode))

@@ -179,12 +179,7 @@ def interaction_evaluator(cfg: EasyDict, policy: Policy, env: BaseEnvManager) ->
         eval_reward = np.mean(episode_reward)
         stop_flag = eval_reward >= cfg.env.stop_value and ctx.train_iter > 0
         logging.info('Current Evaluation: Train Iter({})\tEval Reward({:.3f})'.format(ctx.train_iter, eval_reward))
-        data_analyzer.record(
-            {
-                "interaction_evaluator_train_iter": ctx.train_iter,
-                "interaction_evaluator_eval_reward": eval_reward.item()
-            }
-        )
+        data_analyzer.record({"evaluator_train_iter": str(ctx.train_iter), "evaluator_eval_reward": eval_reward.item()})
         ctx.last_eval_iter = ctx.train_iter
         ctx.eval_value = eval_reward
 
