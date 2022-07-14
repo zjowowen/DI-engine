@@ -3,10 +3,29 @@ import torch
 import torch.nn.functional as F
 from .td import generalized_lambda_returns
 
+from ding.hpc_rl import hpc_wrapper
+
 coma_data = namedtuple('coma_data', ['logit', 'action', 'q_value', 'target_q_value', 'reward', 'weight'])
 coma_loss = namedtuple('coma_loss', ['policy_loss', 'q_value_loss', 'entropy_loss'])
 
 
+def shape_fn_coma(args, kwargs):
+    r"""
+    Overview:
+        Return shape of coma for hpc
+    Returns:
+        shape: (T, B, A, N)
+    """
+    if len(args) <= 0:
+        tmp = kwargs['data'].logit.shape
+    else:
+        tmp = args[0].logit.shape
+    return tmp
+
+
+@hpc_wrapper(
+    shape_fn=shape_fn_coma, namedtuple_data=True, include_args=[0, 1, 2], include_kwargs=['data', 'gamma', 'lambda_']
+)
 def coma_error(data: namedtuple, gamma: float, lambda_: float) -> namedtuple:
     """
     Overview:

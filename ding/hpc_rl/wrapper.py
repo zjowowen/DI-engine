@@ -70,6 +70,8 @@ def register_runtime_fn(fn_name, runtime_name, shape):
         'td_lambda_error': ['hpc_rll.rl_utils.td', 'TDLambda'],
         'upgo_loss': ['hpc_rll.rl_utils.upgo', 'UPGO'],
         'vtrace_error': ['hpc_rll.rl_utils.vtrace', 'VTrace'],
+        'coma_error': ['hpc_rll.rl_utils.coma', 'COMA'],
+        'GRUGatingUnit': ['hpc_rll.rl_utils.gtrxl', 'GRU'],
     }
     fn_str = fn_name_mapping[fn_name]
     cls = getattr(importlib.import_module(fn_str[0]), fn_str[1])
