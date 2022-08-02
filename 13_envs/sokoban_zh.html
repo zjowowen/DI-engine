@@ -13,7 +13,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>强化学习环境示例 &mdash; DI-engine 0.1.0 documentation</title>
+  <title>Sokoban &mdash; DI-engine 0.1.0 documentation</title>
   
 
   <link rel="shortcut icon" href="../_static/images/favicon.ico" />
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
   <link rel="index" title="Index" href="../genindex.html" />
   <link rel="search" title="Search" href="../search.html" />
-  <link rel="next" title="Atari" href="atari_zh.html" />
-  <link rel="prev" title="R2D3" href="../12_policies/r2d3_zh.html" />
+  <link rel="next" title="代码规范" href="../20_spec/index_zh.html" />
+  <link rel="prev" title="Image Classification" href="image_cls_zh.html" />
     <link href="../_static/css/style.css" rel="stylesheet" type="text/css">
 
 
@@ -199,7 +199,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../10_concepts/index_zh.html">强化学习基础概念介绍</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../11_dizoo/index_zh.html">从 DI-zoo 开始学习</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../12_policies/index_zh.html">强化学习算法</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">强化学习环境示例</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index_zh.html">强化学习环境示例</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">开发者规范</span></p>
 <ul>
@@ -246,13 +246,15 @@
       </li>
 
         
-      <li>强化学习环境示例</li>
+          <li><a href="index_zh.html">强化学习环境示例</a> &gt;</li>
+        
+      <li>Sokoban</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="../_sources/13_envs/index_zh.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
+            <a href="../_sources/13_envs/sokoban_zh.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -276,48 +278,139 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
               <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
                 
-  <section id="id1">
-<h1>强化学习环境示例<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
-<p>下述环境为DI-engine中实现了的环境。每个环境都将从以下几个方面进行介绍：（某些环境可能会缺失部分方面）</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>概述</p></li>
-<li><p>安装</p></li>
-<li><p>变换前的空间（原始环境）</p></li>
-<li><p>关键事实</p></li>
-<li><p>变换后的空间（RL环境）</p></li>
-<li><p>其他</p></li>
-<li><p>DI-zoo 可运行代码示例</p></li>
-<li><p>基准算法性能</p></li>
-<li><p>参考资料</p></li>
-</ul>
-</div></blockquote>
-<p>环境：</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="atari_zh.html">Atari</a></li>
-<li class="toctree-l1"><a class="reference internal" href="mujoco_zh.html">Mujoco</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cartpole_zh.html">Cartpole</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pendulum_zh.html">Pendulum</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bitflip_zh.html">BitFlip</a></li>
-<li class="toctree-l1"><a class="reference internal" href="lunarlander_zh.html">LunarLander</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bipedalwalker_zh.html">BipedalWalker</a></li>
-<li class="toctree-l1"><a class="reference internal" href="minigrid_zh.html">MiniGrid</a></li>
-<li class="toctree-l1"><a class="reference internal" href="slime_volleyball_zh.html">Slime Volleyball</a></li>
-<li class="toctree-l1"><a class="reference internal" href="competitive_rl_zh.html">Competitive RL</a></li>
-<li class="toctree-l1"><a class="reference internal" href="procgen_zh.html">Procgen</a></li>
-<li class="toctree-l1"><a class="reference internal" href="smac_zh.html">SMAC</a></li>
-<li class="toctree-l1"><a class="reference internal" href="d4rl_zh.html">D4RL (Mujoco)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gfootball_zh.html">Google Research Football (Gfootball)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="multiagent_particle_zh.html">Multi-Agent Particle</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pybullet_zh.html">PyBullet</a></li>
-<li class="toctree-l1"><a class="reference internal" href="pettingzoo_zh.html">PettingZoo</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gym_hybrid_zh.html">Gym-Hybrid</a></li>
-<li class="toctree-l1"><a class="reference internal" href="gym_soccer_zh.html">Gym-Soccer (HFO)</a></li>
-<li class="toctree-l1"><a class="reference internal" href="image_cls_zh.html">Image Classification</a></li>
-<li class="toctree-l1"><a class="reference internal" href="sokoban_zh.html">Sokoban</a></li>
-</ul>
+  <section id="sokoban">
+<h1>Sokoban<a class="headerlink" href="#sokoban" title="Permalink to this headline">¶</a></h1>
+<section id="id1">
+<h2>概述<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>Sokoban 是一种离散动作空间环境。在该游戏中，智能体需要在离散动作集合中选择动作，目标是将房间中所有的箱子推到指定位置。这里的 Sokoban 环境实现了房间的随机生成，避免深度神经网络因为预定义的房间而训练过拟合。</p>
+<a class="reference internal image-reference" href="../_images/sokoban.gif"><img alt="../_images/sokoban.gif" class="align-center" src="../_images/sokoban.gif" style="width: 112.0px; height: 112.0px;" /></a>
+</section>
+<section id="id2">
+<h2>安装<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<section id="id3">
+<h3>安装方法<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>用户可以选择通过 pip 一键安装或 git clone 代码库后 pip 本地安装</p>
+<p>注：如果用户没有 root 权限，请在 install 命令后加上 <code class="docutils literal notranslate"><span class="pre">--user</span></code></p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Method1: Install Directly</span>
+pip install gym-sokoban
+<span class="c1"># Method2: Install from source code</span>
+git clone git@github.com:mpSchrader/gym-sokoban.git
+<span class="nb">cd</span> gym-sokoban
+pip install -e .
+</pre></div>
 </div>
+</section>
+<section id="id4">
+<h3>验证安装<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>安装完成后，运行如下 Python 程序，如果没有报错则证明安装成功。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">gym</span>
+<span class="kn">import</span> <span class="nn">gym_sokoban</span>
+<span class="n">env</span> <span class="o">=</span> <span class="n">gym</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s1">&#39;Sokoban-v0&#39;</span><span class="p">)</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="c1"># (160, 160, 3)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id5">
+<h2>变换前的空间（原始环境）<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<section id="id6">
+<h3>观察空间<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>实际的游戏画面，RGB 三通道图片，具体尺寸为<code class="docutils literal notranslate"><span class="pre">(160,</span> <span class="pre">160,</span> <span class="pre">3)</span></code>(以 Sokoban-v0 为例)，数据类型为<code class="docutils literal notranslate"><span class="pre">uint8</span></code></p></li>
+<li><p>每个房间中包含五种主要元素：墙壁，地板，箱子，目标点，和玩家，在游戏画面中以不同颜色标识。当箱子和玩家与目标点重合时，颜色也会发生变化。</p></li>
+</ul>
+</section>
+<section id="id7">
+<h3>动作空间<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>游戏提供了 9 种环境交互动作，形成大小为 9 的离散动作空间，数据类型为<code class="docutils literal notranslate"><span class="pre">int</span></code>，需要传入 python 数值（或是 0 维 np 数组，例如动作 3 为<code class="docutils literal notranslate"><span class="pre">np.array(3)</span></code>）。动作在 0-8 中取值，具体的含义是：</p>
+<ul>
+<li><p>0：No Operation</p></li>
+<li><p>1：Push Up</p></li>
+<li><p>2：Push Down</p></li>
+<li><p>3：Push Left</p></li>
+<li><p>4：Push Right</p></li>
+<li><p>5：Move Up</p></li>
+<li><p>6：Move Down</p></li>
+<li><p>7：Move Left</p></li>
+<li><p>8：Move Right</p></li>
+</ul>
+</li>
+<li><p>其中 Move 表示仅移动，需要对应方向上的下一个格子没有箱子或墙。</p></li>
+<li><p>Push 表示移动相邻的箱子，需要箱子的下一格是空闲的，不能直接推动两个相邻的箱子。如果对应方向上的相邻格子没有箱子，则 Push 和 Move 效果一致。</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3>奖励空间<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>游戏得分，一般是一个<code class="docutils literal notranslate"><span class="pre">float</span></code>数值，具体的数值如下：</p>
+<ul>
+<li><p>行动一步：-0.1</p></li>
+<li><p>将箱子推到目标点上：1.0</p></li>
+<li><p>将箱子推离目标点：-1.0</p></li>
+<li><p>将所有箱子推到目标点上：10.0</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id9">
+<h3>终止条件<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>所有箱子都推到目标点上，或者行动步数到达最大步数 max_step ，则当前环境 episode 结束。默认 max_step 为 120 步，可在 config 中调节。</p></li>
+</ul>
+</section>
+<section id="id10">
+<h3>内置环境<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Sokoban 内置了 9 个环境，分别为 <code class="docutils literal notranslate"><span class="pre">Sokoban-v0</span></code>, <code class="docutils literal notranslate"><span class="pre">Sokoban-v1</span></code>， <code class="docutils literal notranslate"><span class="pre">Sokoban-v2</span></code>， <code class="docutils literal notranslate"><span class="pre">Sokoban-small-v0</span></code>， <code class="docutils literal notranslate"><span class="pre">Sokoban-small-v1</span></code>， <code class="docutils literal notranslate"><span class="pre">Sokoban-large-v0</span></code>， <code class="docutils literal notranslate"><span class="pre">Sokoban-large-v1</span></code>， <code class="docutils literal notranslate"><span class="pre">Sokoban-large-v2</span></code>， <code class="docutils literal notranslate"><span class="pre">Sokoban-huge-v0</span></code>。环境仅有房间大小和箱子数量差异，房间内部环境均为随机生成。</p></li>
+<li><p>例如 <code class="docutils literal notranslate"><span class="pre">Sokoban-v0</span></code> 即为房间大小为 10×10，房间里有 3 个箱子。每次 reset 后，会根据房间大小和箱子数量随机生成环境。</p></li>
+<li><p>由于随机生成过程中，箱子首先生成在目标点上，然后经过反向移动到达起始点，因此所有环境都有解。</p></li>
+</ul>
+</section>
+</section>
+<section id="id11">
+<h2>关键事实<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>稀疏奖励环境，仅在箱子推到目标点时能获得正奖励。奖励取值范围较小，最大值为 10+N ， N 为箱子数量。最小值为 -max_step 。</p></li>
+<li><p>离散动作空间</p></li>
+</ol>
+</section>
+<section id="id12">
+<h2>其他<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
+<section id="id13">
+<h3>惰性初始化<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<p>为了便于支持环境向量化等并行操作，环境实例一般实现惰性初始化，即<code class="docutils literal notranslate"><span class="pre">__init__</span></code>方法不初始化真正的原始环境实例，只是设置相关参数和配置值，在第一次调用<code class="docutils literal notranslate"><span class="pre">reset</span></code>方法时初始化具体的原始环境实例。</p>
+</section>
+<section id="id14">
+<h3>随机种子<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>环境中有两部分随机种子需要设置，一是原始环境的随机种子，二是各种环境变换使用到的随机库的随机种子（例如<code class="docutils literal notranslate"><span class="pre">random</span></code>，<code class="docutils literal notranslate"><span class="pre">np.random</span></code>）</p></li>
+<li><p>对于环境调用者，只需通过环境的<code class="docutils literal notranslate"><span class="pre">seed</span></code>方法进行设置这两个种子，无需关心具体实现细节</p></li>
+<li><p>环境内部的具体实现：对于原始环境的种子，在调用环境的<code class="docutils literal notranslate"><span class="pre">reset</span></code>方法内部，具体的原始环境<code class="docutils literal notranslate"><span class="pre">reset</span></code>之前设置</p></li>
+<li><p>环境内部的具体实现：对于随机库种子，则在环境的<code class="docutils literal notranslate"><span class="pre">seed</span></code>方法中直接设置该值</p></li>
+</ul>
+</section>
+<section id="id15">
+<h3>存储录像<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<p>在环境创建之后，重置之前，调用<code class="docutils literal notranslate"><span class="pre">enable_save_replay</span></code>方法，指定游戏录像保存的路径。环境会在每个 episode 结束之后自动保存本局的录像文件。（默认调用<code class="docutils literal notranslate"><span class="pre">gym.wrapper.Monitor</span></code>实现，依赖<code class="docutils literal notranslate"><span class="pre">ffmpeg</span></code>），下面所示的代码将运行一个环境 episode，并将这个 episode 的结果保存在形如<code class="docutils literal notranslate"><span class="pre">./video/xxx.mp4</span></code>这样的文件中：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">easydict</span> <span class="kn">import</span> <span class="n">EasyDict</span>
+<span class="kn">from</span> <span class="nn">dizoo.sokoban.envs.sokoban_env</span> <span class="kn">import</span> <span class="n">SokobanEnv</span>
+
+<span class="n">env</span> <span class="o">=</span> <span class="n">SokobanEnv</span><span class="p">(</span><span class="n">EasyDict</span><span class="p">({</span><span class="s1">&#39;env_id&#39;</span><span class="p">:</span> <span class="s1">&#39;Sokoban-v0&#39;</span><span class="p">,</span> <span class="s1">&#39;is_train&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}))</span>
+<span class="n">env</span><span class="o">.</span><span class="n">enable_save_replay</span><span class="p">(</span><span class="s1">&#39;./video&#39;</span><span class="p">)</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">action</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">action_space</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+    <span class="n">timestep</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">timestep</span><span class="o">.</span><span class="n">done</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Episode is over, final eval reward is: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">timestep</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;final_eval_reward&#39;</span><span class="p">]))</span>
+        <span class="k">break</span>
+</pre></div>
+</div>
+</section>
+</section>
 </section>
 
 
@@ -328,12 +421,12 @@
   
   <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
     
-    <a href="atari_zh.html" class="btn btn-neutral float-right" title="Atari" accesskey="n"
+    <a href="../20_spec/index_zh.html" class="btn btn-neutral float-right" title="代码规范" accesskey="n"
       rel="next">Next <img src="../_static/images/chevron-right-blue.svg"
         class="next-page"></a>
     
     
-    <a href="../12_policies/r2d3_zh.html" class="btn btn-neutral" title="R2D3" accesskey="p"
+    <a href="image_cls_zh.html" class="btn btn-neutral" title="Image Classification" accesskey="p"
       rel="prev"><img src="../_static/images/chevron-right-blue.svg" class="previous-page"> Previous</a>
     
   </div>
@@ -363,7 +456,30 @@
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">强化学习环境示例</a></li>
+<li><a class="reference internal" href="#">Sokoban</a><ul>
+<li><a class="reference internal" href="#id1">概述</a></li>
+<li><a class="reference internal" href="#id2">安装</a><ul>
+<li><a class="reference internal" href="#id3">安装方法</a></li>
+<li><a class="reference internal" href="#id4">验证安装</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id5">变换前的空间（原始环境）</a><ul>
+<li><a class="reference internal" href="#id6">观察空间</a></li>
+<li><a class="reference internal" href="#id7">动作空间</a></li>
+<li><a class="reference internal" href="#id8">奖励空间</a></li>
+<li><a class="reference internal" href="#id9">终止条件</a></li>
+<li><a class="reference internal" href="#id10">内置环境</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id11">关键事实</a></li>
+<li><a class="reference internal" href="#id12">其他</a><ul>
+<li><a class="reference internal" href="#id13">惰性初始化</a></li>
+<li><a class="reference internal" href="#id14">随机种子</a></li>
+<li><a class="reference internal" href="#id15">存储录像</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 
             </div>
