@@ -400,6 +400,7 @@ class IMPALAConvEncoder(nn.Module):
         x = self.dense(x)
         if self.final_relu:
             x = torch.relu(x)
+        return x
 
     def report_overall_gradient_norm(self):
         norm_gradient = {}
