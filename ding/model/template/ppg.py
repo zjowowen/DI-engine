@@ -24,6 +24,10 @@ class PPG(nn.Module):
         activation: Optional[nn.Module] = nn.ReLU(),
         norm_type: Optional[str] = None,
         impala_cnn_encoder: bool = False,
+        batch_norm: bool = False,
+        layer_norm: bool = False,
+        init_orthogonal: bool = False,
+        post_norm: bool = False,
     ) -> None:
         super(PPG, self).__init__()
         self.actor_critic = VAC(
@@ -38,7 +42,11 @@ class PPG(nn.Module):
             critic_head_layer_num,
             activation,
             norm_type,
-            impala_cnn_encoder=impala_cnn_encoder
+            impala_cnn_encoder=impala_cnn_encoder,
+            batch_norm=batch_norm,
+            layer_norm=layer_norm,
+            init_orthogonal=init_orthogonal,
+            post_norm=post_norm,
         )
         self.aux_critic = copy.deepcopy(self.actor_critic.critic)
 

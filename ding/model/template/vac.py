@@ -36,6 +36,10 @@ class VAC(nn.Module):
         bound_type: Optional[str] = None,
         encoder: Optional[torch.nn.Module] = None,
         impala_cnn_encoder: bool = False,
+        batch_norm: bool = False,
+        layer_norm: bool = False,
+        init_orthogonal: bool = False,
+        post_norm: bool = False,
     ) -> None:
         r"""
         Overview:

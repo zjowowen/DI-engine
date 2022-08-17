@@ -34,6 +34,31 @@ def create_shuffled_dataloader(data, batch_size):
     return DataLoader(ds, batch_size=batch_size, shuffle=True)
 
 
+def calculate_adam_momemtum_delta(state_1_list, state_2_list):
+    if state_1_list is None or state_2_list is None:
+        return 0.0, 0.0
+    else:
+
+        first_momentum_delta_list = []
+        second_momentum_delta_list = []
+        for key1, value1 in state_1_list.items():
+            for key2, value2 in state_2_list.items():
+                if key1 == key2:
+                    first_momentum_delta = torch.linalg.norm(value2['exp_avg'] - value1['exp_avg'])
+                    first_momentum_delta_list.append(first_momentum_delta)
+                    second_momentum_delta = torch.linalg.norm(value2['exp_avg_sq'] - value1['exp_avg_sq'])
+                    second_momentum_delta_list.append(second_momentum_delta)
+
+        total_first_momentum_delta = 0.0
+        total_second_momentum_delta = 0.0
+        for first_momentum_delta in first_momentum_delta_list:
+            total_first_momentum_delta += first_momentum_delta * first_momentum_delta
+        for second_momentum_delta in second_momentum_delta_list:
+            total_second_momentum_delta += second_momentum_delta * second_momentum_delta
+
+        return total_first_momentum_delta, total_second_momentum_delta
+
+
 @POLICY_REGISTRY.register('ppg')
 class PPGPolicy(Policy):
     """
@@ -237,6 +262,15 @@ class PPGPolicy(Policy):
         else:
             data['return'] = data['adv'] + data['value']
 
+        actor_adam_state_dict_state = None
+        critic_adam_state_dict_state = None
+
+        actor_first_momentum_delta_norm = 0
+        actor_second_momentum_delta_norm = 0
+
+        critic_first_momentum_delta_norm = 0
+        critic_second_momentum_delta_norm = 0
+
         for epoch in range(self._cfg.learn.actor_epoch_per_collect):
             for policy_data in split_data_generator(data, self._cfg.learn.batch_size, shuffle=True):
                 policy_adv = policy_data['adv']
@@ -255,6 +289,19 @@ class PPGPolicy(Policy):
                 policy_loss.backward()
                 self._optimizer_ac.step()
 
+                actor_encoder_overall_gradient = self._learn_model.actor_critic.actor[0].report_overall_gradient_norm()
+                actor_encoder_overall_gradient_weight = actor_encoder_overall_gradient["weight"]
+                actor_encoder_overall_gradient_bias = actor_encoder_overall_gradient["bias"]
+
+                current = self._optimizer_aux_critic.state_dict()['state']
+                first_momentum_delta_norm, second_momentum_delta_norm = calculate_adam_momemtum_delta(
+                    current, actor_adam_state_dict_state
+                )
+                actor_adam_state_dict_state = copy.deepcopy(current)
+
+                actor_first_momentum_delta_norm += first_momentum_delta_norm
+                actor_second_momentum_delta_norm += second_momentum_delta_norm
+
         for epoch in range(self._cfg.learn.critic_epoch_per_collect):
             for value_data in split_data_generator(data, self._cfg.learn.batch_size, shuffle=True):
                 value_adv = value_data['adv']
@@ -271,6 +318,19 @@ class PPGPolicy(Policy):
                 self._optimizer_aux_critic.zero_grad()
                 value_loss.backward()
                 self._optimizer_aux_critic.step()
+                critic_encoder_overall_gradient = self._learn_model.actor_critic.critic[0].report_overall_gradient_norm(
+                )
+                critic_encoder_overall_gradient_weight = critic_encoder_overall_gradient["weight"]
+                critic_encoder_overall_gradient_bias = critic_encoder_overall_gradient["bias"]
+
+                current = self._optimizer_aux_critic.state_dict()['state']
+                first_momentum_delta_norm, second_momentum_delta_norm = calculate_adam_momemtum_delta(
+                    current, critic_adam_state_dict_state
+                )
+                critic_adam_state_dict_state = copy.deepcopy(current)
+
+                critic_first_momentum_delta_norm += first_momentum_delta_norm
+                critic_second_momentum_delta_norm += second_momentum_delta_norm
 
         data['return_'] = data['return']
 
@@ -300,6 +360,14 @@ class PPGPolicy(Policy):
                 'aux_value_loss': aux_value_loss,
                 'auxiliary_loss': aux_loss,
                 'behavioral_cloning_loss': bc_loss,
+                'actor_encoder_overall_gradient_weight': actor_encoder_overall_gradient_weight,
+                'actor_encoder_overall_gradient_bias': actor_encoder_overall_gradient_bias,
+                'critic_encoder_overall_gradient_weight': critic_encoder_overall_gradient_weight,
+                'critic_encoder_overall_gradient_bias': critic_encoder_overall_gradient_bias,
+                'actor_first_momentum_delta_norm': actor_first_momentum_delta_norm,
+                'actor_second_momentum_delta_norm': actor_second_momentum_delta_norm,
+                'critic_first_momentum_delta_norm': critic_first_momentum_delta_norm,
+                'critic_second_momentum_delta_norm': critic_second_momentum_delta_norm,
             }
         else:
             return {
@@ -311,6 +379,14 @@ class PPGPolicy(Policy):
                 'policy_adv_abs_max': policy_adv.abs().max().item(),
                 'approx_kl': ppo_info.approx_kl,
                 'clipfrac': ppo_info.clipfrac,
+                'actor_encoder_overall_gradient_weight': actor_encoder_overall_gradient_weight,
+                'actor_encoder_overall_gradient_bias': actor_encoder_overall_gradient_bias,
+                'critic_encoder_overall_gradient_weight': critic_encoder_overall_gradient_weight,
+                'critic_encoder_overall_gradient_bias': critic_encoder_overall_gradient_bias,
+                'actor_first_momentum_delta_norm': actor_first_momentum_delta_norm,
+                'actor_second_momentum_delta_norm': actor_second_momentum_delta_norm,
+                'critic_first_momentum_delta_norm': critic_first_momentum_delta_norm,
+                'critic_second_momentum_delta_norm': critic_second_momentum_delta_norm,
             }
 
     def _state_dict_learn(self) -> Dict[str, Any]:
@@ -519,6 +595,14 @@ class PPGPolicy(Policy):
             'aux_value_loss',
             'auxiliary_loss',
             'behavioral_cloning_loss',
+            'actor_encoder_overall_gradient_weight',
+            'actor_encoder_overall_gradient_bias',
+            'critic_encoder_overall_gradient_weight',
+            'critic_encoder_overall_gradient_bias',
+            'actor_first_momentum_delta_norm',
+            'actor_second_momentum_delta_norm',
+            'critic_first_momentum_delta_norm',
+            'critic_second_momentum_delta_norm',
         ]
 
     def learn_aux(self) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
