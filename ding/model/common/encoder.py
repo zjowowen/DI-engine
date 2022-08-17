@@ -400,41 +400,6 @@ class IMPALAConvEncoder(nn.Module):
         x = self.dense(x)
         if self.final_relu:
             x = torch.relu(x)
-        return x
-
-    def report_backprop_norm_gradient(self):
-
-        norm_gradient = {}
-
-        norm_gradient["weight"] = []
-        norm_gradient["bias"] = []
-
-        for stack in self.stacks:
-            for block in stack.blocks:
-                if block.batch_norm == True:
-                    norm_gradient["weight"].append(torch.linalg.norm(block.bn0.weight.grad).item())
-                    norm_gradient["bias"].append(torch.linalg.norm(block.bn0.bias.grad).item())
-                    norm_gradient["weight"].append(torch.linalg.norm(block.bn1.weight.grad).item())
-                    norm_gradient["bias"].append(torch.linalg.norm(block.bn1.bias.grad).item())
-                elif block.layer_norm == True:
-                    norm_gradient["weight"].append(torch.linalg.norm(block.bn0.weight.grad).item())
-                    norm_gradient["bias"].append(torch.linalg.norm(block.bn0.bias.grad).item())
-                    norm_gradient["weight"].append(torch.linalg.norm(block.bn1.weight.grad).item())
-                    norm_gradient["bias"].append(torch.linalg.norm(block.bn1.bias.grad).item())
-
-        total_norm_gradient = {}
-        total_norm_gradient["weight"] = 0
-        total_norm_gradient["bias"] = 0
-
-        for weight_norm_gradient in norm_gradient["weight"]:
-            total_norm_gradient["weight"] += weight_norm_gradient * weight_norm_gradient
-        total_norm_gradient["weight"] = math.sqrt(total_norm_gradient["weight"])
-
-        for bias_norm_gradient in norm_gradient["bias"]:
-            total_norm_gradient["bias"] += bias_norm_gradient * bias_norm_gradient
-        total_norm_gradient["bias"] = math.sqrt(total_norm_gradient["bias"])
-
-        return total_norm_gradient
 
     def report_overall_gradient_norm(self):
         norm_gradient = {}
