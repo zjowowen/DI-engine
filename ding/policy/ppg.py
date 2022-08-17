@@ -271,6 +271,9 @@ class PPGPolicy(Policy):
         critic_first_momentum_delta_norm = 0
         critic_second_momentum_delta_norm = 0
 
+        for param in self._learn_model.actor_critic.critic[0].parameters():
+            param.requires_grad = False
+
         for epoch in range(self._cfg.learn.actor_epoch_per_collect):
             for policy_data in split_data_generator(data, self._cfg.learn.batch_size, shuffle=True):
                 policy_adv = policy_data['adv']
@@ -283,11 +286,16 @@ class PPGPolicy(Policy):
                     policy_output['logit'], policy_data['logit'], policy_data['action'], policy_adv,
                     policy_data['weight']
                 )
+
+                #tmp_copy = copy.deepcopy(self._learn_model.actor_critic.critic[0])
+
                 ppo_policy_loss, ppo_info = ppo_policy_error(policy_error_data, self._clip_ratio)
                 policy_loss = ppo_policy_loss.policy_loss - self._entropy_weight * ppo_policy_loss.entropy_loss
                 self._optimizer_ac.zero_grad()
                 policy_loss.backward()
                 self._optimizer_ac.step()
+
+                #self._learn_model.actor_critic.critic[0] = tmp_copy
 
                 actor_encoder_overall_gradient = self._learn_model.actor_critic.actor[0].report_overall_gradient_norm()
                 actor_encoder_overall_gradient_weight = actor_encoder_overall_gradient["weight"]
@@ -302,6 +310,12 @@ class PPGPolicy(Policy):
                 actor_first_momentum_delta_norm += first_momentum_delta_norm
                 actor_second_momentum_delta_norm += second_momentum_delta_norm
 
+        for param in self._learn_model.actor_critic.critic[0].parameters():
+            param.requires_grad = True
+
+        for param in self._learn_model.actor_critic.actor[0].parameters():
+            param.requires_grad = False
+
         for epoch in range(self._cfg.learn.critic_epoch_per_collect):
             for value_data in split_data_generator(data, self._cfg.learn.batch_size, shuffle=True):
                 value_adv = value_data['adv']
@@ -315,9 +329,15 @@ class PPGPolicy(Policy):
                     value_output['value'], value_data['value'], return_, value_data['weight']
                 )
                 value_loss = self._value_weight * ppo_value_error(value_error_data, self._clip_ratio)
+
+                #tmp_copy = copy.deepcopy(self._learn_model.actor_critic.actor[0])
+
                 self._optimizer_aux_critic.zero_grad()
                 value_loss.backward()
                 self._optimizer_aux_critic.step()
+
+                #self._learn_model.actor_critic.actor[0] = tmp_copy
+
                 critic_encoder_overall_gradient = self._learn_model.actor_critic.critic[0].report_overall_gradient_norm(
                 )
                 critic_encoder_overall_gradient_weight = critic_encoder_overall_gradient["weight"]
@@ -331,6 +351,9 @@ class PPGPolicy(Policy):
 
                 critic_first_momentum_delta_norm += first_momentum_delta_norm
                 critic_second_momentum_delta_norm += second_momentum_delta_norm
+
+        for param in self._learn_model.actor_critic.actor[0].parameters():
+            param.requires_grad = True
 
         data['return_'] = data['return']
 
