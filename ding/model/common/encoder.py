@@ -310,10 +310,10 @@ class IMPALACnnDownStack(nn.Module):
         x = self.firstconv(x)
         if self.pool:
             x = F.max_pool2d(x, kernel_size=3, stride=2, padding=1)
-        for block in self.blocks:
-            x = block(x)
         if self.post_norm:
             x = self.bn0(x)
+        for block in self.blocks:
+            x = block(x)
         return x
 
     def output_shape(self, inshape):
