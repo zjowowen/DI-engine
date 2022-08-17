@@ -189,6 +189,7 @@ class IMPALACnnResidualBlock(nn.Module):
         layer_norm=False,
         init_orthogonal=False,
         post_norm=False,
+        double_layer_norm=True,
     ):
         """
         Overview:
@@ -203,6 +204,7 @@ class IMPALACnnResidualBlock(nn.Module):
         self.batch_norm = batch_norm
         self.layer_norm = layer_norm
         self.post_norm = post_norm
+        self.double_layer_norm = double_layer_norm
         self.conv0 = nn.Conv2d(self.in_channnel, self.in_channnel, 3, padding=1)
         self.conv1 = nn.Conv2d(self.in_channnel, self.in_channnel, 3, padding=1)
         if init_orthogonal:
@@ -223,18 +225,18 @@ class IMPALACnnResidualBlock(nn.Module):
         # inplace should be False for the first relu, so that it does not change the input,
         # which will be used for skip connection.
         # getattr is for backwards compatibility with loaded models
-        if self.batch_norm and not self.post_norm:
+        if (self.batch_norm or self.layer_norm) and not self.post_norm:
             x = self.bn0(x)
         x = F.relu(x, inplace=False)
         x = self.conv0(x)
-        if self.batch_norm and not self.post_norm:
+        if (self.batch_norm or self.layer_norm) and self.double_layer_norm:
             x = self.bn1(x)
         x = F.relu(x, inplace=True)
         x = self.conv1(x)
         return x
 
     def forward(self, x):
-        if self.post_norm:
+        if (self.batch_norm or self.layer_norm) and self.post_norm:
             return self.bn0(x + self.residual(x))
         else:
             return x + self.residual(x)
@@ -310,7 +312,7 @@ class IMPALACnnDownStack(nn.Module):
         x = self.firstconv(x)
         if self.pool:
             x = F.max_pool2d(x, kernel_size=3, stride=2, padding=1)
-        if self.post_norm:
+        if (self.batch_norm or self.layer_norm) and self.post_norm:
             x = self.bn0(x)
         for block in self.blocks:
             x = block(x)
