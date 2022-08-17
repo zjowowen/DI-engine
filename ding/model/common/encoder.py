@@ -230,14 +230,17 @@ class IMPALACnnResidualBlock(nn.Module):
         x = F.relu(x, inplace=False)
         x = self.conv0(x)
         if (self.batch_norm or self.layer_norm) and self.double_layer_norm:
-            x = self.bn1(x)
+            if not self.post_norm:
+                x = self.bn1(x)
+            else:
+                x = self.bn0(x)
         x = F.relu(x, inplace=True)
         x = self.conv1(x)
         return x
 
     def forward(self, x):
         if (self.batch_norm or self.layer_norm) and self.post_norm:
-            return self.bn0(x + self.residual(x))
+            return self.bn1(x + self.residual(x))
         else:
             return x + self.residual(x)
 
