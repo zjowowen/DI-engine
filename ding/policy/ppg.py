@@ -271,9 +271,6 @@ class PPGPolicy(Policy):
         critic_first_momentum_delta_norm = 0
         critic_second_momentum_delta_norm = 0
 
-        for param in self._learn_model.actor_critic.critic[0].parameters():
-            param.requires_grad = False
-
         for epoch in range(self._cfg.learn.actor_epoch_per_collect):
             for policy_data in split_data_generator(data, self._cfg.learn.batch_size, shuffle=True):
                 policy_adv = policy_data['adv']
@@ -309,9 +306,6 @@ class PPGPolicy(Policy):
 
                 actor_first_momentum_delta_norm += first_momentum_delta_norm
                 actor_second_momentum_delta_norm += second_momentum_delta_norm
-
-        for param in self._learn_model.actor_critic.critic[0].parameters():
-            param.requires_grad = True
 
         for param in self._learn_model.actor_critic.actor[0].parameters():
             param.requires_grad = False
