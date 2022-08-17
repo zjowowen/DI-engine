@@ -28,14 +28,14 @@ class ConvEncoder(nn.Module):
     """
 
     def __init__(
-        self,
-        obs_shape: SequenceType,
-        hidden_size_list: SequenceType = [32, 64, 64, 128],
-        activation: Optional[nn.Module] = nn.ReLU(),
-        kernel_size: SequenceType = [8, 4, 3],
-        stride: SequenceType = [4, 2, 1],
-        padding: Optional[SequenceType] = None,
-        norm_type: Optional[str] = None
+            self,
+            obs_shape: SequenceType,
+            hidden_size_list: SequenceType = [32, 64, 64, 128],
+            activation: Optional[nn.Module] = nn.ReLU(),
+            kernel_size: SequenceType = [8, 4, 3],
+            stride: SequenceType = [4, 2, 1],
+            padding: Optional[SequenceType] = None,
+            norm_type: Optional[str] = None
     ) -> None:
         """
         Overview:
@@ -114,12 +114,12 @@ class FCEncoder(nn.Module):
     """
 
     def __init__(
-        self,
-        obs_shape: int,
-        hidden_size_list: SequenceType,
-        res_block: bool = False,
-        activation: Optional[nn.Module] = nn.ReLU(),
-        norm_type: Optional[str] = None
+            self,
+            obs_shape: int,
+            hidden_size_list: SequenceType,
+            res_block: bool = False,
+            activation: Optional[nn.Module] = nn.ReLU(),
+            norm_type: Optional[str] = None
     ) -> None:
         """
         Overview:
@@ -273,6 +273,9 @@ class IMPALACnnDownStack(nn.Module):
         self.in_channnel = in_channnel
         self.out_channel = out_channel
         self.pool = pool
+        self.batch_norm = batch_norm
+        self.layer_norm = layer_norm
+        self.post_norm = post_norm
         self.firstconv = nn.Conv2d(in_channnel, out_channel, 3, padding=1)
         if init_orthogonal:
             if isinstance(self.firstconv, torch.nn.Conv2d):
@@ -286,8 +289,6 @@ class IMPALACnnDownStack(nn.Module):
             self.bn0 = nn.BatchNorm2d(self.out_channel)
         elif self.layer_norm:
             self.bn0 = nn.LayerNorm(self.nextshape)
-
-        self.post_norm = post_norm
 
         s = scale / math.sqrt(nblock)
         self.blocks = nn.ModuleList(
@@ -404,18 +405,17 @@ class IMPALAConvEncoder(nn.Module):
         norm_gradient["bias"] = []
 
         for stack in self.stacks:
-            if stack.no_resnet == False:
-                for block in stack.blocks:
-                    if block.batch_norm == True:
-                        norm_gradient["weight"].append(torch.linalg.norm(block.bn0.weight.grad).item())
-                        norm_gradient["bias"].append(torch.linalg.norm(block.bn0.bias.grad).item())
-                        norm_gradient["weight"].append(torch.linalg.norm(block.bn1.weight.grad).item())
-                        norm_gradient["bias"].append(torch.linalg.norm(block.bn1.bias.grad).item())
-                    elif block.layer_norm == True:
-                        norm_gradient["weight"].append(torch.linalg.norm(block.bn0.weight.grad).item())
-                        norm_gradient["bias"].append(torch.linalg.norm(block.bn0.bias.grad).item())
-                        norm_gradient["weight"].append(torch.linalg.norm(block.bn1.weight.grad).item())
-                        norm_gradient["bias"].append(torch.linalg.norm(block.bn1.bias.grad).item())
+            for block in stack.blocks:
+                if block.batch_norm == True:
+                    norm_gradient["weight"].append(torch.linalg.norm(block.bn0.weight.grad).item())
+                    norm_gradient["bias"].append(torch.linalg.norm(block.bn0.bias.grad).item())
+                    norm_gradient["weight"].append(torch.linalg.norm(block.bn1.weight.grad).item())
+                    norm_gradient["bias"].append(torch.linalg.norm(block.bn1.bias.grad).item())
+                elif block.layer_norm == True:
+                    norm_gradient["weight"].append(torch.linalg.norm(block.bn0.weight.grad).item())
+                    norm_gradient["bias"].append(torch.linalg.norm(block.bn0.bias.grad).item())
+                    norm_gradient["weight"].append(torch.linalg.norm(block.bn1.weight.grad).item())
+                    norm_gradient["bias"].append(torch.linalg.norm(block.bn1.bias.grad).item())
 
         total_norm_gradient = {}
         total_norm_gradient["weight"] = 0
@@ -441,38 +441,37 @@ class IMPALAConvEncoder(nn.Module):
         if self.dense.bias.grad is not None:
             norm_gradient["bias"].append(torch.linalg.norm(self.dense.bias.grad).item())
         for stack in self.stacks:
-            if stack.no_resnet == False:
-                if stack.firstconv.weight.grad is not None:
-                    norm_gradient["weight"].append(torch.linalg.norm(stack.firstconv.weight.grad).item())
-                if stack.firstconv.bias.grad is not None:
-                    norm_gradient["bias"].append(torch.linalg.norm(stack.firstconv.bias.grad).item())
-                for block in stack.blocks:
-                    if block.conv0.weight.grad is not None:
-                        norm_gradient["weight"].append(torch.linalg.norm(block.conv0.weight.grad).item())
-                    if block.conv0.bias.grad is not None:
-                        norm_gradient["bias"].append(torch.linalg.norm(block.conv0.bias.grad).item())
-                    if block.conv1.weight.grad is not None:
-                        norm_gradient["weight"].append(torch.linalg.norm(block.conv1.weight.grad).item())
-                    if block.conv1.bias.grad is not None:
-                        norm_gradient["bias"].append(torch.linalg.norm(block.conv1.bias.grad).item())
-                    if block.batch_norm == True:
-                        if block.bn0.weight.grad is not None:
-                            norm_gradient["weight"].append(torch.linalg.norm(block.bn0.weight.grad).item())
-                        if block.bn0.bias.grad is not None:
-                            norm_gradient["bias"].append(torch.linalg.norm(block.bn0.bias.grad).item())
-                        if block.bn1.weight.grad is not None:
-                            norm_gradient["weight"].append(torch.linalg.norm(block.bn1.weight.grad).item())
-                        if block.bn1.bias.grad is not None:
-                            norm_gradient["bias"].append(torch.linalg.norm(block.bn1.bias.grad).item())
-                    elif block.layer_norm == True:
-                        if block.bn0.weight.grad is not None:
-                            norm_gradient["weight"].append(torch.linalg.norm(block.bn0.weight.grad).item())
-                        if block.bn0.bias.grad is not None:
-                            norm_gradient["bias"].append(torch.linalg.norm(block.bn0.bias.grad).item())
-                        if block.bn1.weight.grad is not None:
-                            norm_gradient["weight"].append(torch.linalg.norm(block.bn1.weight.grad).item())
-                        if block.bn1.bias.grad is not None:
-                            norm_gradient["bias"].append(torch.linalg.norm(block.bn1.bias.grad).item())
+            if stack.firstconv.weight.grad is not None:
+                norm_gradient["weight"].append(torch.linalg.norm(stack.firstconv.weight.grad).item())
+            if stack.firstconv.bias.grad is not None:
+                norm_gradient["bias"].append(torch.linalg.norm(stack.firstconv.bias.grad).item())
+            for block in stack.blocks:
+                if block.conv0.weight.grad is not None:
+                    norm_gradient["weight"].append(torch.linalg.norm(block.conv0.weight.grad).item())
+                if block.conv0.bias.grad is not None:
+                    norm_gradient["bias"].append(torch.linalg.norm(block.conv0.bias.grad).item())
+                if block.conv1.weight.grad is not None:
+                    norm_gradient["weight"].append(torch.linalg.norm(block.conv1.weight.grad).item())
+                if block.conv1.bias.grad is not None:
+                    norm_gradient["bias"].append(torch.linalg.norm(block.conv1.bias.grad).item())
+                if block.batch_norm == True:
+                    if block.bn0.weight.grad is not None:
+                        norm_gradient["weight"].append(torch.linalg.norm(block.bn0.weight.grad).item())
+                    if block.bn0.bias.grad is not None:
+                        norm_gradient["bias"].append(torch.linalg.norm(block.bn0.bias.grad).item())
+                    if block.bn1.weight.grad is not None:
+                        norm_gradient["weight"].append(torch.linalg.norm(block.bn1.weight.grad).item())
+                    if block.bn1.bias.grad is not None:
+                        norm_gradient["bias"].append(torch.linalg.norm(block.bn1.bias.grad).item())
+                elif block.layer_norm == True:
+                    if block.bn0.weight.grad is not None:
+                        norm_gradient["weight"].append(torch.linalg.norm(block.bn0.weight.grad).item())
+                    if block.bn0.bias.grad is not None:
+                        norm_gradient["bias"].append(torch.linalg.norm(block.bn0.bias.grad).item())
+                    if block.bn1.weight.grad is not None:
+                        norm_gradient["weight"].append(torch.linalg.norm(block.bn1.weight.grad).item())
+                    if block.bn1.bias.grad is not None:
+                        norm_gradient["bias"].append(torch.linalg.norm(block.bn1.bias.grad).item())
 
         total_norm_gradient = {}
         total_norm_gradient["weight"] = 0
