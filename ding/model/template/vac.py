@@ -72,7 +72,15 @@ class VAC(nn.Module):
         # Encoder Type
         def new_encoder(outsize):
             if impala_cnn_encoder:
-                return IMPALAConvEncoder(obs_shape=obs_shape, channels=encoder_hidden_size_list, outsize=outsize)
+                return IMPALAConvEncoder(
+                    obs_shape=obs_shape,
+                    channels=encoder_hidden_size_list,
+                    outsize=outsize,
+                    batch_norm=batch_norm,
+                    layer_norm=layer_norm,
+                    init_orthogonal=init_orthogonal,
+                    post_norm=post_norm
+                )
             else:
                 if isinstance(obs_shape, int) or len(obs_shape) == 1:
                     return FCEncoder(
