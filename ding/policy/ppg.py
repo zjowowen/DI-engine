@@ -190,6 +190,24 @@ class PPGPolicy(Policy):
         # Main model
         self._learn_model.reset()
 
+        if self._model.actor_critic.action_space == 'continuous':
+            if isinstance(self._model.actor_critic.actor_head.mu, torch.nn.Linear):
+                torch.nn.init.zeros_(self._model.actor_critic.actor_head.mu.bias)
+                self._model.actor_critic.actor_head.mu.weight.data.copy_(
+                    0.01 * self._model.actor_critic.actor_head.mu.weight.data
+                )
+        elif self._model.actor_critic.action_space == 'discrete':
+            if self._model.actor_critic.actor_head.Q:
+                last_linear = None
+                for m in self._model.actor_critic.actor_head.Q.modules():
+                    for m_sq in m.modules():
+                        if isinstance(m_sq, torch.nn.Linear):
+                            last_linear = m_sq
+                if last_linear:
+                    last_linear.weight.data.copy_(0.01 * last_linear.weight.data)
+        elif self._model.actor_critic.action_space == 'hybrid':  # HPPO
+            pass
+
         # Auxiliary memories
         self._aux_train_epoch = self._cfg.learn.aux_train_epoch
         self._train_iteration = 0
