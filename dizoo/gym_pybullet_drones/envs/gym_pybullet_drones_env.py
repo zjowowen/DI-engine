@@ -63,6 +63,11 @@ gym_pybullet_drones_env_info = {
         "action_space": gym_pybullet_drones_action_space(drone_num=1, minimum=-1, maximum=1),
         "reward_space": gym_pybullet_drones_reward_space()
     },
+    "flythrugate-aviary-no-norm-v0": {
+        "observation_space": Box(np.array([-15.0,-15.0,0.0,-np.pi,-np.pi,-np.pi,-3.0,-3.0,-3.0,-1.0,-1.0,-1.0]).astype(np.float32), np.array([15.0,15.0,5.0,np.pi,np.pi,np.pi,3.0,3.0,3.0,1.0,1.0,1.0]).astype(np.float32), dtype=np.float32),
+        "action_space": gym_pybullet_drones_action_space(drone_num=1, minimum=-1, maximum=1),
+        "reward_space": gym_pybullet_drones_reward_space()
+    },
 }
 
 
