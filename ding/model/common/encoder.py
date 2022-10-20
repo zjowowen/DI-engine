@@ -28,14 +28,14 @@ class ConvEncoder(nn.Module):
     """
 
     def __init__(
-            self,
-            obs_shape: SequenceType,
-            hidden_size_list: SequenceType = [32, 64, 64, 128],
-            activation: Optional[nn.Module] = nn.ReLU(),
-            kernel_size: SequenceType = [8, 4, 3],
-            stride: SequenceType = [4, 2, 1],
-            padding: Optional[SequenceType] = None,
-            norm_type: Optional[str] = None
+        self,
+        obs_shape: SequenceType,
+        hidden_size_list: SequenceType = [32, 64, 64, 128],
+        activation: Optional[nn.Module] = nn.ReLU(),
+        kernel_size: SequenceType = [8, 4, 3],
+        stride: SequenceType = [4, 2, 1],
+        padding: Optional[SequenceType] = None,
+        norm_type: Optional[str] = None
     ) -> None:
         """
         Overview:
@@ -114,12 +114,12 @@ class FCEncoder(nn.Module):
     """
 
     def __init__(
-            self,
-            obs_shape: int,
-            hidden_size_list: SequenceType,
-            res_block: bool = False,
-            activation: Optional[nn.Module] = nn.ReLU(),
-            norm_type: Optional[str] = None
+        self,
+        obs_shape: int,
+        hidden_size_list: SequenceType,
+        res_block: bool = False,
+        activation: Optional[nn.Module] = nn.ReLU(),
+        norm_type: Optional[str] = None
     ) -> None:
         """
         Overview:
@@ -167,6 +167,30 @@ class FCEncoder(nn.Module):
         x = self.act(self.init(x))
         x = self.main(x)
         return x
+
+    def report_first_layer_gradient_norm(self):
+        norm_gradient = {}
+
+        norm_gradient["weight"] = []
+        norm_gradient["bias"] = []
+        if self.init.weight.grad is not None:
+            norm_gradient["weight"].append(torch.linalg.norm(self.init.weight.grad).item())
+        if self.init.bias.grad is not None:
+            norm_gradient["bias"].append(torch.linalg.norm(self.init.bias.grad).item())
+
+        total_norm_gradient = {}
+        total_norm_gradient["weight"] = 0
+        total_norm_gradient["bias"] = 0
+
+        for weight_norm_gradient in norm_gradient["weight"]:
+            total_norm_gradient["weight"] += weight_norm_gradient * weight_norm_gradient
+        total_norm_gradient["weight"] = math.sqrt(total_norm_gradient["weight"])
+
+        for bias_norm_gradient in norm_gradient["bias"]:
+            total_norm_gradient["bias"] += bias_norm_gradient * bias_norm_gradient
+        total_norm_gradient["bias"] = math.sqrt(total_norm_gradient["bias"])
+
+        return total_norm_gradient
 
 
 class StructEncoder(nn.Module):

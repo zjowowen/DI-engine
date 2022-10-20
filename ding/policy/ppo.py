@@ -17,6 +17,31 @@ from .common_utils import default_preprocess_learn
 from ding.utils import dicts_to_lists, lists_to_dicts
 
 
+def calculate_adam_momemtum_delta(state_1_list, state_2_list):
+    if state_1_list is None or state_2_list is None:
+        return 0.0, 0.0
+    else:
+
+        first_momentum_delta_list = []
+        second_momentum_delta_list = []
+        for key1, value1 in state_1_list.items():
+            for key2, value2 in state_2_list.items():
+                if key1 == key2:
+                    first_momentum_delta = torch.linalg.norm(value2['exp_avg'] - value1['exp_avg'])
+                    first_momentum_delta_list.append(first_momentum_delta)
+                    second_momentum_delta = torch.linalg.norm(value2['exp_avg_sq'] - value1['exp_avg_sq'])
+                    second_momentum_delta_list.append(second_momentum_delta)
+
+        total_first_momentum_delta = 0.0
+        total_second_momentum_delta = 0.0
+        for first_momentum_delta in first_momentum_delta_list:
+            total_first_momentum_delta += first_momentum_delta * first_momentum_delta
+        for second_momentum_delta in second_momentum_delta_list:
+            total_second_momentum_delta += second_momentum_delta * second_momentum_delta
+
+        return total_first_momentum_delta, total_second_momentum_delta
+
+
 @POLICY_REGISTRY.register('ppo')
 class PPOPolicy(Policy):
     r"""
@@ -248,6 +273,11 @@ class PPOPolicy(Policy):
                 total_loss.backward()
                 self._optimizer.step()
 
+                if self._action_space == 'continuous':
+                    actor_encoder_first_layer_gradient = self._learn_model.actor[0].report_first_layer_gradient_norm()
+                    actor_encoder_first_layer_gradient_weight = actor_encoder_first_layer_gradient["weight"]
+                    actor_encoder_first_layer_gradient_bias = actor_encoder_first_layer_gradient["bias"]
+
                 return_info = {
                     'cur_lr': self._optimizer.defaults['lr'],
                     'total_loss': total_loss.item(),
@@ -267,6 +297,8 @@ class PPOPolicy(Policy):
                             'act': batch['action'].float().mean().item(),
                             'mu_mean': output['logit']['mu'].mean().item(),
                             'sigma_mean': output['logit']['sigma'].mean().item(),
+                            'actor_encoder_first_layer_gradient_weight': actor_encoder_first_layer_gradient_weight,
+                            'actor_encoder_first_layer_gradient_bias': actor_encoder_first_layer_gradient_bias,
                         }
                     )
                 return_infos.append(return_info)
@@ -453,7 +485,10 @@ class PPOPolicy(Policy):
             'value_mean',
         ]
         if self._action_space == 'continuous':
-            variables += ['mu_mean', 'sigma_mean', 'sigma_grad', 'act']
+            variables += [
+                'mu_mean', 'sigma_mean', 'sigma_grad', 'act', 'actor_encoder_first_layer_gradient_weight',
+                'actor_encoder_first_layer_gradient_bias'
+            ]
         return variables
 
 
