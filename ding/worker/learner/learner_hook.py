@@ -217,10 +217,11 @@ class LogShowHook(LearnerHook):
             # For 'scalar' type variables: tick_monitor -> var_dict -> text_logger & tb_logger
             var_dict = {}
             log_vars = engine.policy.monitor_vars()
-            attr = 'avg'
+            attr_list = ['avg', 'std']
             for k in log_vars:
-                k_attr = k + '_' + attr
-                var_dict[k_attr] = getattr(engine.monitor, attr)[k]()
+                for attr in attr_list:
+                    k_attr = k + '_' + attr
+                    var_dict[k_attr] = getattr(engine.monitor, attr)[k]()
             engine.logger.info(engine.logger.get_tabulate_vars_hor(var_dict))
             for k, v in var_dict.items():
                 engine.tb_logger.add_scalar('{}_iter/'.format(engine.instance_name) + k, v, iters)

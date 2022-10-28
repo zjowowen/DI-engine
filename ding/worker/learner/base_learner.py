@@ -3,7 +3,7 @@ from ditk import logging
 from collections import namedtuple
 from functools import partial
 from easydict import EasyDict
-
+import math
 import copy
 
 from ding.torch_utils import CountVar, auto_checkpoint, build_log_buffer
@@ -47,13 +47,13 @@ class BaseLearner(object):
     _name = "BaseLearner"  # override this variable for sub-class learner
 
     def __init__(
-            self,
-            cfg: EasyDict,
-            policy: namedtuple = None,
-            tb_logger: Optional['SummaryWriter'] = None,  # noqa
-            dist_info: Tuple[int, int] = None,
-            exp_name: Optional[str] = 'default_experiment',
-            instance_name: Optional[str] = 'learner',
+        self,
+        cfg: EasyDict,
+        policy: namedtuple = None,
+        tb_logger: Optional['SummaryWriter'] = None,  # noqa
+        dist_info: Tuple[int, int] = None,
+        exp_name: Optional[str] = 'default_experiment',
+        instance_name: Optional[str] = 'learner',
     ) -> None:
         """
         Overview:
@@ -503,12 +503,25 @@ class TickMonitor(LoggedModel):
             _list = [_value for (_begin_time, _end_time), _value in records]
             return sum(_list) / len(_list) if len(_list) != 0 else 0
 
+        def __std_func(prop_name: str) -> float:
+            records = self.range_values[prop_name]()
+            _list = [_value for (_begin_time, _end_time), _value in records]
+
+            if len(_list) != 0:
+                avg = sum(_list) / len(_list)
+                _list_2 = [(_value - avg) * (_value - avg) for (_begin_time, _end_time), _value in records]
+                std = math.sqrt(sum(_list_2) / len(_list_2))
+                return std
+            else:
+                return 0
+
         def __val_func(prop_name: str) -> float:
             records = self.range_values[prop_name]()
             return records[-1][1]
 
         for k in getattr(self, '_LoggedModel__properties'):
             self.register_attribute_value('avg', k, partial(__avg_func, prop_name=k))
+            self.register_attribute_value('std', k, partial(__std_func, prop_name=k))
             self.register_attribute_value('val', k, partial(__val_func, prop_name=k))
 
 
