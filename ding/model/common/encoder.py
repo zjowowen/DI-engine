@@ -180,7 +180,17 @@ class IMPALACnnResidualBlock(nn.Module):
     Preserves channel number and shape
     """
 
-    def __init__(self, in_channnel, scale=1, batch_norm=False):
+    def __init__(
+        self,
+        in_channnel,
+        nextshape,
+        scale=1,
+        batch_norm=False,
+        layer_norm=False,
+        init_orthogonal=False,
+        post_norm=False,
+        double_layer_norm=True,
+    ):
         """
         Overview:
             Init every impala cnn residual block.
@@ -190,30 +200,49 @@ class IMPALACnnResidualBlock(nn.Module):
         """
         super().__init__()
         self.in_channnel = in_channnel
+        self.nextshape = nextshape
         self.batch_norm = batch_norm
-        s = math.sqrt(scale)
-        self.conv0 = normed_conv2d(self.in_channnel, self.in_channnel, 3, padding=1, scale=s)
-        self.conv1 = normed_conv2d(self.in_channnel, self.in_channnel, 3, padding=1, scale=s)
+        self.layer_norm = layer_norm
+        self.post_norm = post_norm
+        self.double_layer_norm = double_layer_norm
+        self.conv0 = nn.Conv2d(self.in_channnel, self.in_channnel, 3, padding=1)
+        self.conv1 = nn.Conv2d(self.in_channnel, self.in_channnel, 3, padding=1)
+        if init_orthogonal:
+            if isinstance(self.conv0, torch.nn.Conv2d):
+                torch.nn.init.orthogonal_(self.conv0.weight)
+                torch.nn.init.zeros_(self.conv0.bias)
+            if isinstance(self.conv1, torch.nn.Conv2d):
+                torch.nn.init.orthogonal_(self.conv1.weight)
+                torch.nn.init.zeros_(self.conv1.bias)
         if self.batch_norm:
             self.bn0 = nn.BatchNorm2d(self.in_channnel)
             self.bn1 = nn.BatchNorm2d(self.in_channnel)
+        elif self.layer_norm:
+            self.bn0 = nn.LayerNorm(self.nextshape)
+            self.bn1 = nn.LayerNorm(self.nextshape)
 
     def residual(self, x):
         # inplace should be False for the first relu, so that it does not change the input,
         # which will be used for skip connection.
         # getattr is for backwards compatibility with loaded models
-        if self.batch_norm:
+        if (self.batch_norm or self.layer_norm) and not self.post_norm:
             x = self.bn0(x)
         x = F.relu(x, inplace=False)
         x = self.conv0(x)
-        if self.batch_norm:
-            x = self.bn1(x)
+        if (self.batch_norm or self.layer_norm) and self.double_layer_norm:
+            if not self.post_norm:
+                x = self.bn1(x)
+            else:
+                x = self.bn0(x)
         x = F.relu(x, inplace=True)
         x = self.conv1(x)
         return x
 
     def forward(self, x):
-        return x + self.residual(x)
+        if (self.batch_norm or self.layer_norm) and self.post_norm:
+            return self.bn1(x + self.residual(x))
+        else:
+            return x + self.residual(x)
 
 
 class IMPALACnnDownStack(nn.Module):
@@ -221,7 +250,20 @@ class IMPALACnnDownStack(nn.Module):
     Downsampling stack from Impala CNN
     """
 
-    def __init__(self, in_channnel, nblock, out_channel, scale=1, pool=True, **kwargs):
+    def __init__(
+        self,
+        in_channnel,
+        curshape,
+        nblock,
+        out_channel,
+        scale=1,
+        pool=True,
+        batch_norm=False,
+        layer_norm=False,
+        init_orthogonal=False,
+        post_norm=False,
+        **kwargs
+    ):
         """
         Overview:
             Init every impala cnn block of the Impala Cnn Encoder.
@@ -236,14 +278,45 @@ class IMPALACnnDownStack(nn.Module):
         self.in_channnel = in_channnel
         self.out_channel = out_channel
         self.pool = pool
-        self.firstconv = normed_conv2d(in_channnel, out_channel, 3, padding=1)
+        self.batch_norm = batch_norm
+        self.layer_norm = layer_norm
+        self.post_norm = post_norm
+        self.firstconv = nn.Conv2d(in_channnel, out_channel, 3, padding=1)
+        if init_orthogonal:
+            if isinstance(self.firstconv, torch.nn.Conv2d):
+                torch.nn.init.orthogonal_(self.firstconv.weight)
+                torch.nn.init.zeros_(self.firstconv.bias)
+
+        self.curshape = curshape
+        self.nextshape = self.output_shape(curshape)
+
+        if self.batch_norm:
+            self.bn0 = nn.BatchNorm2d(self.out_channel)
+        elif self.layer_norm:
+            self.bn0 = nn.LayerNorm(self.nextshape)
+
         s = scale / math.sqrt(nblock)
-        self.blocks = nn.ModuleList([IMPALACnnResidualBlock(out_channel, scale=s, **kwargs) for _ in range(nblock)])
+        self.blocks = nn.ModuleList(
+            [
+                IMPALACnnResidualBlock(
+                    out_channel,
+                    self.nextshape,
+                    scale=s,
+                    batch_norm=batch_norm,
+                    layer_norm=layer_norm,
+                    init_orthogonal=init_orthogonal,
+                    post_norm=post_norm,
+                    **kwargs
+                ) for _ in range(nblock)
+            ]
+        )
 
     def forward(self, x):
         x = self.firstconv(x)
         if self.pool:
             x = F.max_pool2d(x, kernel_size=3, stride=2, padding=1)
+        if (self.batch_norm or self.layer_norm) and self.post_norm:
+            x = self.bn0(x)
         for block in self.blocks:
             x = block(x)
         return x
@@ -261,7 +334,18 @@ class IMPALAConvEncoder(nn.Module):
     name = "IMPALAConvEncoder"  # put it here to preserve pickle compat
 
     def __init__(
-        self, obs_shape, channels=(16, 32, 32), outsize=256, scale_ob=255.0, nblock=2, final_relu=True, **kwargs
+        self,
+        obs_shape,
+        channels=(16, 32, 32),
+        outsize=256,
+        scale_ob=255.0,
+        nblock=2,
+        final_relu=True,
+        batch_norm=False,
+        layer_norm=False,
+        init_orthogonal=False,
+        post_norm=False,
+        **kwargs
     ):
         """
         Overview:
@@ -284,10 +368,25 @@ class IMPALAConvEncoder(nn.Module):
         s = 1 / math.sqrt(len(channels))  # per stack scale
         self.stacks = nn.ModuleList()
         for out_channel in channels:
-            stack = IMPALACnnDownStack(curshape[0], nblock=nblock, out_channel=out_channel, scale=s, **kwargs)
+            stack = IMPALACnnDownStack(
+                curshape[0],
+                curshape,
+                nblock=nblock,
+                out_channel=out_channel,
+                scale=s,
+                batch_norm=batch_norm,
+                layer_norm=layer_norm,
+                init_orthogonal=init_orthogonal,
+                post_norm=post_norm,
+                **kwargs
+            )
             self.stacks.append(stack)
             curshape = stack.output_shape(curshape)
-        self.dense = normed_linear(prod(curshape), outsize, scale=1.4)
+        self.dense = nn.Linear(prod(curshape), outsize)
+        if init_orthogonal:
+            if isinstance(self.dense, torch.nn.Linear):
+                torch.nn.init.orthogonal_(self.dense.weight)
+                torch.nn.init.zeros_(self.dense.bias)
         self.outsize = outsize
         self.final_relu = final_relu
 
@@ -302,3 +401,59 @@ class IMPALAConvEncoder(nn.Module):
         if self.final_relu:
             x = torch.relu(x)
         return x
+
+    def report_overall_gradient_norm(self):
+        norm_gradient = {}
+
+        norm_gradient["weight"] = []
+        norm_gradient["bias"] = []
+        if self.dense.weight.grad is not None:
+            norm_gradient["weight"].append(torch.linalg.norm(self.dense.weight.grad).item())
+        if self.dense.bias.grad is not None:
+            norm_gradient["bias"].append(torch.linalg.norm(self.dense.bias.grad).item())
+        for stack in self.stacks:
+            if stack.firstconv.weight.grad is not None:
+                norm_gradient["weight"].append(torch.linalg.norm(stack.firstconv.weight.grad).item())
+            if stack.firstconv.bias.grad is not None:
+                norm_gradient["bias"].append(torch.linalg.norm(stack.firstconv.bias.grad).item())
+            for block in stack.blocks:
+                if block.conv0.weight.grad is not None:
+                    norm_gradient["weight"].append(torch.linalg.norm(block.conv0.weight.grad).item())
+                if block.conv0.bias.grad is not None:
+                    norm_gradient["bias"].append(torch.linalg.norm(block.conv0.bias.grad).item())
+                if block.conv1.weight.grad is not None:
+                    norm_gradient["weight"].append(torch.linalg.norm(block.conv1.weight.grad).item())
+                if block.conv1.bias.grad is not None:
+                    norm_gradient["bias"].append(torch.linalg.norm(block.conv1.bias.grad).item())
+                if block.batch_norm == True:
+                    if block.bn0.weight.grad is not None:
+                        norm_gradient["weight"].append(torch.linalg.norm(block.bn0.weight.grad).item())
+                    if block.bn0.bias.grad is not None:
+                        norm_gradient["bias"].append(torch.linalg.norm(block.bn0.bias.grad).item())
+                    if block.bn1.weight.grad is not None:
+                        norm_gradient["weight"].append(torch.linalg.norm(block.bn1.weight.grad).item())
+                    if block.bn1.bias.grad is not None:
+                        norm_gradient["bias"].append(torch.linalg.norm(block.bn1.bias.grad).item())
+                elif block.layer_norm == True:
+                    if block.bn0.weight.grad is not None:
+                        norm_gradient["weight"].append(torch.linalg.norm(block.bn0.weight.grad).item())
+                    if block.bn0.bias.grad is not None:
+                        norm_gradient["bias"].append(torch.linalg.norm(block.bn0.bias.grad).item())
+                    if block.bn1.weight.grad is not None:
+                        norm_gradient["weight"].append(torch.linalg.norm(block.bn1.weight.grad).item())
+                    if block.bn1.bias.grad is not None:
+                        norm_gradient["bias"].append(torch.linalg.norm(block.bn1.bias.grad).item())
+
+        total_norm_gradient = {}
+        total_norm_gradient["weight"] = 0
+        total_norm_gradient["bias"] = 0
+
+        for weight_norm_gradient in norm_gradient["weight"]:
+            total_norm_gradient["weight"] += weight_norm_gradient * weight_norm_gradient
+        total_norm_gradient["weight"] = math.sqrt(total_norm_gradient["weight"])
+
+        for bias_norm_gradient in norm_gradient["bias"]:
+            total_norm_gradient["bias"] += bias_norm_gradient * bias_norm_gradient
+        total_norm_gradient["bias"] = math.sqrt(total_norm_gradient["bias"])
+
+        return total_norm_gradient

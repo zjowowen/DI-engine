@@ -36,6 +36,11 @@ class VAC(nn.Module):
         bound_type: Optional[str] = None,
         encoder: Optional[torch.nn.Module] = None,
         impala_cnn_encoder: bool = False,
+        nblock: int = 2,
+        batch_norm: bool = False,
+        layer_norm: bool = False,
+        init_orthogonal: bool = False,
+        post_norm: bool = False,
     ) -> None:
         r"""
         Overview:
@@ -68,7 +73,16 @@ class VAC(nn.Module):
         # Encoder Type
         def new_encoder(outsize):
             if impala_cnn_encoder:
-                return IMPALAConvEncoder(obs_shape=obs_shape, channels=encoder_hidden_size_list, outsize=outsize)
+                return IMPALAConvEncoder(
+                    obs_shape=obs_shape,
+                    channels=encoder_hidden_size_list,
+                    outsize=outsize,
+                    nblock=nblock,
+                    batch_norm=batch_norm,
+                    layer_norm=layer_norm,
+                    init_orthogonal=init_orthogonal,
+                    post_norm=post_norm
+                )
             else:
                 if isinstance(obs_shape, int) or len(obs_shape) == 1:
                     return FCEncoder(
