@@ -47,6 +47,7 @@ class VAC(nn.Module):
         init_orthogonal: bool = False,
         post_norm: bool = False,
         maevit_encoder: bool = False,
+        encoder_config: dict = None,
     ) -> None:
         r"""
         Overview:
@@ -79,7 +80,7 @@ class VAC(nn.Module):
         # Encoder Type
         def new_encoder(outsize):
             if maevit_encoder:
-                return mae_vit()
+                return mae_vit(**encoder_config)
 
             elif impala_cnn_encoder:
                 return IMPALAConvEncoder(

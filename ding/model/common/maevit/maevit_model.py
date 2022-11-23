@@ -262,6 +262,11 @@ class MaskedAutoencoderViT(nn.Module):
 
 
 def mae_vit(**kwargs):
+    model = MaskedAutoencoderViT(norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+    return model
+
+
+def mae_vit_2(**kwargs):
     model = MaskedAutoencoderViT(
         img_size=64,
         patch_size=16,

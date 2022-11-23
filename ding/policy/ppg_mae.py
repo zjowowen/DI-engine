@@ -289,7 +289,8 @@ class PPGMAEPolicy(Policy):
             for policy_data in split_data_generator(data, self._cfg.mae_learn.batch_size, shuffle=True):
                 reconstruction_loss, reconstruction_output, _ = self._learn_model._model.actor_critic.actor[
                     0].forward_reconstruction_loss(
-                        policy_data['obs'], mask_ratio=0.5
+                        policy_data['obs'],
+                        mask_ratio=self._cfg.mae_learn.mask_ratio,
                     )
 
                 self._optimizer_encoder_ac.zero_grad()
