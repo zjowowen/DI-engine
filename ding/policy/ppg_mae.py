@@ -285,7 +285,7 @@ class PPGMAEPolicy(Policy):
         critic_first_momentum_delta_norm = 0
         critic_second_momentum_delta_norm = 0
 
-        if self._learn_model.disable_mae_reconstruct:
+        if self._cfg.mae_learn.disable_mae_reconstruct:
             reconstruction_loss = 0
         else:
             for epoch in range(self._cfg.learn.actor_epoch_per_collect):
