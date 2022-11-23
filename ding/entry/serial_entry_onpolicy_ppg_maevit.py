@@ -8,7 +8,7 @@ from copy import deepcopy
 
 from ding.envs import get_vec_env_setting, create_env_manager
 from ding.worker import BaseLearner, InteractionSerialEvaluator, BaseSerialCommander, create_buffer, \
-    create_serial_collector, MAEViT_Learner
+    create_serial_collector
 from ding.config import read_config, compile_config
 from ding.policy import create_policy, PolicyFactory
 from ding.reward_model import create_reward_model
@@ -61,7 +61,6 @@ def serial_pipeline_onpolicy_ppg_maevit(
     # Create worker components: learner, collector, evaluator, replay buffer, commander.
     tb_logger = SummaryWriter(os.path.join('./{}/log/'.format(cfg.exp_name), 'serial'))
     learner = BaseLearner(cfg.policy.learn.learner, policy.learn_mode, tb_logger, exp_name=cfg.exp_name)
-    # maevit_learner=MAEViT_Learner(cfg.policy.mae_learn, policy.learn_mode, tb_logger, exp_name=cfg.exp_name)
     collector = create_serial_collector(
         cfg.policy.collect.collector,
         env=collector_env,
@@ -91,8 +90,6 @@ def serial_pipeline_onpolicy_ppg_maevit(
                 break
         # Collect data by default config n_sample/n_episode
         new_data = collector.collect(train_iter=learner.train_iter, policy_kwargs=collect_kwargs)
-
-        # maevit_learner.train(new_data, collector.envstep)
 
         # Learn policy from collected data
         learner.train(new_data, collector.envstep)
