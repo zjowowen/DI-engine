@@ -29,6 +29,7 @@ class PPG(nn.Module):
         layer_norm: bool = False,
         init_orthogonal: bool = False,
         post_norm: bool = False,
+        maevit_encoder: bool = False,
     ) -> None:
         super(PPG, self).__init__()
         self.actor_critic = VAC(
@@ -49,6 +50,7 @@ class PPG(nn.Module):
             layer_norm=layer_norm,
             init_orthogonal=init_orthogonal,
             post_norm=post_norm,
+            maevit_encoder=maevit_encoder,
         )
         self.aux_critic = copy.deepcopy(self.actor_critic.critic)
 

@@ -15,6 +15,7 @@ from .sqn import SQNPolicy
 from .ppo import PPOPolicy, PPOOffPolicy, PPOPGPolicy, PPOSTDIMPolicy
 from .offppo_collect_traj import OffPPOCollectTrajPolicy
 from .ppg import PPGPolicy, PPGOffPolicy
+from .ppg_mae import PPGMAEPolicy
 from .a2c import A2CPolicy
 from .impala import IMPALAPolicy
 from .ngu import NGUPolicy
@@ -200,6 +201,11 @@ class IMPALACommandModePolicy(IMPALAPolicy, DummyCommandModePolicy):
 
 @POLICY_REGISTRY.register('ppg_offpolicy_command')
 class PPGOffCommandModePolicy(PPGOffPolicy, DummyCommandModePolicy):
+    pass
+
+
+@POLICY_REGISTRY.register('ppg_mae_command')
+class PPGCommandModePolicy(PPGMAEPolicy, DummyCommandModePolicy):
     pass
 
 

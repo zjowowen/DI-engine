@@ -5,7 +5,7 @@ import torch.nn as nn
 from copy import deepcopy
 from ding.utils import SequenceType, squeeze, MODEL_REGISTRY
 from ..common import ReparameterizationHead, RegressionHead, DiscreteHead, MultiHead, \
-    FCEncoder, ConvEncoder, IMPALAConvEncoder
+    FCEncoder, ConvEncoder, IMPALAConvEncoder, IMPALAConvEncoder_Old, mae_vit
 
 
 @MODEL_REGISTRY.register('vac')
@@ -16,7 +16,12 @@ class VAC(nn.Module):
     Interfaces:
         ``__init__``, ``forward``, ``compute_actor``, ``compute_critic``
     """
-    mode = ['compute_actor', 'compute_critic', 'compute_actor_critic']
+    mode = [
+        'compute_actor', 'compute_critic', 'compute_actor_critic', 'compute_actor_logit', 'compute_critic_value',
+        'compute_observation_reconstruction', 'compute_observation_reconstruction_actor',
+        'compute_observation_reconstruction_critic', 'compute_observation_reconstruction_loss',
+        'compute_observation_reconstruction_loss_actor', 'compute_observation_reconstruction_loss_critic'
+    ]
 
     def __init__(
         self,
@@ -41,6 +46,7 @@ class VAC(nn.Module):
         layer_norm: bool = False,
         init_orthogonal: bool = False,
         post_norm: bool = False,
+        maevit_encoder: bool = False,
     ) -> None:
         r"""
         Overview:
@@ -72,7 +78,10 @@ class VAC(nn.Module):
 
         # Encoder Type
         def new_encoder(outsize):
-            if impala_cnn_encoder:
+            if maevit_encoder:
+                return mae_vit()
+
+            elif impala_cnn_encoder:
                 return IMPALAConvEncoder(
                     obs_shape=obs_shape,
                     channels=encoder_hidden_size_list,
@@ -82,6 +91,14 @@ class VAC(nn.Module):
                     layer_norm=layer_norm,
                     init_orthogonal=init_orthogonal,
                     post_norm=post_norm
+                )
+            elif True:
+                return IMPALAConvEncoder_Old(
+                    obs_shape=obs_shape,
+                    channels=encoder_hidden_size_list,
+                    outsize=outsize,
+                    nblock=nblock,
+                    batch_norm=batch_norm
                 )
             else:
                 if isinstance(obs_shape, int) or len(obs_shape) == 1:
@@ -199,7 +216,11 @@ class VAC(nn.Module):
         self.actor = nn.ModuleList(self.actor)
         self.critic = nn.ModuleList(self.critic)
 
-    def forward(self, inputs: Union[torch.Tensor, Dict], mode: str) -> Dict:
+    def forward(
+            self,
+            inputs: Union[torch.Tensor, Dict],
+            mode: str = 'compute_actor_logit'
+    ) -> Dict:  # compute_critic_value # compute_actor_logit
         r"""
         Overview:
             Use encoded embedding tensor to predict output.
@@ -370,3 +391,121 @@ class VAC(nn.Module):
             action_type = self.actor_head[0](actor_embedding)
             action_args = self.actor_head[1](actor_embedding)
             return {'logit': {'action_type': action_type['logit'], 'action_args': action_args}, 'value': value}
+
+    def compute_actor_logit(self, x: torch.Tensor):
+        r"""
+        Overview:
+            Execute parameter updates with ``'compute_actor'`` mode
+            Use encoded embedding tensor to predict output.
+        Arguments:
+            - inputs (:obj:`torch.Tensor`):
+                The encoded embedding tensor, determined with given ``hidden_size``, i.e. ``(B, N=hidden_size)``.
+                ``hidden_size = actor_head_hidden_size``
+        Returns:
+            - outputs (:obj:`Dict`):
+                Run with encoder and head.
+
+        ReturnsKeys:
+            - logit (:obj:`torch.Tensor`): Logit encoding tensor, with same size as input ``x``.
+        Shapes:
+            - logit (:obj:`torch.FloatTensor`): :math:`(B, N)`, where B is batch size and N is ``action_shape``
+
+        Examples:
+            >>> model = VAC(64,64)
+            >>> inputs = torch.randn(4, 64)
+            >>> actor_outputs = model(inputs,'compute_actor')
+            >>> assert actor_outputs['action'].shape == torch.Size([4, 64])
+        """
+        if self.share_encoder:
+            x = self.encoder(x)
+        else:
+            x = self.actor_encoder(x)
+
+        if self.action_space == 'discrete':
+            return self.actor_head(x)['logit']
+        elif self.action_space == 'continuous':
+            x = self.actor_head(x)  # mu, sigma
+            return x
+        elif self.action_space == 'hybrid':
+            action_type = self.actor_head[0](x)
+            action_args = self.actor_head[1](x)
+            return action_type['logit']
+
+    def compute_critic_value(self, x: torch.Tensor) -> Dict:
+        r"""
+        Overview:
+            Execute parameter updates with ``'compute_critic'`` mode
+            Use encoded embedding tensor to predict output.
+        Arguments:
+            - inputs (:obj:`torch.Tensor`):
+                The encoded embedding tensor, determined with given ``hidden_size``, i.e. ``(B, N=hidden_size)``.
+                ``hidden_size = critic_head_hidden_size``
+        Returns:
+            - outputs (:obj:`Dict`):
+                Run with encoder and head.
+
+                Necessary Keys:
+                    - value (:obj:`torch.Tensor`): Q value tensor with same size as batch size.
+        Shapes:
+            - value (:obj:`torch.FloatTensor`): :math:`(B, )`, where B is batch size.
+
+        Examples:
+            >>> model = VAC(64,64)
+            >>> inputs = torch.randn(4, 64)
+            >>> critic_outputs = model(inputs,'compute_critic')
+            >>> critic_outputs['value']
+            tensor([0.0252, 0.0235, 0.0201, 0.0072], grad_fn=<SqueezeBackward1>)
+        """
+        if self.share_encoder:
+            x = self.encoder(x)
+        else:
+            x = self.critic_encoder(x)
+        x = self.critic_head(x)
+        return x['pred'].unsqueeze(0)
+
+    def compute_observation_reconstruction(self, x: torch.Tensor):
+        if self.share_encoder:
+            x_pred, _ = self.encoder.forward_reconstruction(x, mask_ratio=0)
+            return x_pred
+        else:
+            x_pred_actor, _ = self.actor_encoder.forward_reconstruction(x, mask_ratio=0)
+            x_pred_critic, _ = self.critic_encoder.forward_reconstruction(x, mask_ratio=0)
+            return [x_pred_actor, x_pred_critic]
+
+    def compute_observation_reconstruction_actor(self, x: torch.Tensor):
+        if self.share_encoder:
+            x_pred, _ = self.encoder.forward_reconstruction(x, mask_ratio=0)
+        else:
+            x_pred, _ = self.actor_encoder.forward_reconstruction(x, mask_ratio=0)
+        return x_pred
+
+    def compute_observation_reconstruction_critic(self, x: torch.Tensor):
+        if self.share_encoder:
+            x_pred, _ = self.encoder.forward_reconstruction(x, mask_ratio=0)
+        else:
+            x_pred, _ = self.critic_encoder.forward_reconstruction(x, mask_ratio=0)
+        return x_pred
+
+    def compute_observation_reconstruction_loss(self, x: torch.Tensor):
+        if self.share_encoder:
+            loss, x_pred, _ = self.encoder.forward_reconstruction_loss(x, mask_ratio=0.5)
+            return loss
+        else:
+            loss_actor, x_pred_actor, _ = self.actor_encoder.forward_reconstruction_loss(x, mask_ratio=0.5)
+            loss_critic, x_pred_critic, _ = self.critic_encoder.forward_reconstruction_loss(x, mask_ratio=0.5)
+            return [loss_actor, loss_critic]
+
+    def compute_observation_reconstruction_loss_actor(self, x: torch.Tensor):
+        if self.share_encoder:
+            loss, x_pred, _ = self.encoder.forward_reconstruction_loss(x, mask_ratio=0.5)
+            return loss
+        else:
+            loss, x_pred, _ = self.actor_encoder.forward_reconstruction_loss(x, mask_ratio=0.5)
+        return loss
+
+    def compute_observation_reconstruction_loss_critic(self, x: torch.Tensor):
+        if self.share_encoder:
+            loss, x_pred, _ = self.encoder.forward_reconstruction_loss(x, mask_ratio=0.5)
+        else:
+            loss, x_pred, _ = self.critic_encoder.forward_reconstruction_loss(x, mask_ratio=0.5)
+        return loss
