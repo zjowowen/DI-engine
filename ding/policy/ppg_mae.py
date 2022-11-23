@@ -285,17 +285,19 @@ class PPGMAEPolicy(Policy):
         critic_first_momentum_delta_norm = 0
         critic_second_momentum_delta_norm = 0
 
-        for epoch in range(self._cfg.learn.actor_epoch_per_collect):
-            for policy_data in split_data_generator(data, self._cfg.mae_learn.batch_size, shuffle=True):
-                reconstruction_loss, reconstruction_output, _ = self._learn_model._model.actor_critic.actor[
-                    0].forward_reconstruction_loss(
-                        policy_data['obs'],
-                        mask_ratio=self._cfg.mae_learn.mask_ratio,
-                    )
-
-                self._optimizer_encoder_ac.zero_grad()
-                reconstruction_loss.backward()
-                self._optimizer_encoder_ac.step()
+        if self._learn_model.disable_mae_reconstruct:
+            reconstruction_loss = 0
+        else:
+            for epoch in range(self._cfg.learn.actor_epoch_per_collect):
+                for policy_data in split_data_generator(data, self._cfg.mae_learn.batch_size, shuffle=True):
+                    reconstruction_loss, reconstruction_output, _ = self._learn_model._model.actor_critic.actor[
+                        0].forward_reconstruction_loss(
+                            policy_data['obs'],
+                            mask_ratio=self._cfg.mae_learn.mask_ratio,
+                        )
+                    self._optimizer_encoder_ac.zero_grad()
+                    reconstruction_loss.backward()
+                    self._optimizer_encoder_ac.step()
 
         for epoch in range(self._cfg.learn.actor_epoch_per_collect):
             for policy_data in split_data_generator(data, self._cfg.learn.batch_size, shuffle=True):
