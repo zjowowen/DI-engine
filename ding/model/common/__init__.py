@@ -3,3 +3,4 @@ from .head import DiscreteHead, DuelingHead, DistributionHead, RainbowHead, QRDQ
     independent_normal_dist
 from .encoder import ConvEncoder, FCEncoder, IMPALAConvEncoder
 from .utils import create_model
+from .maevit.maevit_model import mae_vit

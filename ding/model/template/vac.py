@@ -5,7 +5,7 @@ import torch.nn as nn
 from copy import deepcopy
 from ding.utils import SequenceType, squeeze, MODEL_REGISTRY
 from ..common import ReparameterizationHead, RegressionHead, DiscreteHead, MultiHead, \
-    FCEncoder, ConvEncoder, IMPALAConvEncoder
+    FCEncoder, ConvEncoder, IMPALAConvEncoder, mae_vit
 
 
 @MODEL_REGISTRY.register('vac')
@@ -36,6 +36,8 @@ class VAC(nn.Module):
         bound_type: Optional[str] = None,
         encoder: Optional[torch.nn.Module] = None,
         impala_cnn_encoder: bool = False,
+        maevit_encoder: bool = False,
+        encoder_config: dict = None,
     ) -> None:
         r"""
         Overview:
@@ -67,7 +69,10 @@ class VAC(nn.Module):
 
         # Encoder Type
         def new_encoder(outsize):
-            if impala_cnn_encoder:
+            if maevit_encoder:
+                return mae_vit(**encoder_config)
+
+            elif impala_cnn_encoder:
                 return IMPALAConvEncoder(obs_shape=obs_shape, channels=encoder_hidden_size_list, outsize=outsize)
             else:
                 if isinstance(obs_shape, int) or len(obs_shape) == 1:

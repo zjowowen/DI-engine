@@ -24,6 +24,8 @@ class PPG(nn.Module):
         activation: Optional[nn.Module] = nn.ReLU(),
         norm_type: Optional[str] = None,
         impala_cnn_encoder: bool = False,
+        maevit_encoder: bool = False,
+        encoder_config: dict = None,
     ) -> None:
         super(PPG, self).__init__()
         self.actor_critic = VAC(
@@ -38,7 +40,9 @@ class PPG(nn.Module):
             critic_head_layer_num,
             activation,
             norm_type,
-            impala_cnn_encoder=impala_cnn_encoder
+            impala_cnn_encoder=impala_cnn_encoder,
+            maevit_encoder=maevit_encoder,
+            encoder_config=encoder_config,
         )
         self.aux_critic = copy.deepcopy(self.actor_critic.critic)
 
