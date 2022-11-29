@@ -74,5 +74,5 @@ create_config = bigfish_ppg_create_config
 
 if __name__ == "__main__":
 
-    from ding.entry import serial_pipeline_onpolicy
-    serial_pipeline_onpolicy([main_config, create_config], seed=0)
+    from ding.entry import serial_pipeline_onpolicy_ppg
+    serial_pipeline_onpolicy_ppg([main_config, create_config], seed=0)
