@@ -337,6 +337,9 @@ deterministic.</p>
 </section>
 <section id="extension">
 <h2>Extension<a class="headerlink" href="#extension" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>TBD</p></li>
+</ul>
 </section>
 <section id="implementations">
 <h2>Implementations<a class="headerlink" href="#implementations" title="Permalink to this headline">¶</a></h2>
@@ -699,7 +702,34 @@ Paper link: <a class="reference external" href="https://arxiv.org/abs/2007.14430
 <dl class="py function">
 <dt class="sig sig-object py">
 <span class="sig-prename descclassname"><span class="pre">ding.rl_utils.td.</span></span><span class="sig-name descname"><span class="pre">m_q_1step_td_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">data:</span> <span class="pre">collections.namedtuple</span></em>, <em class="sig-param"><span class="pre">gamma:</span> <span class="pre">float</span></em>, <em class="sig-param"><span class="pre">tau:</span> <span class="pre">float</span></em>, <em class="sig-param"><span class="pre">alpha:</span> <span class="pre">float</span></em>, <em class="sig-param"><span class="pre">criterion:</span> <span class="pre">&lt;module</span> <span class="pre">'torch.nn.modules'</span> <span class="pre">from</span> <span class="pre">'/opt/hostedtoolcache/Python/3.8.16/x64/lib/python3.8/site-packages/torch/nn/modules/__init__.py'&gt;</span> <span class="pre">=</span> <span class="pre">MSELoss()</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../_modules/ding/rl_utils/td.html#m_q_1step_td_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd></dd></dl>
+<dd><dl class="simple">
+<dt>Overview:</dt><dd><p>Munchausen td_error for DQN algorithm, support 1 step td error.</p>
+</dd>
+<dt>Arguments:</dt><dd><ul class="simple">
+<li><p>data (<code class="xref py py-obj docutils literal notranslate"><span class="pre">m_q_1step_td_data</span></code>): The input data, m_q_1step_td_data to calculate loss</p></li>
+<li><p>gamma (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>): Discount factor</p></li>
+<li><p>tau (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>): Entropy factor for Munchausen DQN</p></li>
+<li><p>alpha (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>): Discount factor for Munchausen term</p></li>
+<li><p>criterion (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.modules</span></code>): Loss function criterion</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>loss (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.Tensor</span></code>): 1step td error, 0-dim tensor</p></li>
+</ul>
+</dd>
+<dt>Shapes:</dt><dd><ul class="simple">
+<li><p>data (<code class="xref py py-obj docutils literal notranslate"><span class="pre">m_q_1step_td_data</span></code>): the m_q_1step_td_data containing             [‘q’, ‘target_q’, ‘next_q’, ‘act’, ‘reward’, ‘done’, ‘weight’]</p></li>
+<li><p>q (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((B, N)\)</span> i.e. [batch_size, action_dim]</p></li>
+<li><p>target_q (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((B, N)\)</span> i.e. [batch_size, action_dim]</p></li>
+<li><p>next_q (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((B, N)\)</span> i.e. [batch_size, action_dim]</p></li>
+<li><p>act (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.LongTensor</span></code>): <span class="math notranslate nohighlight">\((B, )\)</span></p></li>
+<li><p>reward (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\(( , B)\)</span></p></li>
+<li><p>done (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.BoolTensor</span></code>) <span class="math notranslate nohighlight">\((B, )\)</span>, whether done in last timestep</p></li>
+<li><p>weight (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code> or None): <span class="math notranslate nohighlight">\((B, )\)</span>, the training sample weight</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 </section>
 <section id="benchmark">
@@ -730,7 +760,7 @@ Paper link: <a class="reference external" href="https://arxiv.org/abs/2007.14430
 <td><p>8963</p></td>
 <td><img alt="../_images/mdqn_asterix.png" src="../_images/mdqn_asterix.png" />
 </td>
-<td><p><a class="reference external" href="https://github.com/opendilab/DI-engine/blob/main/dizoo/atari/config/serial/asterix/asterix_mdqn_config.py">config_link_a</a></p></td>
+<td><p><a class="reference external" href="https://github.com/opendilab/DI-engine/blob/main/dizoo/atari/config/serial/asterix/asterix_mdqn_config.py">config_link_asterix</a></p></td>
 <td><div class="line-block">
 <div class="line">sdqn(3513) paper(1718) dqn(3444)</div>
 </div>
@@ -744,7 +774,7 @@ Paper link: <a class="reference external" href="https://arxiv.org/abs/2007.14430
 <td><p>2211</p></td>
 <td><img alt="../_images/mdqn_spaceinvaders.png" src="../_images/mdqn_spaceinvaders.png" />
 </td>
-<td><p><a class="reference external" href="https://github.com/opendilab/DI-engine/blob/main/dizoo/atari/config/serial/spaceinvaders/spaceinvaders_mdqn_config.py">config_link_s</a></p></td>
+<td><p><a class="reference external" href="https://github.com/opendilab/DI-engine/blob/main/dizoo/atari/config/serial/spaceinvaders/spaceinvaders_mdqn_config.py">config_link_spaceinvaders</a></p></td>
 <td><div class="line-block">
 <div class="line">sdqn(1804) paper(2045) dqn(1228)</div>
 </div>
@@ -758,7 +788,7 @@ Paper link: <a class="reference external" href="https://arxiv.org/abs/2007.14430
 <td><p>1003</p></td>
 <td><img alt="../_images/mdqn_enduro.png" src="../_images/mdqn_enduro.png" />
 </td>
-<td><p><a class="reference external" href="https://github.com/opendilab/DI-engine/blob/main/dizoo/atari/config/serial/enduro/enduro_mdqn_config.py">config_link_e</a></p></td>
+<td><p><a class="reference external" href="https://github.com/opendilab/DI-engine/blob/main/dizoo/atari/config/serial/enduro/enduro_mdqn_config.py">config_link_enduro</a></p></td>
 <td><div class="line-block">
 <div class="line">sdqn(986.1) paper(1171) dqn(986.4)</div>
 </div>
@@ -773,10 +803,10 @@ Paper link: <a class="reference external" href="https://arxiv.org/abs/2007.14430
 <li><p>the epsilon we used for exploration is from 1 to 0.05, their epsilon is from 0.01 to 0.001.</p></li>
 </ul>
 <p>P.S.:</p>
-<ol class="arabic simple">
+<ul class="simple">
 <li><p>The above results are obtained by running the same configuration on seed 0</p></li>
 <li><p>For the discrete action space algorithm like DQN, the Atari environment set is generally used for testing, and Atari environment is generally evaluated by the highest mean reward training 10M <code class="docutils literal notranslate"><span class="pre">env_step</span></code>. For more details about Atari, please refer to <a class="reference external" href="../env_tutorial/atari.html">Atari Env Tutorial</a> .</p></li>
-</ol>
+</ul>
 </section>
 <section id="reference">
 <h2>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h2>
