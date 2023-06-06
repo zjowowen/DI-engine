@@ -1585,6 +1585,7 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                     ),
                     policy=dict(
                         cuda=True,
+                        random_collect_size=25000,
                         priority=False,
                         discount_factor=0.99,
                         nstep=3,
@@ -1635,6 +1636,7 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                     ),
                     policy=dict(
                         cuda=True,
+                        random_collect_size=25000,
                         priority=False,
                         discount_factor=0.99,
                         nstep=3,
@@ -1686,6 +1688,7 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                     ),
                     policy=dict(
                         cuda=True,
+                        random_collect_size=25000,
                         priority=False,
                         discount_factor=0.99,
                         nstep=3,
@@ -1699,6 +1702,57 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                         model=dict(
                             obs_shape=[4, 84, 84],
                             action_shape=6,
+                            encoder_hidden_size_list=[128, 128, 512],
+                        ),
+                        collect=dict(n_sample=100, ),
+                        other=dict(
+                            eps=dict(
+                                type='exp',
+                                start=1.,
+                                end=0.05,
+                                decay=1000000,
+                            ),
+                            replay_buffer=dict(replay_buffer_size=400000, )
+                        ),
+                    ),
+                    wandb_logger=dict(
+                        gradient_logger=True,
+                        video_logger=True,
+                        plot_logger=True,
+                        action_logger=True,
+                        return_logger=False
+                    ),
+                )
+            )
+        elif env == "gym-retro-Airstriker-Genesis":
+            cfg.update(
+                dict(
+                    exp_name='gym-retro-Airstriker-Genesis-DQN',
+                    seed=0,
+                    env=dict(
+                        env_id='Airstriker-Genesis',
+                        collector_env_num=8,
+                        evaluator_env_num=8,
+                        n_evaluator_episode=8,
+                        fram_stack=4,
+                        stop_value=30000,
+                    ),
+                    policy=dict(
+                        cuda=True,
+                        random_collect_size=25000,
+                        priority=False,
+                        discount_factor=0.99,
+                        nstep=3,
+                        learn=dict(
+                            update_per_collect=10,
+                            batch_size=32,
+                            learning_rate=0.0001,
+                            # Frequency of target network update.
+                            target_update_freq=500,
+                        ),
+                        model=dict(
+                            obs_shape=[4, 84, 84],
+                            action_shape= [2,2,2,2,2,2,2,2,2,2,2,2],
                             encoder_hidden_size_list=[128, 128, 512],
                         ),
                         collect=dict(n_sample=100, ),
@@ -2101,6 +2155,21 @@ def get_instance_env(env: str) -> BaseEnv:
         )
         cfg = EasyDict(cfg)
         return DriveEnvWrapper(MetaDrivePPOOriginEnv(cfg))
+    elif env[:9] == "gym-retro":
+        import retro
+        if env[10:] in ["Airstriker-Genesis"]:
+            return DingEnvWrapper(
+                env = retro.make(game=env[10:]),
+                cfg={
+                    'env_wrapper': [
+                        lambda env: WarpFrameWrapper(env, size=84),
+                        lambda env: ScaledFloatFrameWrapper(env),
+                        lambda env: FrameStackWrapper(env, n_frames=4),
+                        lambda env: TimeLimitWrapper(env, max_limit=200),
+                        lambda env: EvalEpisodeReturnEnv(env),
+                    ]
+                }
+            )
     else:
         raise KeyError("not supported env type: {}".format(env))
 

@@ -27,6 +27,7 @@ class DQNAgent:
         'PongNoFrameskip',
         'SpaceInvadersNoFrameskip',
         'QbertNoFrameskip',
+        'gym-retro-Airstriker-Genesis'
     ]
     algorithm = 'DQN'
 

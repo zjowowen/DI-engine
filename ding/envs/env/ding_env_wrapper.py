@@ -151,6 +151,10 @@ class DingEnvWrapper(BaseEnv):
             for k, v in action.items():
                 action[k] = self._judge_action_type(v)
             return action
+        elif isinstance(action, list):
+            for k, v in enumerate(action):
+                action[k] = self._judge_action_type(v)
+            return action
         elif isinstance(action, tnp.ndarray):
             return self._judge_action_type(action.json())
         else:

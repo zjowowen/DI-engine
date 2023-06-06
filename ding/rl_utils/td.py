@@ -551,6 +551,10 @@ def q_nstep_td_error(
         if value_gamma is not None:
             value_gamma = value_gamma.unsqueeze(-1)
 
+    # if action.dtype is int, but not int64, then convert it to int64
+    if action.dtype != torch.int64:
+        action = action.long()
+
     q_s_a = q.gather(-1, action.unsqueeze(-1)).squeeze(-1)
     target_q_s_a = next_n_q.gather(-1, next_n_action.unsqueeze(-1)).squeeze(-1)
 
