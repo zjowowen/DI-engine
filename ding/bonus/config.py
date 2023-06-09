@@ -1823,7 +1823,7 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                             target_update_freq=500,
                         ),
                         model=dict(
-                            obs_shape=[4, 200, 200],
+                            obs_shape=[4, 160, 160],
                             action_shape=[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
                             encoder_hidden_size_list=[128, 128, 512],
                         ),
@@ -2234,7 +2234,7 @@ def get_instance_env(env: str) -> BaseEnv:
                 env=retro.make(game=env[10:]),
                 cfg={
                     'env_wrapper': [
-                        lambda env: WarpFrameWrapper(env, size=200),
+                        lambda env: WarpFrameWrapper(env, size=160),
                         lambda env: ScaledFloatFrameWrapper(env),
                         lambda env: FrameStackWrapper(env, n_frames=4),
                         # lambda env: TimeLimitWrapper(env, max_limit=200),
