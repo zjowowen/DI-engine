@@ -240,11 +240,11 @@ class DQNPolicy(Policy):
             # Max q value action (main model), i.e. Double DQN
             target_q_action = self._learn_model.forward(data['next_obs'])['action']
 
-        if isinstance(q_value, list): # for multi-binary action case
+        if isinstance(q_value, list):  # for multi-binary action case
             q_value = torch.stack(q_value, dim=1)
-        if isinstance(target_q_value, list): # for multi-binary action case
+        if isinstance(target_q_value, list):  # for multi-binary action case
             target_q_value = torch.stack(target_q_value, dim=1)
-        if isinstance(target_q_action, list): # for multi-binary action case
+        if isinstance(target_q_action, list):  # for multi-binary action case
             target_q_action = torch.stack(target_q_action, dim=1)
 
         data_n = q_nstep_td_data(

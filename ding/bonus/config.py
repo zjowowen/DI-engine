@@ -1823,8 +1823,8 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                             target_update_freq=500,
                         ),
                         model=dict(
-                            obs_shape=[4, 84, 84],
-                            action_shape= [2,2,2,2,2,2,2,2,2,2,2,2],
+                            obs_shape=[4, 200, 200],
+                            action_shape=[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
                             encoder_hidden_size_list=[128, 128, 512],
                         ),
                         collect=dict(n_sample=100, ),
@@ -2231,13 +2231,13 @@ def get_instance_env(env: str) -> BaseEnv:
         import retro
         if env[10:] in ["Airstriker-Genesis"]:
             return DingEnvWrapper(
-                env = retro.make(game=env[10:]),
+                env=retro.make(game=env[10:]),
                 cfg={
                     'env_wrapper': [
-                        lambda env: WarpFrameWrapper(env, size=84),
+                        lambda env: WarpFrameWrapper(env, size=200),
                         lambda env: ScaledFloatFrameWrapper(env),
                         lambda env: FrameStackWrapper(env, n_frames=4),
-                        lambda env: TimeLimitWrapper(env, max_limit=200),
+                        # lambda env: TimeLimitWrapper(env, max_limit=200),
                         lambda env: EvalEpisodeReturnEnv(env),
                     ]
                 }
