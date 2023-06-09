@@ -89,13 +89,11 @@ class PPOOffPolicyAgent:
 
         with task.start(ctx=OnlineRLContext()):
             task.use(interaction_evaluator(self.cfg, self.policy.eval_mode, evaluator_env))
-            task.use(
-                StepCollector(
-                    self.cfg,
-                    self.policy.collect_mode,
-                    collector_env,
-                )
-            )
+            task.use(StepCollector(
+                self.cfg,
+                self.policy.collect_mode,
+                collector_env,
+            ))
             task.use(gae_estimator(self.cfg, self.policy.collect_mode, self.buffer_))
             task.use(OffPolicyLearner(self.cfg, self.policy.learn_mode, self.buffer_))
             task.use(CkptSaver(policy=self.policy, save_dir=self.checkpoint_save_dir, train_freq=n_iter_save_ckpt))
@@ -114,7 +112,7 @@ class PPOOffPolicyAgent:
 
         return TrainingReturn(wandb_url=task.ctx.wandb_url)
 
-    def deploy(self, enable_save_replay: bool = False, replay_save_path: str = None, debug: bool = False) -> None:
+    def deploy(self, enable_save_replay: bool = False, replay_save_path: str = None, debug: bool = False) -> float:
         if debug:
             logging.getLogger().setLevel(logging.DEBUG)
         # define env and policy
@@ -156,6 +154,8 @@ class PPOOffPolicyAgent:
             if done:
                 break
         logging.info(f'PPOOffPolicy deploy is finished, final episode return with {step} steps is: {return_}')
+
+        return return_
 
     def collect_data(
             self,
