@@ -90,7 +90,11 @@ class DQNAgent:
         evaluator_env = self._setup_env_manager(evaluator_env_num, context, debug, 'evaluator')
 
         with task.start(ctx=OnlineRLContext()):
-            task.use(interaction_evaluator(self.cfg, self.policy.eval_mode, evaluator_env))
+            task.use(
+                interaction_evaluator(
+                    self.cfg, self.policy.eval_mode, evaluator_env, render=self.cfg.policy.eval.render
+                )
+            )
             task.use(eps_greedy_handler(self.cfg))
             task.use(
                 StepCollector(
@@ -107,6 +111,7 @@ class DQNAgent:
             task.use(CkptSaver(policy=self.policy, save_dir=self.checkpoint_save_dir, train_freq=n_iter_save_ckpt))
             task.use(
                 wandb_online_logger(
+                    cfg=self.cfg.wandb_logger,
                     metric_list=self.policy.monitor_vars(),
                     model=self.policy._model,
                     anonymous=True,
@@ -145,7 +150,10 @@ class DQNAgent:
                     obs = obs.cuda()
                 action = forward_fn(obs)["action"]
                 # squeeze means delete batch dim, i.e. (1, A) -> (A, )
-                action = action.squeeze(0).detach().cpu().numpy()
+                if isinstance(action, list):
+                    action = torch.stack(action, dim=-1).squeeze(0).detach().cpu().numpy()
+                elif isinstance(action, torch.Tensor):
+                    action = action.squeeze(0).detach().cpu().numpy()
                 return action
 
             return _forward

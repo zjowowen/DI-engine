@@ -1804,8 +1804,8 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                     env=dict(
                         env_id='Airstriker-Genesis',
                         collector_env_num=8,
-                        evaluator_env_num=8,
-                        n_evaluator_episode=8,
+                        evaluator_env_num=4,
+                        n_evaluator_episode=4,
                         fram_stack=4,
                         stop_value=30000,
                     ),
@@ -1828,6 +1828,7 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                             encoder_hidden_size_list=[128, 128, 512],
                         ),
                         collect=dict(n_sample=100, ),
+                        eval=dict(render=True),
                         other=dict(
                             eps=dict(
                                 type='exp',
@@ -1835,15 +1836,15 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                                 end=0.05,
                                 decay=1000000,
                             ),
-                            replay_buffer=dict(replay_buffer_size=40000, )
+                            replay_buffer=dict(replay_buffer_size=100000, )
                         ),
                     ),
                     wandb_logger=dict(
-                        gradient_logger=True,
+                        gradient_logger=False,
                         video_logger=True,
                         plot_logger=True,
-                        action_logger=True,
-                        return_logger=False
+                        action_logger=False,
+                        return_logger=False,
                     ),
                 )
             )
@@ -2237,7 +2238,6 @@ def get_instance_env(env: str) -> BaseEnv:
                         lambda env: WarpFrameWrapper(env, size=160),
                         lambda env: ScaledFloatFrameWrapper(env),
                         lambda env: FrameStackWrapper(env, n_frames=4),
-                        # lambda env: TimeLimitWrapper(env, max_limit=200),
                         lambda env: EvalEpisodeReturnEnv(env),
                     ]
                 }
