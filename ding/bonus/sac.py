@@ -26,6 +26,7 @@ class SACAgent:
         'hopper',
         'HalfCheetah',
         'Walker2d',
+        'Humanoid',
         'lunarlander_continuous',
         'bipedalwalker',
         'pendulum',
