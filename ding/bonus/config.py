@@ -2181,7 +2181,7 @@ def get_instance_env(env: str) -> BaseEnv:
             act_scale=True,
             rew_clip=True,
         )
-        return DingEnvWrapper(gym.make('Walker2d-v3'), cfg=cfg)
+        return DingEnvWrapper(gym.make('Humanoid-v4'), cfg=cfg)
     elif env == "SpaceInvadersNoFrameskip":
         cfg = EasyDict({
             'env_id': "SpaceInvadersNoFrameskip-v4",
