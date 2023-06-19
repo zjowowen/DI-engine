@@ -1453,7 +1453,7 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                         env_id='Humanoid-v4',
                         norm_obs=dict(use_norm=False, ),
                         norm_reward=dict(use_norm=False, ),
-                        collector_env_num=1,
+                        collector_env_num=8,
                         evaluator_env_num=8,
                         n_evaluator_episode=8,
                         stop_value=6000,
@@ -1471,7 +1471,7 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                         ),
                         learn=dict(
                             update_per_collect=1,
-                            batch_size=256,
+                            batch_size=2048,
                             learning_rate_q=1e-3,
                             learning_rate_policy=1e-3,
                             learning_rate_alpha=3e-4,
@@ -1483,7 +1483,7 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                             auto_alpha=False,
                         ),
                         collect=dict(
-                            n_sample=1,
+                            n_sample=8,
                             unroll_len=1,
                         ),
                         command=dict(),
