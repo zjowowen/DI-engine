@@ -1471,7 +1471,7 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                         ),
                         learn=dict(
                             update_per_collect=1,
-                            batch_size=2048,
+                            batch_size=256,
                             learning_rate_q=1e-3,
                             learning_rate_policy=1e-3,
                             learning_rate_alpha=3e-4,
