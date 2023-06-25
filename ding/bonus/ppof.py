@@ -3,6 +3,7 @@ from typing import Optional, Union
 from ditk import logging
 from easydict import EasyDict
 from functools import partial
+import random
 import os
 import gym
 import gymnasium
@@ -157,7 +158,7 @@ class PPOF:
         if debug:
             logging.getLogger().setLevel(logging.DEBUG)
         # define env and policy
-        env = self.env.clone()
+        env = self.env.clone(caller='evaluator')
         env.seed(self.seed, dynamic_seed=False)
 
         if enable_save_replay and replay_save_path:
@@ -168,6 +169,10 @@ class PPOF:
             logging.warning('No video would be generated during the deploy.')
 
         forward_fn = single_env_forward_wrapper_ttorch(self.policy.eval, self.cfg.cuda)
+
+        # reset first to make sure the env is in the initial state
+        # env will be reset again in the main loop
+        env.reset()
 
         # main loop
         return_ = 0.
@@ -222,6 +227,11 @@ class PPOF:
             logging.getLogger().setLevel(logging.DEBUG)
         # define env and policy
         env = self._setup_env_manager(env_num, context, debug, 'evaluator')
+
+        # reset first to make sure the env is in the initial state
+        # env will be reset again in the main loop
+        env.launch()
+        env.reset()
 
         # main execution task
         with task.start(ctx=OnlineRLContext()):
