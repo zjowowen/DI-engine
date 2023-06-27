@@ -122,6 +122,8 @@ class DQNPolicy(Policy):
             # TD-error accurate computation(``gamma * (1 - done) * next_v + reward``),
             # when the episode step is greater than max episode step.
             ignore_done=False,
+            # whether to scale obs for network input
+            change_obs_dtype_and_scale=False,
         ),
         # collect_mode config
         collect=dict(
@@ -171,6 +173,8 @@ class DQNPolicy(Policy):
             Learn mode init method. Called by ``self.__init__``, initialize the optimizer, algorithm arguments, main \
             and target model.
         """
+        self._change_obs_dtype_and_scale = self._cfg.learn.change_obs_dtype_and_scale
+
         self._priority = self._cfg.priority
         self._priority_IS_weight = self._cfg.priority_IS_weight
         # Optimizer
@@ -225,6 +229,11 @@ class DQNPolicy(Policy):
             ignore_done=self._cfg.learn.ignore_done,
             use_nstep=True
         )
+        if self._change_obs_dtype_and_scale:
+            # change torch tensor obs dtype to float32 and scale to [0, 1]
+            data['obs'] = data['obs'].float() / 255
+            data['next_obs'] = data['next_obs'].float() / 255
+
         if self._cuda:
             data = to_device(data, self._device)
         # ====================

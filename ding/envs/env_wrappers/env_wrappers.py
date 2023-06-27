@@ -1174,6 +1174,21 @@ class GymToGymnasiumWrapper(gym.Wrapper):
             return self.env.reset()
 
 
+class AgentLiveBonusWrapper(gym.Wrapper):
+    
+        def __init__(self, env, reward_bonus=0.000001):
+            super().__init__(env)
+            self.reward_bonus = reward_bonus
+    
+        def step(self, action):
+            obs, reward, done, info = self.env.step(action)
+            if not done:
+                reward += self.reward_bonus
+            return obs, reward, done, info
+        
+        def reset(self, **kwargs):
+            return self.env.reset(**kwargs)
+
 def update_shape(obs_shape, act_shape, rew_shape, wrapper_names):
     """
     Overview:

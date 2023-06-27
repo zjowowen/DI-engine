@@ -1969,6 +1969,7 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                             learning_rate=0.0001,
                             # Frequency of target network update.
                             target_update_freq=500,
+                            change_obs_dtype_and_scale=True,
                         ),
                         model=dict(
                             obs_shape=[4, 160, 160],
@@ -1984,7 +1985,7 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                                 end=0.05,
                                 decay=1000000,
                             ),
-                            replay_buffer=dict(replay_buffer_size=100000, )
+                            replay_buffer=dict(replay_buffer_size=500000, )
                         ),
                     ),
                     wandb_logger=dict(
@@ -2384,14 +2385,16 @@ def get_instance_env(env: str) -> BaseEnv:
         return DriveEnvWrapper(MetaDrivePPOOriginEnv(cfg))
     elif env[:9] == "gym-retro":
         import retro
+        from ding.envs.env_wrappers import AgentLiveBonusWrapper
         if env[10:] in ["Airstriker-Genesis"]:
             return DingEnvWrapper(
                 env=retro.make(game=env[10:]),
                 cfg={
                     'env_wrapper': [
+                        lambda env: AgentLiveBonusWrapper(env),
                         lambda env: MaxAndSkipWrapper(env, skip=4),
                         lambda env: WarpFrameWrapper(env, size=160),
-                        lambda env: ScaledFloatFrameWrapper(env),
+                        # lambda env: ScaledFloatFrameWrapper(env),
                         lambda env: FrameStackWrapper(env, n_frames=4),
                         lambda env: EvalEpisodeReturnEnv(env),
                     ]
