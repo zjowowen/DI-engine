@@ -1985,7 +1985,7 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                                 end=0.05,
                                 decay=1000000,
                             ),
-                            replay_buffer=dict(replay_buffer_size=500000, )
+                            replay_buffer=dict(replay_buffer_size=400000, )
                         ),
                     ),
                     wandb_logger=dict(
