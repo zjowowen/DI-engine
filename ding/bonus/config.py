@@ -2391,7 +2391,7 @@ def get_instance_env(env: str) -> BaseEnv:
                 env=retro.make(game=env[10:]),
                 cfg={
                     'env_wrapper': [
-                        lambda env: AgentLiveBonusWrapper(env),
+                        # lambda env: AgentLiveBonusWrapper(env),
                         lambda env: MaxAndSkipWrapper(env, skip=4),
                         lambda env: WarpFrameWrapper(env, size=160),
                         # lambda env: ScaledFloatFrameWrapper(env),
