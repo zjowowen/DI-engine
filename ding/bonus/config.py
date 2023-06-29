@@ -1990,7 +1990,7 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                     ),
                     wandb_logger=dict(
                         gradient_logger=False,
-                        video_logger=True,
+                        video_logger=False,
                         plot_logger=True,
                         action_logger=False,
                         return_logger=False,
