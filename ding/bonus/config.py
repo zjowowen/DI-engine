@@ -2385,13 +2385,14 @@ def get_instance_env(env: str) -> BaseEnv:
         return DriveEnvWrapper(MetaDrivePPOOriginEnv(cfg))
     elif env[:9] == "gym-retro":
         import retro
-        from ding.envs.env_wrappers import AgentLiveBonusWrapper
+        from ding.envs.env_wrappers import AgentLiveBonusWrapper, RewardScaleWrapper
         if env[10:] in ["Airstriker-Genesis"]:
             return DingEnvWrapper(
                 env=retro.make(game=env[10:]),
                 cfg={
                     'env_wrapper': [
                         # lambda env: AgentLiveBonusWrapper(env),
+                        lambda env: RewardScaleWrapper(env, scale=0.01),
                         lambda env: MaxAndSkipWrapper(env, skip=4),
                         lambda env: WarpFrameWrapper(env, size=160),
                         # lambda env: ScaledFloatFrameWrapper(env),

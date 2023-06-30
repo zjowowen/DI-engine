@@ -740,6 +740,40 @@ class RewardNormWrapper(gym.RewardWrapper):
         return self.env.reset(**kwargs)
 
 
+class RewardScaleWrapper(gym.RewardWrapper):
+    """
+    Overview:
+       Scale reward according to input scale.
+    Interface:
+        ``__init__``, ``reward``
+    Properties:
+        - env (:obj:`gym.Env`): the environment to wrap.
+        - ``scale``
+    """
+
+    def __init__(self, env, scale):
+        """
+        Overview:
+            Initialize ``self.`` See ``help(type(self))`` for accurate signature;  \
+                setup the properties according to input ``scale``.
+        Arguments:
+            - env (:obj:`gym.Env`): the environment to wrap.
+            - scale (:obj:`float`): the scale to scale reward.
+        """
+        super().__init__(env)
+        self.scale = scale
+
+    def reward(self, reward):
+        """
+        Overview:
+            Scale reward according to input ``scale``.
+        Arguments:
+            - reward (:obj:`float`): the reward to scale.
+        Returns:
+            - reward (:obj:`float`): the scaled reward.
+        """
+        return reward * self.scale
+
 @ENV_WRAPPER_REGISTRY.register('ram')
 class RamWrapper(gym.Wrapper):
     """
