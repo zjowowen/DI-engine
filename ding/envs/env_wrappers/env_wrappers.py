@@ -774,6 +774,36 @@ class RewardScaleWrapper(gym.RewardWrapper):
         """
         return reward * self.scale
 
+
+class ActionSpaceTransferWrapper(gym.ActionWrapper):
+    def __init__(self, env, action_transfer, action_space):
+        super(ActionSpaceTransferWrapper, self).__init__(env)
+        self._action_space = action_space
+        self.action_transfer = action_transfer
+    def step(self, action):
+        return self.env.step(self.action_transfer(action))
+    def reset(self):
+        return self.env.reset()
+
+class NoopWrapper(gym.ActionWrapper):
+    def __init__(self, env, freq=5, noop_action=0):
+        super(NoopWrapper, self).__init__(env)
+        self.freq = freq
+        self.noop_action=noop_action
+    def step(self, action):
+        total_reward = 0.0
+        done = False
+        for i in range(self.freq):
+            if i==self.freq-1:
+                obs, reward, done, info = self.env.step(self.noop_action)
+            else:
+                obs, reward, done, info = self.env.step(action)
+            total_reward += reward
+            if done:
+                break
+        return obs, total_reward, done, info
+
+
 @ENV_WRAPPER_REGISTRY.register('ram')
 class RamWrapper(gym.Wrapper):
     """

@@ -1973,7 +1973,8 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                         ),
                         model=dict(
                             obs_shape=[4, 160, 160],
-                            action_shape=[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+                            # action_shape=[2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+                            action_shape= 6,
                             encoder_hidden_size_list=[128, 128, 512],
                         ),
                         collect=dict(n_sample=100, ),
@@ -2384,16 +2385,35 @@ def get_instance_env(env: str) -> BaseEnv:
         cfg = EasyDict(cfg)
         return DriveEnvWrapper(MetaDrivePPOOriginEnv(cfg))
     elif env[:9] == "gym-retro":
+
+        def AirstrikerGenesis_action_transfer(action):
+            if action == 0:
+                return [0,0,0,0,0,0,0,0,0,0,0,0]
+            elif action == 1:
+                return [1,0,0,0,0,0,0,0,0,0,0,0]
+            elif action == 2:
+                return [0,0,1,0,0,0,0,0,0,0,0,0]
+            elif action == 3:
+                return [0,0,0,1,0,0,0,0,0,0,0,0]
+            elif action == 4:
+                return [1,0,0,0,0,0,1,0,0,0,0,0]
+            elif action == 5:
+                return [1,0,0,0,0,0,0,1,0,0,0,0]
+            else:
+                raise ValueError('Invalid action!!')
+
         import retro
-        from ding.envs.env_wrappers import AgentLiveBonusWrapper, RewardScaleWrapper
+        from ding.envs.env_wrappers import AgentLiveBonusWrapper, RewardScaleWrapper, ActionSpaceTransferWrapper, NoopWrapper
         if env[10:] in ["Airstriker-Genesis"]:
             return DingEnvWrapper(
                 env=retro.make(game=env[10:]),
                 cfg={
                     'env_wrapper': [
                         # lambda env: AgentLiveBonusWrapper(env),
+                        lambda env: ActionSpaceTransferWrapper(env, AirstrikerGenesis_action_transfer, action_space=gym.spaces.Discrete(6)),
                         lambda env: RewardScaleWrapper(env, scale=0.01),
-                        lambda env: MaxAndSkipWrapper(env, skip=4),
+                        lambda env: NoopWrapper(env, freq=5, noop_action=0),
+                        # lambda env: MaxAndSkipWrapper(env, skip=4),
                         lambda env: WarpFrameWrapper(env, size=160),
                         # lambda env: ScaledFloatFrameWrapper(env),
                         lambda env: FrameStackWrapper(env, n_frames=4),
