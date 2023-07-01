@@ -151,6 +151,9 @@ class DQNAgent:
                 obs = ttorch.as_tensor(obs).unsqueeze(0)
                 if cuda and torch.cuda.is_available():
                     obs = obs.cuda()
+                # if obs dtype is int8 or uint8, change to float32
+                if obs.dtype in [torch.int8, torch.uint8]:
+                    obs = obs.float()
                 action = forward_fn(obs)["action"]
                 # squeeze means delete batch dim, i.e. (1, A) -> (A, )
                 if isinstance(action, list):
