@@ -1956,6 +1956,7 @@ def get_instance_config(env: str, algorithm: str) -> EasyDict:
                         n_evaluator_episode=4,
                         fram_stack=4,
                         stop_value=30000,
+                        time_limit=10000,
                     ),
                     policy=dict(
                         cuda=True,
