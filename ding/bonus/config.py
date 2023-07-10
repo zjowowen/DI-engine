@@ -2417,6 +2417,7 @@ def get_instance_env(env: str) -> BaseEnv:
                         lambda env: WarpFrameWrapper(env, size=160),
                         # lambda env: ScaledFloatFrameWrapper(env),
                         lambda env: FrameStackWrapper(env, n_frames=4),
+                        lambda env: TimeLimitWrapper(env, max_limit=10000),
                         lambda env: EvalEpisodeReturnEnv(env),
                     ]
                 }
