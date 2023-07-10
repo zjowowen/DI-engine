@@ -775,13 +775,13 @@ class RewardScaleWrapper(gym.RewardWrapper):
         return reward * self.scale
 
 
-class ActionSpaceTransferWrapper(gym.ActionWrapper):
-    def __init__(self, env, action_transfer, action_space):
-        super(ActionSpaceTransferWrapper, self).__init__(env)
+class ActionSpaceTransformWrapper(gym.ActionWrapper):
+    def __init__(self, env, action_transform, action_space):
+        super(ActionSpaceTransformWrapper, self).__init__(env)
         self._action_space = action_space
-        self.action_transfer = action_transfer
+        self.action_transform = action_transform
     def step(self, action):
-        return self.env.step(self.action_transfer(action))
+        return self.env.step(self.action_transform(action))
     def reset(self):
         return self.env.reset()
 
