@@ -3,7 +3,7 @@ from easydict import EasyDict
 change_obs_dtype_and_scale=True
 
 cfg = dict(
-    exp_name='Airstriker-Genesis-DQN',
+    exp_name='Airstriker-Genesis-SQL',
     seed=0,
     env=dict(
         env_id='Airstriker-Genesis',
@@ -31,7 +31,6 @@ cfg = dict(
             update_per_collect=10,
             batch_size=32,
             learning_rate=0.0001,
-            # Frequency of target network update.
             target_update_freq=500,
             change_obs_dtype_and_scale=change_obs_dtype_and_scale,
         ),
