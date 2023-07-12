@@ -1,5 +1,46 @@
 from ding.envs import BaseEnv, DingEnvWrapper
 
+class AirstrikerGenesis_gameover_wrapper(gym.Wrapper):
+
+    def __init__(self, env, one_live_mode=False):
+        super().__init__(env)
+        self.gameover = False
+        self.one_live_mode = one_live_mode
+        if one_live_mode:
+            self.lives = 3
+    def step(self, action):
+        obs, reward, done, info = self.env.step(action)
+        if info['gameover'] == 4:
+            self.gameover = True
+            done = True
+        elif self.one_live_mode:
+            if info['lives'] < self.lives:
+                done = True
+            else:
+                self.lives = info['lives']
+        return obs, reward, done, info
+    def reset(self):
+        self.gameover = False
+        if self.one_live_mode:
+            self.lives = 3
+        return self.env.reset()
+
+def AirstrikerGenesis_action_dtype_transform(action):
+    if action == 0:
+        return [0,0,0,0,0,0,0,0,0,0,0,0]
+    elif action == 1:
+        return [1,0,0,0,0,0,0,0,0,0,0,0]
+    elif action == 2:
+        return [0,0,1,0,0,0,0,0,0,0,0,0]
+    elif action == 3:
+        return [0,0,0,1,0,0,0,0,0,0,0,0]
+    elif action == 4:
+        return [1,0,0,0,0,0,1,0,0,0,0,0]
+    elif action == 5:
+        return [1,0,0,0,0,0,0,1,0,0,0,0]
+    else:
+        raise ValueError('Invalid action!!')
+
 def env(cfg, seed_api=True, caller='collector', **kwargs) -> BaseEnv:
 
     import retro
@@ -11,48 +52,7 @@ def env(cfg, seed_api=True, caller='collector', **kwargs) -> BaseEnv:
     if "time_limit" in cfg and cfg.time_limit>0:
         env_wrapper.append(lambda env: TimeLimitWrapper(env, max_limit=cfg.time_limit))
     if cfg.env_id == "Airstriker-Genesis":
-
-        class AirstrikerGenesis_gameover_wrapper(gym.Wrapper):
-
-            def __init__(self, env, one_live_mode=False):
-                super().__init__(env)
-                self.gameover = False
-                self.one_live_mode = one_live_mode
-                if one_live_mode:
-                    self.lives = 3
-            def step(self, action):
-                obs, reward, done, info = self.env.step(action)
-                if info['gameover'] == 4:
-                    self.gameover = True
-                    done = True
-                elif self.one_live_mode:
-                    if info['lives'] < self.lives:
-                        done = True
-                    else:
-                        self.lives = info['lives']
-                return obs, reward, done, info
-            def reset(self):
-                self.gameover = False
-                if self.one_live_mode:
-                    self.lives = 3
-                return self.env.reset()
         env_wrapper.append(lambda env: AirstrikerGenesis_gameover_wrapper(env, one_live_mode=True if caller == 'collector' else False))
-
-        def AirstrikerGenesis_action_dtype_transform(action):
-            if action == 0:
-                return [0,0,0,0,0,0,0,0,0,0,0,0]
-            elif action == 1:
-                return [1,0,0,0,0,0,0,0,0,0,0,0]
-            elif action == 2:
-                return [0,0,1,0,0,0,0,0,0,0,0,0]
-            elif action == 3:
-                return [0,0,0,1,0,0,0,0,0,0,0,0]
-            elif action == 4:
-                return [1,0,0,0,0,0,1,0,0,0,0,0]
-            elif action == 5:
-                return [1,0,0,0,0,0,0,1,0,0,0,0]
-            else:
-                raise ValueError('Invalid action!!')
         env_wrapper.append(lambda env: ActionSpaceTransformWrapper(env, AirstrikerGenesis_action_dtype_transform, action_space=gym.spaces.Discrete(6)))
     if caller == 'collector':
         env_wrapper.append(lambda env: RewardScaleWrapper(env, scale=0.01))
