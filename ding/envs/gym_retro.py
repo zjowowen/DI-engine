@@ -4,23 +4,29 @@ class AirstrikerGenesis_gameover_wrapper(gym.Wrapper):
 
     def __init__(self, env, one_live_mode=False):
         super().__init__(env)
-        self.gameover = False
         self.one_live_mode = one_live_mode
+        self.gameover_counter=10
         if one_live_mode:
             self.lives = 3
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
-        if info['gameover'] == 4:
-            self.gameover = True
-            done = True
-        elif self.one_live_mode:
+        if self.one_live_mode:
             if info['lives'] < self.lives:
                 done = True
             else:
                 self.lives = info['lives']
+        
+        if info['gameover'] == 4:
+            self.gameover_counter -= 1
+            if self.gameover_counter <= 0:
+                done = True
+        else:
+            self.gameover_counter = 10
+
         return obs, reward, done, info
+    
     def reset(self):
-        self.gameover = False
+        self.gameover_counter=10
         if self.one_live_mode:
             self.lives = 3
         return self.env.reset()
