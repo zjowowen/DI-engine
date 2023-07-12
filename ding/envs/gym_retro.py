@@ -1,5 +1,5 @@
 from ding.envs import BaseEnv, DingEnvWrapper
-
+import gym
 class AirstrikerGenesis_gameover_wrapper(gym.Wrapper):
 
     def __init__(self, env, one_live_mode=False):
@@ -44,7 +44,6 @@ def AirstrikerGenesis_action_dtype_transform(action):
 def env(cfg, seed_api=True, caller='collector', **kwargs) -> BaseEnv:
 
     import retro
-    import gym
     from ding.envs.env_wrappers import RewardScaleWrapper, ActionSpaceTransformWrapper, NoopWrapper, \
         WarpFrameWrapper, FrameStackWrapper, TimeLimitWrapper, EvalEpisodeReturnEnv, ScaledFloatFrameWrapper
     
