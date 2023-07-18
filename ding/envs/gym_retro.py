@@ -62,7 +62,7 @@ def env(cfg, seed_api=True, caller='collector', **kwargs) -> BaseEnv:
     if caller == 'collector':
         env_wrapper.append(lambda env: RewardScaleWrapper(env, scale=0.01))
     env_wrapper.append(lambda env: NoopWrapper(env, freq=5, noop_action=0))
-    env_wrapper.append(lambda env: WarpFrameWrapper(env, size=160))
+    env_wrapper.append(lambda env: WarpFrameWrapper(env, size=84))
     if "change_obs_dtype_and_scale" in cfg and cfg.change_obs_dtype_and_scale:
         env_wrapper.append(lambda env: ScaledFloatFrameWrapper(env))
     env_wrapper.append(lambda env: FrameStackWrapper(env, n_frames=4))

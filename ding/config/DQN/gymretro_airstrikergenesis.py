@@ -30,7 +30,7 @@ cfg = dict(
             change_obs_dtype_and_scale=change_obs_dtype_and_scale,
         ),
         model=dict(
-            obs_shape=[4, 160, 160],
+            obs_shape=[4, 84, 84],
             action_shape= 6,
             encoder_hidden_size_list=[128, 128, 512],
         ),
