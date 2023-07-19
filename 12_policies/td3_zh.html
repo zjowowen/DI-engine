@@ -13,7 +13,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>DDPG &mdash; DI-engine 0.1.0 documentation</title>
+  <title>TD3 &mdash; DI-engine 0.1.0 documentation</title>
   
 
   <link rel="shortcut icon" href="../_static/images/favicon.ico" />
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
   <link rel="index" title="Index" href="../genindex.html" />
   <link rel="search" title="Search" href="../search.html" />
-  <link rel="next" title="TD3" href="td3_zh.html" />
-  <link rel="prev" title="MDQN" href="mdqn_zh.html" />
+  <link rel="next" title="ICM" href="icm_zh.html" />
+  <link rel="prev" title="DDPG" href="ddpg_zh.html" />
     <link href="../_static/css/style.css" rel="stylesheet" type="text/css">
 
 
@@ -268,13 +268,13 @@
         
           <li><a href="index_zh.html">强化学习算法</a> &gt;</li>
         
-      <li>DDPG</li>
+      <li>TD3</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
         
             
-            <a href="../_sources/12_policies/ddpg_zh.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
+            <a href="../_sources/12_policies/td3_zh.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
           
         
       </li>
@@ -298,61 +298,55 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
               <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
                 
-  <section id="ddpg">
-<h1>DDPG<a class="headerlink" href="#ddpg" title="Permalink to this headline">¶</a></h1>
+  <section id="td3">
+<h1>TD3<a class="headerlink" href="#td3" title="Permalink to this headline">¶</a></h1>
 <section id="id1">
 <h2>概述<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
-<p>DDPG (Deep Deterministic Policy Gradient) 首次在论文
-<a class="reference external" href="https://arxiv.org/abs/1509.02971">Continuous control with deep reinforcement learning</a> 中提出,
-是一种同时学习Q函数和策略函数的算法。</p>
-<p>DDPG 是基于 DPG (deterministic policy gradient) 的 <strong>无模型（model-free）</strong> 算法，属于 <strong>演员—评委（actor-critic）</strong> 方法中的一员，可以在高维、连续的动作空间上运行。
-其中算法 DPG <a class="reference external" href="http://proceedings.mlr.press/v32/silver14.pdf">Deterministic policy gradient algorithms</a> 与算法 NFQCA <a class="reference external" href="https://link.springer.com/content/pdf/10.1007/s10994-011-5235-x.pdf?pdf=button">Reinforcement learning in feedback control</a> 相似。</p>
+<p>Twin Delayed DDPG (TD3) 首次在2018年发表的论文 <a class="reference external" href="https://arxiv.org/abs/1802.09477">Addressing Function Approximation Error in Actor-Critic Methods</a> 中被提出，它是一种考虑了策略和值更新中函数逼近误差之间相互作用的算法。
+TD3 是一种基于 <a class="reference external" href="https://arxiv.org/abs/1509.02971">deep deterministic policy gradient (DDPG)</a> 的 <strong>无模型（model-free）</strong> 算法，属于 <strong>演员—评委（actor-critic）</strong> 类算法中的一员。此算法可以解决高估偏差，时间差分方法中的误差积累以及连续动作空间中对超参数的高敏感性的问题。具体来说，TD3通过引入以下三个关键技巧来解决这些问题:</p>
+<ol class="arabic simple">
+<li><p>截断双 Q 学习（Clipped Double-Q Learning）：在计算Bellman误差损失函数中的目标时，TD3 学习两个 Q 函数而不是一个，并使用较小的 Q 值。</p></li>
+<li><p>延迟的策略更新（Delayed Policy Updates）： TD3更新策略(和目标网络)的频率低于 Q 函数的更新频率。在本文中，作者建议在对 Q 函数更新两次后进行一次策略更新。在我们的实现中，TD3 仅在对 critic 网络更新一定次数 <span class="math notranslate nohighlight">\(d\)</span> 后，才对策略和目标网络进行一次更新。我们通过配置参数 <code class="docutils literal notranslate"><span class="pre">learn.actor_update_freq</span></code> 来实现策略更新延迟。</p></li>
+<li><p>目标策略平滑（Target Policy Smoothing）：通过沿动作变化平滑 Q 值，TD3 为目标动作引入噪声，使策略更加难以利用 Q 函数的预测错误。</p></li>
+</ol>
 </section>
 <section id="id2">
 <h2>核心要点<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
-<li><p>DDPG 仅支持 <strong>连续动作空间</strong> （例如： MuJoCo）.</p></li>
-<li><p>DDPG 是一种 <strong>异策略（off-policy）</strong> 算法.</p></li>
-<li><p>DDPG 是一种 <strong>无模型（model-free）</strong> 和 <strong>演员—评委（actor-critic）</strong> 的强化学习算法，它会分别优化策略网络和Q网络。</p></li>
-<li><p>通常, DDPG 使用 <strong>奥恩斯坦-乌伦贝克过程（Ornstein-Uhlenbeck process）</strong> 或 <strong>高斯过程（Gaussian process）</strong> （在我们的实现中默认使用高斯过程）来探索环境。</p></li>
+<li><p>TD3 仅支持 <strong>连续动作空间</strong> （例如： MuJoCo）.</p></li>
+<li><p>TD3 是一种 <strong>异策略（off-policy）</strong> 算法.</p></li>
+<li><p>TD3 是一种 <strong>无模型（model-free）</strong> 和 <strong>演员—评委（actor-critic）</strong> 的强化学习算法，它会分别优化策略网络和Q网络。</p></li>
 </ol>
 </section>
 <section id="id3">
 <h2>关键方程或关键框图<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
-<p>DDPG 包含一个参数化的策略函数（actor） <span class="math notranslate nohighlight">\(\mu\left(s \mid \theta^{\mu}\right)\)</span> ,
-此函数通过将每一个状态确定性地映射到一个具体的动作从而明确当前策略。
-此外，算法还包含一个参数化的Q函数（critic） <span class="math notranslate nohighlight">\(Q(s, a)\)</span> 。
-正如 Q-learning 算法，此函数通过贝尔曼方程优化自身。</p>
-<p>策略网络通过将链式法则应用于初始分布的预期收益 <span class="math notranslate nohighlight">\(J\)</span> 来更新自身参数。</p>
-<p>具体而言，为了最大化预期收益 <span class="math notranslate nohighlight">\(J\)</span> ，算法需要计算 <span class="math notranslate nohighlight">\(J\)</span> 对策略函数参数 <span class="math notranslate nohighlight">\(\theta^{\mu}\)</span> 的梯度。 <span class="math notranslate nohighlight">\(J\)</span> 是 <span class="math notranslate nohighlight">\(Q(s, a)\)</span> 的期望，所以问题转化为计算 <span class="math notranslate nohighlight">\(Q^{\mu}(s, \mu(s))\)</span> 对 <span class="math notranslate nohighlight">\(\theta^{\mu}\)</span> 的梯度。</p>
-<p>根据链式法则，<span class="math notranslate nohighlight">\(\nabla_{\theta^{\mu}} Q^{\mu}(s, \mu(s)) = \nabla_{\theta^{\mu}}\mu(s)\nabla_{a}Q^\mu(s,a)|_{ a=\mu\left(s\right)}+\nabla_{\theta^{\mu}} Q^{\mu}(s, a)|_{ a=\mu\left(s\right)}\)</span>。</p>
-<p><a class="reference external" href="http://proceedings.mlr.press/v32/silver14.pdf">Deterministic policy gradient algorithms</a> 采取了与 <a class="reference external" href="https://arxiv.org/pdf/1205.4839.pdf">Off-Policy Actor-Critic</a> 中推导 <strong>异策略版本的随机性策略梯度定理</strong> 类似的做法，舍去了上式第二项，
-从而得到了近似后的 <strong>确定性策略梯度定理</strong> ：</p>
+<p>TD3 提出了一个截断双 Q 学习变体（Clipped Double-Q Learning），它利用了这样一个概念，即遭受高估偏差的值估计可以用作真实值估计的近似上限。结合下式计算 <span class="math notranslate nohighlight">\(Q_{\theta_1}\)</span> 的 target，当 <span class="math notranslate nohighlight">\(Q_{\theta_2} \textless Q_{\theta_1}\)</span> 时，我们认为 <span class="math notranslate nohighlight">\(Q_{\theta_1}\)</span> 高估了，并将其当作真实值估计的近似上限，取较小的 <span class="math notranslate nohighlight">\(Q_{\theta_2}\)</span> 计算 <span class="math notranslate nohighlight">\(y_1\)</span> 以减少过估计。</p>
+<p>作为原始版本双 Q 学习的一种拓展，此扩展的动机是，如果目标和当前网络过于相似，例如在actor-critic框架中使用缓慢变化的策略，原始版本的双 Q 学习有时是无效的。</p>
+<p>TD3表明，目标网络是深度 Q 学习方法中的一种常见方法，通过减少误差积累来减少目标的方差是至关重要的。</p>
+<p>首先，为了解决动作价值估计和策略提升的耦合问题，TD3建议延迟策略更新，直到动作价值估计值尽可能小。因此，TD3只在固定数量次数的 critic 网络更新后再更新策略和目标网络。
+我们通过配置参数 <code class="docutils literal notranslate"><span class="pre">learn.actor_update_freq</span></code> 来实现策略更新延迟。</p>
+<p>其次，截断双 Q 学习（Clipped Double Q-learning）算法的目标更新如下:</p>
 <div class="math notranslate nohighlight">
-\[\begin{split}\begin{aligned}
-\nabla_{\theta^{\mu}} J &amp; \approx \mathbb{E}_{s_{t} \sim \rho^{\beta}}\left[\left.\nabla_{\theta^{\mu}} Q\left(s, a \mid \theta^{Q}\right)\right|_{s=s_{t}, a=\mu\left(s_{t} \mid \theta^{\mu}\right)}\right] \\
-&amp;=\mathbb{E}_{s_{t} \sim \rho^{\beta}}\left[\left.\left.\nabla_{a} Q\left(s, a \mid \theta^{Q}\right)\right|_{s=s_{t}, a=\mu\left(s_{t}\right)} \nabla_{\theta^{\mu}} \mu\left(s \mid \theta^{\mu}\right)\right|_{s=s_{t}}\right]
-\end{aligned}\end{split}\]</div>
-<p>DDPG 使用了一个 <strong>经验回放池（replay buffer）</strong> 来保证样本分布独立一致。</p>
-<p>为了使神经网络稳定优化，DDPG 使用 <strong>软更新（“soft” target updates）</strong> 的方式来优化目标网络，而不是像 DQN 中的 hard target updates 那样定期直接复制网络的参数。
-具体而言，DDPG 分别拷贝了 actor 网络 <span class="math notranslate nohighlight">\(\mu' \left(s \mid \theta^{\mu'}\right)\)</span> 和 critic 网络 <span class="math notranslate nohighlight">\(Q'(s, a|\theta^{Q'})\)</span> 用于计算目标值。
-然后通过让这些目标网络缓慢跟踪学习到的网络来更新这些目标网络的权重：</p>
+\[y_{1}=r+\gamma \min _{i=1,2} Q_{\theta_{i}^{\prime}}\left(s^{\prime}, \pi_{\phi_{1}}\left(s^{\prime}\right)\right)\]</div>
+<p>在实现中，我们可以通过使用单一的 actor 来优化 <span class="math notranslate nohighlight">\(Q_{\theta_1}\)</span> 以减少计算开销。由于 TD target 计算过程中使用了同样的策略，因此对于 <span class="math notranslate nohighlight">\(Q_{\theta_2}\)</span> 的优化目标， <span class="math notranslate nohighlight">\(y_2= y_1\)</span> 。</p>
+<p>最后，确定性策略的一个问题是，由于以神经网络参数化的 Q 函数对 buffer 中动作的价值估计存在突然激增的尖峰（narrow peaks），这会导致策略网络过拟合到这些动作上。并且当更新 critic 网络时，使用确定性策略的学习目标极易受到函数近似误差引起的不准确性的影响，从而增加了目标的方差。
+TD3 引入了一种用于深度价值学习的正则化策略，即目标策略平滑，它模仿了SARSA的学习更新。具体来说，TD3通过在目标策略中添加少量随机噪声并在多次计算以下数值后，取平均值来近似此期望：</p>
 <div class="math notranslate nohighlight">
-\[\theta' \leftarrow \tau \theta + (1 - \tau)\theta',\]</div>
-<p>其中 <span class="math notranslate nohighlight">\(\tau&lt;&lt;1\)</span>。这意味着目标值被限制为缓慢变化，大大提高了学习的稳定性。</p>
-<p>在连续行动空间中学习的一个主要挑战是探索。然而，对于像DDPG这样的 <strong>异策略（off-policy）</strong> 算法来说，它的一个优势是可以独立于算法中的学习过程来处理探索问题。具体来说，我们通过将噪声过程 <span class="math notranslate nohighlight">\(\mathcal{N}\)</span> 采样的噪声添加到 actor 策略中来构建探索策略:</p>
-<div class="math notranslate nohighlight">
-\[\mu^{\prime}\left(s_{t}\right)=\mu\left(s_{t} \mid \theta_{t}^{\mu}\right)+\mathcal{N}\]</div>
+\[\begin{split}\begin{array}{l}
+y=r+\gamma Q_{\theta^{\prime}}\left(s^{\prime}, \pi_{\phi^{\prime}}\left(s^{\prime}\right)+\epsilon\right) \\
+\epsilon \sim \operatorname{clip}(\mathcal{N}(0, \sigma),-c, c)
+\end{array}\end{split}\]</div>
+<p>我们通过配置 <code class="docutils literal notranslate"><span class="pre">learn.noise</span></code>、 <code class="docutils literal notranslate"><span class="pre">learn.noise_sigma</span></code> 和 <code class="docutils literal notranslate"><span class="pre">learn.noise_range</span></code> 来实现目标策略平滑。</p>
 </section>
-<section id="id5">
-<h2>伪代码<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<section id="id4">
+<h2>伪代码<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
 <div class="math notranslate nohighlight">
 \[ \begin{align}\begin{aligned}:nowrap:\\\begin{split}\begin{algorithm}[H]
-    \caption{Deep Deterministic Policy Gradient}
+    \caption{Twin Delayed DDPG}
     \label{alg1}
 \begin{algorithmic}[1]
-    \STATE Input: initial policy parameters $\theta$, Q-function parameters $\phi$, empty replay buffer $\mathcal{D}$
-    \STATE Set target parameters equal to main parameters $\theta_{\text{targ}} \leftarrow \theta$, $\phi_{\text{targ}} \leftarrow \phi$
+    \STATE Input: initial policy parameters $\theta$, Q-function parameters $\phi_1$, $\phi_2$, empty replay buffer $\mathcal{D}$
+    \STATE Set target parameters equal to main parameters $\theta_{\text{targ}} \leftarrow \theta$, $\phi_{\text{targ},1} \leftarrow \phi_1$, $\phi_{\text{targ},2} \leftarrow \phi_2$
     \REPEAT
         \STATE Observe state $s$ and select action $a = \text{clip}(\mu_{\theta}(s) + \epsilon, a_{Low}, a_{High})$, where $\epsilon \sim \mathcal{N}$
         \STATE Execute $a$ in the environment
@@ -360,85 +354,78 @@
         \STATE Store $(s,a,r,s',d)$ in replay buffer $\mathcal{D}$
         \STATE If $s'$ is terminal, reset environment state.
         \IF{it's time to update}
-            \FOR{however many updates}
+            \FOR{$j$ in range(however many updates)}
                 \STATE Randomly sample a batch of transitions, $B = \{ (s,a,r,s',d) \}$ from $\mathcal{D}$
+                \STATE Compute target actions
+                \begin{equation*}
+                    a'(s') = \text{clip}\left(\mu_{\theta_{\text{targ}}}(s') + \text{clip}(\epsilon,-c,c), a_{Low}, a_{High}\right), \;\;\;\;\; \epsilon \sim \mathcal{N}(0, \sigma)
+                \end{equation*}
                 \STATE Compute targets
                 \begin{equation*}
-                    y(r,s',d) = r + \gamma (1-d) Q_{\phi_{\text{targ}}}(s', \mu_{\theta_{\text{targ}}}(s'))
+                    y(r,s',d) = r + \gamma (1-d) \min_{i=1,2} Q_{\phi_{\text{targ},i}}(s', a'(s'))
                 \end{equation*}
-                \STATE Update Q-function by one step of gradient descent using
-                \begin{equation*}
-                    \nabla_{\phi} \frac{1}{|B|}\sum_{(s,a,r,s',d) \in B} \left( Q_{\phi}(s,a) - y(r,s',d) \right)^2
-                \end{equation*}
-                \STATE Update policy by one step of gradient ascent using
-                \begin{equation*}
-                    \nabla_{\theta} \frac{1}{|B|}\sum_{s \in B}Q_{\phi}(s, \mu_{\theta}(s))
-                \end{equation*}
-                \STATE Update target networks with
+                \STATE Update Q-functions by one step of gradient descent using
                 \begin{align*}
-                    \phi_{\text{targ}} &amp;\leftarrow \rho \phi_{\text{targ}} + (1-\rho) \phi \\
-                    \theta_{\text{targ}} &amp;\leftarrow \rho \theta_{\text{targ}} + (1-\rho) \theta
+                    &amp; \nabla_{\phi_i} \frac{1}{|B|}\sum_{(s,a,r,s',d) \in B} \left( Q_{\phi_i}(s,a) - y(r,s',d) \right)^2 &amp;&amp; \text{for } i=1,2
                 \end{align*}
+                \IF{ $j \mod$ \texttt{policy\_delay} $ = 0$}
+                    \STATE Update policy by one step of gradient ascent using
+                    \begin{equation*}
+                        \nabla_{\theta} \frac{1}{|B|}\sum_{s \in B}Q_{\phi_1}(s, \mu_{\theta}(s))
+                    \end{equation*}
+                    \STATE Update target networks with
+                    \begin{align*}
+                        \phi_{\text{targ},i} &amp;\leftarrow \rho \phi_{\text{targ}, i} + (1-\rho) \phi_i &amp;&amp; \text{for } i=1,2\\
+                        \theta_{\text{targ}} &amp;\leftarrow \rho \theta_{\text{targ}} + (1-\rho) \theta
+                    \end{align*}
+                \ENDIF
             \ENDFOR
         \ENDIF
     \UNTIL{convergence}
 \end{algorithmic}
 \end{algorithm}\end{split}\end{aligned}\end{align} \]</div>
-<a class="reference internal image-reference" href="../_images/DDPG.jpg"><img alt="../_images/DDPG.jpg" class="align-center" src="../_images/DDPG.jpg" style="width: 751.5px; height: 556.5px;" /></a>
+<a class="reference internal image-reference" href="../_images/TD3.png"><img alt="../_images/TD3.png" class="align-center" src="../_images/TD3.png" style="width: 526.4px; height: 603.2px;" /></a>
 </section>
-<section id="id6">
-<h2>扩展<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
-<dl>
-<dt>DDPG 可以与以下技术相结合使用:</dt><dd><ul>
-<li><p>目标网络</p>
+<section id="id5">
+<h2>扩展<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>TD3 可以与以下技术相结合使用:</p>
 <blockquote>
-<div><p><a class="reference external" href="https://arxiv.org/abs/1509.02971">Continuous control with deep reinforcement learning</a> 提出了利用软目标更新保持网络训练稳定的方法。
-因此我们通过 <code class="docutils literal notranslate"><span class="pre">model_wrap</span></code> 中的 <code class="docutils literal notranslate"><span class="pre">TargetNetworkWrapper</span></code> 和配置 <code class="docutils literal notranslate"><span class="pre">learn.target_theta</span></code> 来实现 <strong>演员—评委（actor-critic）</strong> 的软更新目标网络。</p>
-</div></blockquote>
-</li>
+<div><ul>
 <li><p>遵循随机策略的经验回放池初始采集</p>
 <blockquote>
 <div><p>在优化模型参数前，我们需要让经验回放池存有足够数目的遵循随机策略的 transition 数据，从而确保在算法初期模型不会对经验回放池数据过拟合。
-因此我们通过配置 <code class="docutils literal notranslate"><span class="pre">random-collect-size</span></code> 来控制初始经验回放池中的 transition 数目。
 DDPG/TD3 的 <code class="docutils literal notranslate"><span class="pre">random-collect-size</span></code> 默认设置为25000, SAC 为10000。
-我们只是简单地遵循 SpinningUp 默认设置，并使用随机策略来收集初始化数据。</p>
-</div></blockquote>
-</li>
-<li><p>采集过渡过程中的高斯噪声</p>
-<blockquote>
-<div><p>对于探索噪声过程，DDPG使用时间相关噪声，以提高具有惯性的物理控制问题的探索效率。
-具体而言，DDPG 使用 Ornstein-Uhlenbeck 过程，其中 <span class="math notranslate nohighlight">\(\theta = 0.15\)</span> 且 <span class="math notranslate nohighlight">\(\sigma = 0.2\)</span>。Ornstein-Uhlenbeck 过程模拟了带有摩擦的布朗粒子的速度，其结果是以 0 为中心的时间相关值。
-然而，由于 Ornstein-Uhlenbeck 噪声的超参数太多，我们使用高斯噪声代替了 Ornstein-Uhlenbeck 噪声。
-我们通过配置 <code class="docutils literal notranslate"><span class="pre">collect.noise_sigma</span></code> 来控制探索程度。</p>
+我们只是简单地遵循 SpinningUp 默认设置，并使用随机策略来收集初始化数据。
+我们通过配置 <code class="docutils literal notranslate"><span class="pre">random-collect-size</span></code> 来控制初始经验回放池中的 transition 数目。</p>
 </div></blockquote>
 </li>
 </ul>
-</dd>
-</dl>
+</div></blockquote>
 </section>
-<section id="id8">
-<h2>实现<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<section id="id6">
+<h2>实现<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
 <p>默认配置定义如下:</p>
 <dl class="py class">
-<dt class="sig sig-object py">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ding.policy.ddpg.</span></span><span class="sig-name descname"><span class="pre">DDPGPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">,</span> </span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_field</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ding/policy/ddpg.html#DDPGPolicy"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dt class="sig sig-object py" id="ding.policy.td3.TD3Policy">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ding.policy.td3.</span></span><span class="sig-name descname"><span class="pre">TD3Policy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">type</span><span class="p"><span class="pre">,</span> </span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_field</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ding/policy/td3.html#TD3Policy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ding.policy.td3.TD3Policy" title="Permalink to this definition">¶</a></dt>
 <dd><dl>
-<dt>Overview:</dt><dd><p>Policy class of DDPG algorithm.</p>
-<p><a class="reference external" href="https://arxiv.org/pdf/1509.02971.pdf">https://arxiv.org/pdf/1509.02971.pdf</a></p>
+<dt>Overview:</dt><dd><p>Policy class of TD3 algorithm.</p>
+<p>Since DDPG and TD3 share many common things, we can easily derive this TD3
+class from DDPG class by changing <code class="docutils literal notranslate"><span class="pre">_actor_update_freq</span></code>, <code class="docutils literal notranslate"><span class="pre">_twin_critic</span></code> and noise in model wrapper.</p>
+<p><a class="reference external" href="https://arxiv.org/pdf/1802.09477.pdf">https://arxiv.org/pdf/1802.09477.pdf</a></p>
 </dd>
 <dt>Property:</dt><dd><p>learn_mode, collect_mode, eval_mode</p>
 </dd>
 </dl>
 <p>Config:</p>
-<blockquote>
-<div><table class="docutils align-default">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 2%" />
-<col style="width: 20%" />
+<col style="width: 19%" />
 <col style="width: 8%" />
-<col style="width: 13%" />
-<col style="width: 33%" />
-<col style="width: 24%" />
+<col style="width: 17%" />
+<col style="width: 32%" />
+<col style="width: 22%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>ID</p></th>
@@ -457,7 +444,7 @@ DDPG/TD3 的 <code class="docutils literal notranslate"><span class="pre">random
 </div>
 </td>
 <td><p>str</p></td>
-<td><p>ddpg</p></td>
+<td><p>td3</p></td>
 <td><div class="line-block">
 <div class="line">RL policy register name, refer</div>
 <div class="line">to registry <code class="docutils literal notranslate"><span class="pre">POLICY_REGISTRY</span></code></div>
@@ -516,7 +503,7 @@ DDPG/TD3 的 <code class="docutils literal notranslate"><span class="pre">random
 </div>
 </td>
 <td><p>bool</p></td>
-<td><p>False</p></td>
+<td><p>True</p></td>
 <td><div class="line-block">
 <div class="line">Whether to use two critic</div>
 <div class="line">networks or only one.</div>
@@ -525,8 +512,8 @@ DDPG/TD3 的 <code class="docutils literal notranslate"><span class="pre">random
 </div>
 </td>
 <td><div class="line-block">
-<div class="line">Default False for</div>
-<div class="line">DDPG, Clipped Double</div>
+<div class="line">Default True for TD3,</div>
+<div class="line">Clipped Double</div>
 <div class="line">Q-learning method in</div>
 <div class="line">TD3 paper.</div>
 </div>
@@ -588,8 +575,8 @@ DDPG/TD3 的 <code class="docutils literal notranslate"><span class="pre">random
 </div>
 </td>
 <td><div class="line-block">
-<div class="line">Default 1 for DDPG,</div>
-<div class="line">2 for TD3. Delayed</div>
+<div class="line">Default 2 for TD3, 1</div>
+<div class="line">for DDPG. Delayed</div>
 <div class="line">Policy Updates method</div>
 <div class="line">in TD3 paper.</div>
 </div>
@@ -605,7 +592,7 @@ DDPG/TD3 的 <code class="docutils literal notranslate"><span class="pre">random
 </div>
 </td>
 <td><p>bool</p></td>
-<td><p>False</p></td>
+<td><p>True</p></td>
 <td><div class="line-block">
 <div class="line">Whether to add noise on target</div>
 <div class="line">network’s action.</div>
@@ -615,8 +602,8 @@ DDPG/TD3 的 <code class="docutils literal notranslate"><span class="pre">random
 </div>
 </td>
 <td><div class="line-block">
-<div class="line">Default False for</div>
-<div class="line">DDPG, True for TD3.</div>
+<div class="line">Default True for TD3,</div>
+<div class="line">False for DDPG.</div>
 <div class="line">Target Policy Smoo-</div>
 <div class="line">thing Regularization</div>
 <div class="line">in TD3 paper.</div>
@@ -624,6 +611,35 @@ DDPG/TD3 的 <code class="docutils literal notranslate"><span class="pre">random
 </td>
 </tr>
 <tr class="row-even"><td><p>9</p></td>
+<td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">learn.noise_</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">range</span></code></div>
+<div class="line"><br /></div>
+</div>
+</td>
+<td><p>dict</p></td>
+<td><div class="line-block">
+<div class="line">dict(min=-0.5,</div>
+<div class="line-block">
+<div class="line">max=0.5,)</div>
+<div class="line"><br /></div>
+</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">Limit for range of target</div>
+<div class="line">policy smoothing noise,</div>
+<div class="line">aka. noise_clip.</div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line"><br /></div>
+<div class="line"><br /></div>
+<div class="line"><br /></div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p>10</p></td>
 <td><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">learn.-</span></code></div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">ignore_done</span></code></div>
@@ -642,7 +658,7 @@ DDPG/TD3 的 <code class="docutils literal notranslate"><span class="pre">random
 </div>
 </td>
 </tr>
-<tr class="row-odd"><td><p>10</p></td>
+<tr class="row-even"><td><p>11</p></td>
 <td><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">learn.-</span></code></div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">target_theta</span></code></div>
@@ -661,13 +677,13 @@ DDPG/TD3 的 <code class="docutils literal notranslate"><span class="pre">random
 </td>
 <td><div class="line-block">
 <div class="line">aka. Interpolation</div>
-<div class="line">factor in polyak aver-</div>
-<div class="line">aging for target</div>
+<div class="line">factor in polyak aver</div>
+<div class="line">-aging for target</div>
 <div class="line">networks.</div>
 </div>
 </td>
 </tr>
-<tr class="row-even"><td><p>11</p></td>
+<tr class="row-odd"><td><p>12</p></td>
 <td><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">collect.-</span></code></div>
 <div class="line"><code class="docutils literal notranslate"><span class="pre">noise_sigma</span></code></div>
@@ -687,8 +703,8 @@ DDPG/TD3 的 <code class="docutils literal notranslate"><span class="pre">random
 </div>
 </td>
 <td><div class="line-block">
-<div class="line">Sample noise from dis-</div>
-<div class="line">tribution, Ornstein-</div>
+<div class="line">Sample noise from dis</div>
+<div class="line">-tribution, Ornstein-</div>
 <div class="line">Uhlenbeck process in</div>
 <div class="line">DDPG paper, Gaussian</div>
 <div class="line">process in ours.</div>
@@ -697,13 +713,13 @@ DDPG/TD3 的 <code class="docutils literal notranslate"><span class="pre">random
 </tr>
 </tbody>
 </table>
-</div></blockquote>
 </dd></dl>
 
-<section id="id9">
-<h3>模型<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
-<p>在这里，我们提供了 <cite>QAC</cite> 模型作为 <cite>DDPG</cite> 的默认模型的示例。</p>
-<dl class="py class">
+<ol class="arabic">
+<li><p>模型</p>
+<p>在这里，我们提供了 <cite>QAC</cite> 模型作为 <cite>TD3</cite> 的默认模型的示例。</p>
+<blockquote>
+<div><dl class="py class">
 <dt class="sig sig-object py">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ding.model.template.qac.</span></span><span class="sig-name descname"><span class="pre">QAC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs_shape</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><span class="pre">ding.utils.type_helper.SequenceType</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_shape</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><span class="pre">ding.utils.type_helper.SequenceType</span><span class="p"><span class="pre">,</span> </span><span class="pre">easydict.EasyDict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action_space</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">twin_critic</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actor_head_hidden_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actor_head_layer_num</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">critic_head_hidden_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">critic_head_layer_num</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.nn.modules.module.Module</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">ReLU()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">norm_type</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder_hidden_size_list</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">ding.utils.type_helper.SequenceType</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">[32,</span> <span class="pre">64,</span> <span class="pre">256]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">share_encoder</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ding/model/template/qac.html#QAC"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><dl class="simple">
@@ -866,10 +882,11 @@ output, such as <code class="docutils literal notranslate"><span class="pre">q_v
 
 </dd></dl>
 
-</section>
-<section id="actor-critic">
-<h3>训练 actor-critic 模型<a class="headerlink" href="#actor-critic" title="Permalink to this headline">¶</a></h3>
-<p>首先，我们在 <code class="docutils literal notranslate"><span class="pre">_init_learn</span></code> 中分别初始化 actor 和 critic 优化器。
+</div></blockquote>
+</li>
+<li><p>训练 actor-critic 模型</p>
+<blockquote>
+<div><p>首先，我们在 <code class="docutils literal notranslate"><span class="pre">_init_learn</span></code> 中分别初始化 actor 和 critic 优化器。
 设置两个独立的优化器可以保证我们在计算 actor 损失时只更新 actor 网络参数而不更新 critic 网络，反之亦然。</p>
 <blockquote>
 <div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># actor and critic optimizer</span>
@@ -895,6 +912,12 @@ output, such as <code class="docutils literal notranslate"><span class="pre">q_v
 </ul>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># current q value</span>
 <span class="n">q_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_learn_model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;compute_critic&#39;</span><span class="p">)[</span><span class="s1">&#39;q_value&#39;</span><span class="p">]</span>
+<span class="n">q_value_dict</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_twin_critic</span><span class="p">:</span>
+    <span class="n">q_value_dict</span><span class="p">[</span><span class="s1">&#39;q_value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">q_value_dict</span><span class="p">[</span><span class="s1">&#39;q_value_twin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_value</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">q_value_dict</span><span class="p">[</span><span class="s1">&#39;q_value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">q_value</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 <span class="c1"># target q value. SARSA: first predict next action, then calculate next q value</span>
 <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
     <span class="n">next_action</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">next_obs</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;compute_actor&#39;</span><span class="p">)[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span>
@@ -903,47 +926,67 @@ output, such as <code class="docutils literal notranslate"><span class="pre">q_v
 </pre></div>
 </div>
 <ul class="simple">
-<li><p>计算损失</p></li>
+<li><p>Q 网络目标（<strong>Clipped Double-Q Learning</strong>）和损失计算</p></li>
 </ul>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># DDPG: single critic network</span>
-<span class="n">td_data</span> <span class="o">=</span> <span class="n">v_1step_td_data</span><span class="p">(</span><span class="n">q_value</span><span class="p">,</span> <span class="n">target_q_value</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;done&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">])</span>
-<span class="n">critic_loss</span><span class="p">,</span> <span class="n">td_error_per_sample</span> <span class="o">=</span> <span class="n">v_1step_td_error</span><span class="p">(</span><span class="n">td_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span><span class="p">)</span>
-<span class="n">loss_dict</span><span class="p">[</span><span class="s1">&#39;critic_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">critic_loss</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_twin_critic</span><span class="p">:</span>
+    <span class="c1"># TD3: two critic networks</span>
+    <span class="n">target_q_value</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">target_q_value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">target_q_value</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># find min one as target q value</span>
+    <span class="c1"># network1</span>
+    <span class="n">td_data</span> <span class="o">=</span> <span class="n">v_1step_td_data</span><span class="p">(</span><span class="n">q_value</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">target_q_value</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;done&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">])</span>
+    <span class="n">critic_loss</span><span class="p">,</span> <span class="n">td_error_per_sample1</span> <span class="o">=</span> <span class="n">v_1step_td_error</span><span class="p">(</span><span class="n">td_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span><span class="p">)</span>
+    <span class="n">loss_dict</span><span class="p">[</span><span class="s1">&#39;critic_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">critic_loss</span>
+    <span class="c1"># network2(twin network)</span>
+    <span class="n">td_data_twin</span> <span class="o">=</span> <span class="n">v_1step_td_data</span><span class="p">(</span><span class="n">q_value</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">target_q_value</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;done&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">])</span>
+    <span class="n">critic_twin_loss</span><span class="p">,</span> <span class="n">td_error_per_sample2</span> <span class="o">=</span> <span class="n">v_1step_td_error</span><span class="p">(</span><span class="n">td_data_twin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span><span class="p">)</span>
+    <span class="n">loss_dict</span><span class="p">[</span><span class="s1">&#39;critic_twin_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">critic_twin_loss</span>
+    <span class="n">td_error_per_sample</span> <span class="o">=</span> <span class="p">(</span><span class="n">td_error_per_sample1</span> <span class="o">+</span> <span class="n">td_error_per_sample2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="c1"># DDPG: single critic network</span>
+    <span class="n">td_data</span> <span class="o">=</span> <span class="n">v_1step_td_data</span><span class="p">(</span><span class="n">q_value</span><span class="p">,</span> <span class="n">target_q_value</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;done&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">])</span>
+    <span class="n">critic_loss</span><span class="p">,</span> <span class="n">td_error_per_sample</span> <span class="o">=</span> <span class="n">v_1step_td_error</span><span class="p">(</span><span class="n">td_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_gamma</span><span class="p">)</span>
+    <span class="n">loss_dict</span><span class="p">[</span><span class="s1">&#39;critic_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">critic_loss</span>
 </pre></div>
 </div>
 </div></blockquote>
 </li>
-<li><p><code class="docutils literal notranslate"><span class="pre">critic</span> <span class="pre">network</span> <span class="pre">update</span></code></p></li>
-</ol>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_critic</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
-<span class="n">loss_dict</span><span class="p">[</span><span class="s1">&#39;critic_loss&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+<li><p><code class="docutils literal notranslate"><span class="pre">critic</span> <span class="pre">network</span> <span class="pre">update</span></code></p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_critic</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">loss_dict</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s1">&#39;critic&#39;</span> <span class="ow">in</span> <span class="n">k</span><span class="p">:</span>
+        <span class="n">loss_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
 <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_critic</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
 </pre></div>
 </div>
-<ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">actor</span> <span class="pre">loss</span></code></p></li>
-</ol>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">actor_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_learn_model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;obs&#39;</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;compute_actor&#39;</span><span class="p">)</span>
-<span class="n">actor_data</span><span class="p">[</span><span class="s1">&#39;obs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;obs&#39;</span><span class="p">]</span>
-<span class="n">actor_loss</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_learn_model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">actor_data</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;compute_critic&#39;</span><span class="p">)[</span><span class="s1">&#39;q_value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-<span class="n">loss_dict</span><span class="p">[</span><span class="s1">&#39;actor_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">actor_loss</span>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">actor</span> <span class="pre">loss</span> <span class="pre">computation</span></code> 和  <code class="docutils literal notranslate"><span class="pre">actor</span> <span class="pre">network</span> <span class="pre">update</span></code> 取决于策略更新延迟（<strong>delaying the policy updates</strong>）的程度。</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_forward_learn_cnt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_actor_update_freq</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">actor_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_learn_model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;obs&#39;</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;compute_actor&#39;</span><span class="p">)</span>
+    <span class="n">actor_data</span><span class="p">[</span><span class="s1">&#39;obs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;obs&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_twin_critic</span><span class="p">:</span>
+        <span class="n">actor_loss</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_learn_model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">actor_data</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;compute_critic&#39;</span><span class="p">)[</span><span class="s1">&#39;q_value&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">actor_loss</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_learn_model</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">actor_data</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;compute_critic&#39;</span><span class="p">)[</span><span class="s1">&#39;q_value&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+    <span class="n">loss_dict</span><span class="p">[</span><span class="s1">&#39;actor_loss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">actor_loss</span>
+    <span class="c1"># actor update</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_actor</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+    <span class="n">actor_loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_actor</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
 </pre></div>
 </div>
-<ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">actor</span> <span class="pre">network</span> <span class="pre">update</span></code></p></li>
+</div></blockquote>
+</li>
 </ol>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># actor update</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_actor</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
-<span class="n">actor_loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
-<span class="bp">self</span><span class="o">.</span><span class="n">_optimizer_actor</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
-</pre></div>
-</div>
 </dd>
 </dl>
-</section>
-<section id="id10">
-<h3>目标网络<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
-<p>我们通过 <code class="docutils literal notranslate"><span class="pre">_init_learn</span></code> 中的目标模型初始化来实现目标网络。
+</div></blockquote>
+</li>
+<li><p>目标网络（Target Network）</p>
+<blockquote>
+<div><p>我们通过 <code class="docutils literal notranslate"><span class="pre">_init_learn</span></code> 中的 <code class="docutils literal notranslate"><span class="pre">self._target_model</span></code> 初始化来实现目标网络。
 我们配置 <code class="docutils literal notranslate"><span class="pre">learn.target_theta</span></code> 来控制平均中的插值因子。</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># main and target models</span>
 <span class="bp">self</span><span class="o">.</span><span class="n">_target_model</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">)</span>
@@ -955,10 +998,31 @@ output, such as <code class="docutils literal notranslate"><span class="pre">q_v
 <span class="p">)</span>
 </pre></div>
 </div>
+</div></blockquote>
+</li>
+<li><p>目标策略平滑正则（Target Policy Smoothing Regularization）</p>
+<blockquote>
+<div><p>我们通过 <code class="docutils literal notranslate"><span class="pre">_init_learn</span></code> 中的目标模型初始化来实现目标策略平滑正则。
+我们通过配置 <code class="docutils literal notranslate"><span class="pre">learn.noise</span></code>、 <code class="docutils literal notranslate"><span class="pre">learn.noise_sigma</span></code> 和 <code class="docutils literal notranslate"><span class="pre">learn.noise_range</span></code> 来控制引入的噪声，通过对噪声进行截断使所选动作不会太过偏离原始动作。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="o">.</span><span class="n">learn</span><span class="o">.</span><span class="n">noise</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_target_model</span> <span class="o">=</span> <span class="n">model_wrap</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_target_model</span><span class="p">,</span>
+        <span class="n">wrapper_name</span><span class="o">=</span><span class="s1">&#39;action_noise&#39;</span><span class="p">,</span>
+        <span class="n">noise_type</span><span class="o">=</span><span class="s1">&#39;gauss&#39;</span><span class="p">,</span>
+        <span class="n">noise_kwargs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s1">&#39;mu&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s1">&#39;sigma&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="o">.</span><span class="n">learn</span><span class="o">.</span><span class="n">noise_sigma</span>
+        <span class="p">},</span>
+        <span class="n">noise_range</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_cfg</span><span class="o">.</span><span class="n">learn</span><span class="o">.</span><span class="n">noise_range</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div></blockquote>
+</li>
+</ol>
 </section>
-</section>
-<section id="id11">
-<h2>基准<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
+<section id="id7">
+<h2>基准<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 15%" />
@@ -979,32 +1043,37 @@ output, such as <code class="docutils literal notranslate"><span class="pre">q_v
 <tr class="row-even"><td><p>HalfCheetah</p>
 <p>(HalfCheetah-v3)</p>
 </td>
-<td><p>11334</p></td>
-<td><img alt="../_images/halfcheetah_ddpg.png" src="../_images/halfcheetah_ddpg.png" />
+<td><p>11148</p></td>
+<td><img alt="../_images/halfcheetah_td3.png" src="../_images/halfcheetah_td3.png" />
 </td>
-<td><p><a class="reference external" href="https://github.com/opendilab/DI-engine/tree/main/dizoo/mujoco/config/halfcheetah_ddpg_default_config.py">config_link_p</a></p></td>
-<td><p>Tianshou(11719)
-Spinning-up(11000)</p></td>
+<td><p><a class="reference external" href="https://github.com/opendilab/DI-engine/tree/main/dizoo/mujoco/config/halfcheetah_td3_default_config.py">config_link_p</a></p></td>
+<td><p>Tianshou(10201)
+Spinning-up(9750)
+Sb3(9656)</p></td>
 </tr>
 <tr class="row-odd"><td><p>Hopper</p>
 <p>(Hopper-v2)</p>
 </td>
-<td><p>3516</p></td>
-<td><img alt="../_images/hopper_ddpg.png" src="../_images/hopper_ddpg.png" />
+<td><p>3720</p></td>
+<td><img alt="../_images/hopper_td3.png" src="../_images/hopper_td3.png" />
 </td>
-<td><p><a class="reference external" href="https://github.com/opendilab/DI-engine/tree/main/dizoo/mujoco/config/hopper_ddpg_default_config.py">config_link_q</a></p></td>
-<td><p>Tianshou(2197)
-Spinning-up(1800)</p></td>
+<td><p><a class="reference external" href="https://github.com/opendilab/DI-engine/tree/main/dizoo/mujoco/config/hopper_td3_default_config.py">config_link_q</a></p></td>
+<td><p>Tianshou(3472)
+Spinning-up(3982)
+sb3(3606 for
+Hopper-v3)</p></td>
 </tr>
 <tr class="row-even"><td><p>Walker2d</p>
 <p>(Walker2d-v2)</p>
 </td>
-<td><p>3443</p></td>
-<td><img alt="../_images/walker2d_ddpg.png" src="../_images/walker2d_ddpg.png" />
+<td><p>4386</p></td>
+<td><img alt="../_images/walker2d_td3.png" src="../_images/walker2d_td3.png" />
 </td>
-<td><p><a class="reference external" href="https://github.com/opendilab/DI-engine/tree/main/dizoo/mujoco/config/walker2d_ddpg_default_config.py">config_link_s</a></p></td>
-<td><p>Tianshou(1401)
-Spinning-up(1950)</p></td>
+<td><p><a class="reference external" href="https://github.com/opendilab/DI-engine/tree/main/dizoo/atari/config/walker2d_td3_default_configpy">config_link_s</a></p></td>
+<td><p>Tianshou(3982)
+Spinning-up(3472)
+sb3(4718 for
+Walker2d-v2)</p></td>
 </tr>
 </tbody>
 </table>
@@ -1013,23 +1082,18 @@ Spinning-up(1950)</p></td>
 <li><p>上述结果是通过在五个不同的随机种子(0,1,2,3,4)上运行相同的配置获得的。</p></li>
 </ol>
 </section>
-<section id="id12">
-<h2>参考<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
-<p>Timothy P. Lillicrap, Jonathan J. Hunt, Alexander Pritzel, Nicolas Heess, Tom Erez, Yuval Tassa, David Silver, Daan Wierstra: “Continuous control with deep reinforcement learning”, 2015; [<a class="reference external" href="http://arxiv.org/abs/1509.02971">http://arxiv.org/abs/1509.02971</a> arXiv:1509.02971].</p>
-<p>David Silver, Guy Lever, Nicolas Heess, Thomas Degris, Daan Wierstra, et al.. Deterministic Policy Gradient Algorithms. ICML, Jun 2014, Beijing, China. ffhal-00938992f</p>
-<p>Hafner, R., Riedmiller, M. Reinforcement learning in feedback control. Mach Learn 84, 137–169 (2011).</p>
-<p>Degris, T., White, M., and Sutton, R. S. (2012b). Linear off-policy actor-critic. In 29th International Conference on Machine Learning.</p>
+<section id="id8">
+<h2>参考文献<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<p>Scott Fujimoto, Herke van Hoof, David Meger: “Addressing Function Approximation Error in Actor-Critic Methods”, 2018; [<a class="reference external" href="http://arxiv.org/abs/1802.09477">http://arxiv.org/abs/1802.09477</a> arXiv:1802.09477].</p>
 </section>
-<section id="id13">
-<h2>其他公开的实现<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h2>
+<section id="id9">
+<h2>其他公开的实现<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p><a class="reference external" href="https://github.com/openai/baselines/tree/master/baselines/ddpg">Baselines</a></p></li>
-<li><p><a class="reference external" href="https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/ddpg">sb3</a></p></li>
-<li><p><a class="reference external" href="https://github.com/rll/rllab/blob/master/rllab/algos/ddpg.py">rllab</a></p></li>
-<li><p><a class="reference external" href="https://github.com/ray-project/ray/tree/master/rllib/agents/ddpg">rllib (Ray)</a></p></li>
+<li><p><a class="reference external" href="https://github.com/DLR-RM/stable-baselines3/tree/master/stable_baselines3/td3">sb3</a></p></li>
+<li><p><a class="reference external" href="https://github.com/ray-project/ray/blob/master/rllib/agents/ddpg/td3.py">rllib (Ray)</a></p></li>
 <li><p><a class="reference external" href="https://github.com/sfujim/TD3">TD3 release repo</a></p></li>
-<li><p><a class="reference external" href="https://github.com/openai/spinningup/tree/master/spinup/algos/pytorch/ddpg">Spinningup</a></p></li>
-<li><p><a class="reference external" href="https://github.com/thu-ml/tianshou/blob/master/tianshou/policy/modelfree/ddpg.py">tianshou</a></p></li>
+<li><p><a class="reference external" href="https://github.com/openai/spinningup/tree/master/spinup/algos/pytorch/td3">Spinningup</a></p></li>
+<li><p><a class="reference external" href="https://github.com/thu-ml/tianshou/blob/master/tianshou/policy/modelfree/td3.py">tianshou</a></p></li>
 </ul>
 </section>
 </section>
@@ -1042,12 +1106,12 @@ Spinning-up(1950)</p></td>
   
   <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
     
-    <a href="td3_zh.html" class="btn btn-neutral float-right" title="TD3" accesskey="n"
+    <a href="icm_zh.html" class="btn btn-neutral float-right" title="ICM" accesskey="n"
       rel="next">Next <img src="../_static/images/chevron-right-blue.svg"
         class="next-page"></a>
     
     
-    <a href="mdqn_zh.html" class="btn btn-neutral" title="MDQN" accesskey="p"
+    <a href="ddpg_zh.html" class="btn btn-neutral" title="DDPG" accesskey="p"
       rel="prev"><img src="../_static/images/chevron-right-blue.svg" class="previous-page"> Previous</a>
     
   </div>
@@ -1077,21 +1141,16 @@ Spinning-up(1950)</p></td>
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
               <ul>
-<li><a class="reference internal" href="#">DDPG</a><ul>
+<li><a class="reference internal" href="#">TD3</a><ul>
 <li><a class="reference internal" href="#id1">概述</a></li>
 <li><a class="reference internal" href="#id2">核心要点</a></li>
 <li><a class="reference internal" href="#id3">关键方程或关键框图</a></li>
-<li><a class="reference internal" href="#id5">伪代码</a></li>
-<li><a class="reference internal" href="#id6">扩展</a></li>
-<li><a class="reference internal" href="#id8">实现</a><ul>
-<li><a class="reference internal" href="#id9">模型</a></li>
-<li><a class="reference internal" href="#actor-critic">训练 actor-critic 模型</a></li>
-<li><a class="reference internal" href="#id10">目标网络</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#id11">基准</a></li>
-<li><a class="reference internal" href="#id12">参考</a></li>
-<li><a class="reference internal" href="#id13">其他公开的实现</a></li>
+<li><a class="reference internal" href="#id4">伪代码</a></li>
+<li><a class="reference internal" href="#id5">扩展</a></li>
+<li><a class="reference internal" href="#id6">实现</a></li>
+<li><a class="reference internal" href="#id7">基准</a></li>
+<li><a class="reference internal" href="#id8">参考文献</a></li>
+<li><a class="reference internal" href="#id9">其他公开的实现</a></li>
 </ul>
 </li>
 </ul>
