@@ -37,9 +37,9 @@ def AirstrikerGenesis_action_dtype_transform(action):
     elif action == 1:
         return [1,0,0,0,0,0,0,0,0,0,0,0]
     elif action == 2:
-        return [0,0,1,0,0,0,0,0,0,0,0,0]
+        return [0,0,0,0,0,0,1,0,0,0,0,0]
     elif action == 3:
-        return [0,0,0,1,0,0,0,0,0,0,0,0]
+        return [0,0,0,0,0,0,0,1,0,0,0,0]
     elif action == 4:
         return [1,0,0,0,0,0,1,0,0,0,0,0]
     elif action == 5:
