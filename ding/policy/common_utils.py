@@ -30,6 +30,12 @@ def default_preprocess_learn(
     if data['done'].dim() == 2 and data['done'].shape[1] == 1:
         data['done'] = data['done'].squeeze(-1)
 
+    if 'log_prob' in data and data['log_prob'].dim() == 2 and data['log_prob'].shape[1] == 1:
+        data['log_prob'] = data['log_prob'].squeeze(-1)
+
+    if 'reward' in data and data['reward'].dim() == 2 and data['reward'].shape[1] == 1:
+        data['reward'] = data['reward'].squeeze(-1)
+
     if use_priority_IS_weight:
         assert use_priority, "Use IS Weight correction, but Priority is not used."
     if use_priority and use_priority_IS_weight:

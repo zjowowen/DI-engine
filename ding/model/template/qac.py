@@ -9,6 +9,66 @@ from ..common import RegressionHead, ReparameterizationHead, DiscreteHead, Multi
     FCEncoder, ConvEncoder
 
 
+@MODEL_REGISTRY.register('base_qac')
+class BaseQAC(nn.Module):
+    r"""
+    Overview:
+        The QAC model.
+        (This is an ugly base class, only for compatibility with old algo pipeline.)
+    Interfaces:
+        ``__init__``, ``forward``, ``compute_actor``, ``compute_critic``
+    """
+    mode = ['compute_actor', 'compute_critic', 'compute_actor_critic']
+
+    def __init__(
+            self,
+            actor: nn.Module,
+            critic: nn.Module,
+            action_space: str,
+    ) -> None:
+        super(BaseQAC, self).__init__()
+        self.actor = actor
+        self.critic = critic
+        self.action_space = action_space
+
+    def forward(self, inputs: Union[torch.Tensor, Dict], mode: str):
+        assert mode in self.mode, "not support forward mode: {}/{}".format(mode, self.mode)
+        if mode == 'compute_actor':
+            return self.compute_actor(inputs)
+        elif mode == 'compute_critic':
+            return self.compute_critic(inputs['obs'], inputs['action'])
+        elif mode == 'compute_actor_critic':
+            return self.compute_actor_critic(inputs)
+        else:
+            raise NotImplementedError
+
+    def compute_actor(self, obs: torch.Tensor):
+        if self.action_space == 'discrete':
+            raise NotImplementedError
+        elif self.action_space == 'continuous':
+            raise NotImplementedError
+        elif self.action_space == 'general':
+            action, log_prob = self.actor(obs)
+            return {'action': action, 'log_prob': log_prob}
+        else:
+            raise NotImplementedError
+
+    def compute_critic(self, obs: torch.Tensor, action: torch.Tensor):
+        q_value = self.critic(obs, action)
+        return {'q_value': q_value}
+
+    def compute_actor_critic(self, obs: torch.Tensor):
+        if self.action_space == 'discrete':
+            raise NotImplementedError
+        elif self.action_space == 'continuous':
+            raise NotImplementedError
+        elif self.action_space == 'general':
+            action, log_prob = self.actor(obs)
+            q_value = self.critic(obs, action)
+            return {'action': action, 'log_prob': log_prob, 'q_value': q_value}
+        else:
+            raise NotImplementedError
+
 @MODEL_REGISTRY.register('qac')
 class QAC(nn.Module):
     r"""
