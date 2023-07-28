@@ -584,13 +584,13 @@ class SACPolicy(Policy):
             weight_decay=self._cfg.learn.weight_decay,
         )
 
-        if self._cfg.learn.q_grad_clip is None:
+        if self._cfg.learn.q_grad_clip is not None:
             q_grad_clip=torch.tensor(self._cfg.learn.q_grad_clip) 
             self.q_grad_clip=q_grad_clip * 2 if self._twin_critic else q_grad_clip
         else:
             self.q_grad_clip=torch.inf
 
-        if self._cfg.learn.policy_grad_clip is None:
+        if self._cfg.learn.policy_grad_clip is not None:
             policy_grad_clip=torch.tensor(self._cfg.learn.policy_grad_clip) 
             self.policy_grad_clip=policy_grad_clip * 2 if self._twin_critic else policy_grad_clip
         else:
