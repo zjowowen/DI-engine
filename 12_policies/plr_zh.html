@@ -9,10 +9,11 @@
 
 <head>
   <meta charset="utf-8">
-  
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Overview: module code &mdash; DI-engine 0.1.0 documentation</title>
+  <title>PLR &mdash; DI-engine 0.1.0 documentation</title>
   
 
   <link rel="shortcut icon" href="../_static/images/favicon.ico" />
@@ -34,6 +35,8 @@
   <link rel="stylesheet" href="../_static/css/style.css" type="text/css" />
   <link rel="index" title="Index" href="../genindex.html" />
   <link rel="search" title="Search" href="../search.html" />
+  <link rel="next" title="强化学习环境示例" href="../13_envs/index_zh.html" />
+  <link rel="prev" title="MBPO" href="mbpo_zh.html" />
     <link href="../_static/css/style.css" rel="stylesheet" type="text/css">
 
 
@@ -212,10 +215,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../06_faq/index_zh.html">FAQ</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">强化学习教程</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../10_concepts/index_zh.html">强化学习基础概念介绍</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../11_dizoo/index_zh.html">从 DI-zoo 开始学习</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../12_policies/index_zh.html">强化学习算法</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index_zh.html">强化学习算法</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../13_envs/index_zh.html">强化学习环境示例</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">开发者规范</span></p>
@@ -263,10 +266,16 @@
       </li>
 
         
-      <li>Overview: module code</li>
+          <li><a href="index_zh.html">强化学习算法</a> &gt;</li>
+        
+      <li>PLR</li>
     
     
       <li class="pytorch-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/12_policies/plr_zh.rst.txt" rel="nofollow"><img src="../_static/images/view-page-source-icon.svg"></a>
+          
         
       </li>
     
@@ -289,150 +298,106 @@
             <div role="main" class="main-content" itemscope="itemscope" itemtype="http://schema.org/Article">
               <article itemprop="articleBody" id="pytorch-article" class="pytorch-article">
                 
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="ding/config/config.html">ding.config.config</a></li>
-<li><a href="ding/data/buffer/buffer.html">ding.data.buffer.buffer</a></li>
-<li><a href="ding/data/buffer/deque_buffer.html">ding.data.buffer.deque_buffer</a></li>
-<li><a href="ding/data/buffer/middleware/clone_object.html">ding.data.buffer.middleware.clone_object</a></li>
-<li><a href="ding/data/buffer/middleware/group_sample.html">ding.data.buffer.middleware.group_sample</a></li>
-<li><a href="ding/data/buffer/middleware/padding.html">ding.data.buffer.middleware.padding</a></li>
-<li><a href="ding/data/buffer/middleware/priority.html">ding.data.buffer.middleware.priority</a></li>
-<li><a href="ding/data/buffer/middleware/sample_range_view.html">ding.data.buffer.middleware.sample_range_view</a></li>
-<li><a href="ding/data/buffer/middleware/staleness_check.html">ding.data.buffer.middleware.staleness_check</a></li>
-<li><a href="ding/data/buffer/middleware/use_time_check.html">ding.data.buffer.middleware.use_time_check</a></li>
-<li><a href="ding/data/shm_buffer.html">ding.data.shm_buffer</a></li>
-<li><a href="ding/envs/env/base_env.html">ding.envs.env.base_env</a></li>
-<li><a href="ding/envs/env_manager/base_env_manager.html">ding.envs.env_manager.base_env_manager</a></li>
-<li><a href="ding/envs/env_manager/subprocess_env_manager.html">ding.envs.env_manager.subprocess_env_manager</a></li>
-<li><a href="ding/envs/env_wrappers/env_wrappers.html">ding.envs.env_wrappers.env_wrappers</a></li>
-<li><a href="ding/framework/context.html">ding.framework.context</a></li>
-<li><a href="ding/framework/middleware/ckpt_handler.html">ding.framework.middleware.ckpt_handler</a></li>
-<li><a href="ding/framework/middleware/collector.html">ding.framework.middleware.collector</a></li>
-<li><a href="ding/framework/middleware/functional/advantage_estimator.html">ding.framework.middleware.functional.advantage_estimator</a></li>
-<li><a href="ding/framework/middleware/functional/collector.html">ding.framework.middleware.functional.collector</a></li>
-<li><a href="ding/framework/middleware/functional/data_processor.html">ding.framework.middleware.functional.data_processor</a></li>
-<li><a href="ding/framework/middleware/functional/enhancer.html">ding.framework.middleware.functional.enhancer</a></li>
-<li><a href="ding/framework/middleware/functional/evaluator.html">ding.framework.middleware.functional.evaluator</a></li>
-<li><a href="ding/framework/middleware/functional/trainer.html">ding.framework.middleware.functional.trainer</a></li>
-<li><a href="ding/framework/middleware/learner.html">ding.framework.middleware.learner</a></li>
-<li><a href="ding/framework/parallel.html">ding.framework.parallel</a></li>
-<li><a href="ding/framework/task.html">ding.framework.task</a></li>
-<li><a href="ding/league/base_league.html">ding.league.base_league</a></li>
-<li><a href="ding/league/one_vs_one_league.html">ding.league.one_vs_one_league</a></li>
-<li><a href="ding/league/player.html">ding.league.player</a></li>
-<li><a href="ding/league/shared_payoff.html">ding.league.shared_payoff</a></li>
-<li><a href="ding/league/starcraft_player.html">ding.league.starcraft_player</a></li>
-<li><a href="ding/model/common/encoder.html">ding.model.common.encoder</a></li>
-<li><a href="ding/model/common/head.html">ding.model.common.head</a></li>
-<li><a href="ding/model/common/utils.html">ding.model.common.utils</a></li>
-<li><a href="ding/model/template/collaq.html">ding.model.template.collaq</a></li>
-<li><a href="ding/model/template/coma.html">ding.model.template.coma</a></li>
-<li><a href="ding/model/template/ppg.html">ding.model.template.ppg</a></li>
-<li><a href="ding/model/template/q_learning.html">ding.model.template.q_learning</a></li>
-<li><a href="ding/model/template/qac.html">ding.model.template.qac</a></li>
-<li><a href="ding/model/template/qac_dist.html">ding.model.template.qac_dist</a></li>
-<li><a href="ding/model/template/qmix.html">ding.model.template.qmix</a></li>
-<li><a href="ding/model/template/vac.html">ding.model.template.vac</a></li>
-<li><a href="ding/model/template/wqmix.html">ding.model.template.wqmix</a></li>
-<li><a href="ding/policy/a2c.html">ding.policy.a2c</a></li>
-<li><a href="ding/policy/acer.html">ding.policy.acer</a></li>
-<li><a href="ding/policy/atoc.html">ding.policy.atoc</a></li>
-<li><a href="ding/policy/c51.html">ding.policy.c51</a></li>
-<li><a href="ding/policy/collaq.html">ding.policy.collaq</a></li>
-<li><a href="ding/policy/coma.html">ding.policy.coma</a></li>
-<li><a href="ding/policy/cql.html">ding.policy.cql</a></li>
-<li><a href="ding/policy/d4pg.html">ding.policy.d4pg</a></li>
-<li><a href="ding/policy/ddpg.html">ding.policy.ddpg</a></li>
-<li><a href="ding/policy/dqfd.html">ding.policy.dqfd</a></li>
-<li><a href="ding/policy/dqn.html">ding.policy.dqn</a></li>
-<li><a href="ding/policy/edac.html">ding.policy.edac</a></li>
-<li><a href="ding/policy/fqf.html">ding.policy.fqf</a></li>
-<li><a href="ding/policy/impala.html">ding.policy.impala</a></li>
-<li><a href="ding/policy/iqn.html">ding.policy.iqn</a></li>
-<li><a href="ding/policy/mbpolicy/mbsac.html">ding.policy.mbpolicy.mbsac</a></li>
-<li><a href="ding/policy/mdqn.html">ding.policy.mdqn</a></li>
-<li><a href="ding/policy/ngu.html">ding.policy.ngu</a></li>
-<li><a href="ding/policy/ppg.html">ding.policy.ppg</a></li>
-<li><a href="ding/policy/ppo.html">ding.policy.ppo</a></li>
-<li><a href="ding/policy/qmix.html">ding.policy.qmix</a></li>
-<li><a href="ding/policy/qrdqn.html">ding.policy.qrdqn</a></li>
-<li><a href="ding/policy/qtran.html">ding.policy.qtran</a></li>
-<li><a href="ding/policy/r2d2.html">ding.policy.r2d2</a></li>
-<li><a href="ding/policy/r2d2_gtrxl.html">ding.policy.r2d2_gtrxl</a></li>
-<li><a href="ding/policy/r2d3.html">ding.policy.r2d3</a></li>
-<li><a href="ding/policy/rainbow.html">ding.policy.rainbow</a></li>
-<li><a href="ding/policy/sac.html">ding.policy.sac</a></li>
-<li><a href="ding/policy/sql.html">ding.policy.sql</a></li>
-<li><a href="ding/policy/td3.html">ding.policy.td3</a></li>
-<li><a href="ding/policy/td3_bc.html">ding.policy.td3_bc</a></li>
-<li><a href="ding/policy/wqmix.html">ding.policy.wqmix</a></li>
-<li><a href="ding/reward_model/base_reward_model.html">ding.reward_model.base_reward_model</a></li>
-<li><a href="ding/reward_model/gail_irl_model.html">ding.reward_model.gail_irl_model</a></li>
-<li><a href="ding/reward_model/guided_cost_reward_model.html">ding.reward_model.guided_cost_reward_model</a></li>
-<li><a href="ding/reward_model/her_reward_model.html">ding.reward_model.her_reward_model</a></li>
-<li><a href="ding/reward_model/icm_reward_model.html">ding.reward_model.icm_reward_model</a></li>
-<li><a href="ding/reward_model/ngu_reward_model.html">ding.reward_model.ngu_reward_model</a></li>
-<li><a href="ding/reward_model/pdeil_irl_model.html">ding.reward_model.pdeil_irl_model</a></li>
-<li><a href="ding/reward_model/pwil_irl_model.html">ding.reward_model.pwil_irl_model</a></li>
-<li><a href="ding/reward_model/red_irl_model.html">ding.reward_model.red_irl_model</a></li>
-<li><a href="ding/reward_model/rnd_reward_model.html">ding.reward_model.rnd_reward_model</a></li>
-<li><a href="ding/reward_model/trex_reward_model.html">ding.reward_model.trex_reward_model</a></li>
-<li><a href="ding/rl_utils/adder.html">ding.rl_utils.adder</a></li>
-<li><a href="ding/rl_utils/exploration.html">ding.rl_utils.exploration</a></li>
-<li><a href="ding/rl_utils/ppo.html">ding.rl_utils.ppo</a></li>
-<li><a href="ding/rl_utils/td.html">ding.rl_utils.td</a></li>
-<li><a href="ding/torch_utils/checkpoint_helper.html">ding.torch_utils.checkpoint_helper</a></li>
-<li><a href="ding/torch_utils/data_helper.html">ding.torch_utils.data_helper</a></li>
-<li><a href="ding/torch_utils/distribution.html">ding.torch_utils.distribution</a></li>
-<li><a href="ding/torch_utils/loss/cross_entropy_loss.html">ding.torch_utils.loss.cross_entropy_loss</a></li>
-<li><a href="ding/torch_utils/loss/multi_logits_loss.html">ding.torch_utils.loss.multi_logits_loss</a></li>
-<li><a href="ding/torch_utils/network/activation.html">ding.torch_utils.network.activation</a></li>
-<li><a href="ding/torch_utils/network/gtrxl.html">ding.torch_utils.network.gtrxl</a></li>
-<li><a href="ding/torch_utils/network/nn_module.html">ding.torch_utils.network.nn_module</a></li>
-<li><a href="ding/torch_utils/network/res_block.html">ding.torch_utils.network.res_block</a></li>
-<li><a href="ding/torch_utils/network/rnn.html">ding.torch_utils.network.rnn</a></li>
-<li><a href="ding/torch_utils/network/scatter_connection.html">ding.torch_utils.network.scatter_connection</a></li>
-<li><a href="ding/torch_utils/network/soft_argmax.html">ding.torch_utils.network.soft_argmax</a></li>
-<li><a href="ding/torch_utils/network/transformer.html">ding.torch_utils.network.transformer</a></li>
-<li><a href="ding/torch_utils/optimizer_helper.html">ding.torch_utils.optimizer_helper</a></li>
-<li><a href="ding/utils/data/dataloader.html">ding.utils.data.dataloader</a></li>
-<li><a href="ding/utils/data/structure/cache.html">ding.utils.data.structure.cache</a></li>
-<li><a href="ding/utils/default_helper.html">ding.utils.default_helper</a></li>
-<li><a href="ding/utils/design_helper.html">ding.utils.design_helper</a></li>
-<li><a href="ding/utils/lock_helper.html">ding.utils.lock_helper</a></li>
-<li><a href="ding/utils/segment_tree.html">ding.utils.segment_tree</a></li>
-<li><a href="ding/utils/system_helper.html">ding.utils.system_helper</a></li>
-<li><a href="ding/utils/time_helper.html">ding.utils.time_helper</a></li>
-<li><a href="ding/utils/time_helper_base.html">ding.utils.time_helper_base</a></li>
-<li><a href="ding/worker/collector/base_serial_collector.html">ding.worker.collector.base_serial_collector</a></li>
-<li><a href="ding/worker/collector/base_serial_evaluator.html">ding.worker.collector.base_serial_evaluator</a></li>
-<li><a href="ding/worker/collector/comm/base_comm_collector.html">ding.worker.collector.comm.base_comm_collector</a></li>
-<li><a href="ding/worker/collector/comm/flask_fs_collector.html">ding.worker.collector.comm.flask_fs_collector</a></li>
-<li><a href="ding/worker/collector/comm/utils.html">ding.worker.collector.comm.utils</a></li>
-<li><a href="ding/worker/collector/episode_serial_collector.html">ding.worker.collector.episode_serial_collector</a></li>
-<li><a href="ding/worker/collector/sample_serial_collector.html">ding.worker.collector.sample_serial_collector</a></li>
-<li><a href="ding/worker/coordinator/base_parallel_commander.html">ding.worker.coordinator.base_parallel_commander</a></li>
-<li><a href="ding/worker/coordinator/base_serial_commander.html">ding.worker.coordinator.base_serial_commander</a></li>
-<li><a href="ding/worker/coordinator/comm_coordinator.html">ding.worker.coordinator.comm_coordinator</a></li>
-<li><a href="ding/worker/coordinator/coordinator.html">ding.worker.coordinator.coordinator</a></li>
-<li><a href="ding/worker/coordinator/resource_manager.html">ding.worker.coordinator.resource_manager</a></li>
-<li><a href="ding/worker/coordinator/solo_parallel_commander.html">ding.worker.coordinator.solo_parallel_commander</a></li>
-<li><a href="ding/worker/learner/base_learner.html">ding.worker.learner.base_learner</a></li>
-<li><a href="ding/worker/learner/comm/base_comm_learner.html">ding.worker.learner.comm.base_comm_learner</a></li>
-<li><a href="ding/worker/learner/comm/flask_fs_learner.html">ding.worker.learner.comm.flask_fs_learner</a></li>
-<li><a href="ding/worker/learner/learner_hook.html">ding.worker.learner.learner_hook</a></li>
-<li><a href="ding/worker/replay_buffer/advanced_buffer.html">ding.worker.replay_buffer.advanced_buffer</a></li>
-<li><a href="ding/worker/replay_buffer/base_buffer.html">ding.worker.replay_buffer.base_buffer</a></li>
-<li><a href="ding/worker/replay_buffer/episode_buffer.html">ding.worker.replay_buffer.episode_buffer</a></li>
-<li><a href="ding/worker/replay_buffer/naive_buffer.html">ding.worker.replay_buffer.naive_buffer</a></li>
-<li><a href="ding/worker/replay_buffer/utils.html">ding.worker.replay_buffer.utils</a></li>
-<li><a href="ding/world_model/mbpo.html">ding.world_model.mbpo</a></li>
+  <section id="plr">
+<h1>PLR<a class="headerlink" href="#plr" title="Permalink to this headline">¶</a></h1>
+<section id="id1">
+<h2>概述<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>PLR 是在 <a class="reference external" href="https://arxiv.org/abs/2010.03934">Prioritized Level Replay</a> 中提出的。  PLR是一种采样训练水平的方法，利用水平之间的学习潜力差异来提高样本效率和泛化能力。</p>
+</section>
+<section id="id2">
+<h2>核心要点<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>PLR 支持 <strong>多层次环境</strong>。</p></li>
+<li><p>PLR 同时更新 <strong>策略</strong> and <strong>水平分数</strong>。</p></li>
+<li><p>在 DI-engine 的实现中，PLR与 <strong>PPG</strong> 算法相结合。</p></li>
+<li><p>PLR 支持 <strong>Policy entropy</strong>, <strong>Policy min-margin</strong>, <strong>Policy least-confidence</strong>, <strong>1-step TD error</strong> 和 <strong>GAE</strong> 得分函数。</p></li>
+</ol>
+</section>
+<section id="id3">
+<h2>关键框图<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>游戏关卡由随机种子确定，可以在导航布局、视觉外观和实体的起始位置方面有所变化。
+PLR基于重播每个水平的预估学习潜力，有选择地采样下一个训练水平。下一个水平可以从支持未见过水平的分布中采样（顶部），这可能是环境的（可能是隐含的）完整训练水平分布，或者从重播分布中采样，该分布基于未来的学习潜力对水平进行优先排序（底部）。</p>
+<a class="reference internal image-reference" href="../_images/PLR_pic.png"><img alt="../_images/PLR_pic.png" class="align-center" src="../_images/PLR_pic.png" style="height: 250px;" /></a>
+</section>
+<section id="id4">
+<h2>关键方程<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>学习潜力的得分水平是：</p>
+<a class="reference internal image-reference" href="../_images/PLR_Score.png"><img alt="../_images/PLR_Score.png" class="align-center" src="../_images/PLR_Score.png" style="height: 250px;" /></a>
+<p>给定水平分数，我们使用在这些分数上评估并使用温度参数 <span class="math notranslate nohighlight">\(\beta\)</span> 进行调整的优先级函数 <span class="math notranslate nohighlight">\(h\)</span> 的归一化输出，以定义得分优先的分布 <span class="math notranslate nohighlight">\(P_{S}\left(\Lambda_{\text {train }}\right)\)</span> ，用于对训练水平进行采样</p>
+<div class="math notranslate nohighlight">
+\[P_{S}\left(l_{i} \mid \Lambda_{\text {seen }}, S\right)=\frac{h\left(S_{i}\right)^{1 / \beta}}{\sum_{j} h\left(S_{j}\right)^{1 / \beta}}\]</div>
+<div class="math notranslate nohighlight">
+\[h\left(S_{i}\right)=1 / \operatorname{rank}\left(S_{i}\right)\]</div>
+<p>其中 <span class="math notranslate nohighlight">\(\operatorname{rank}\left(S_{i}\right)\)</span> 是水平分数 <span class="math notranslate nohighlight">\(S_{i}\)</span> 在按降序排序的所有分数中的排名。</p>
+<p>由于用于参数化 <span class="math notranslate nohighlight">\(P_{S}\)</span>  的分数是与策略状态相关联的，反映了越长时间没有通过重播进行更新，就越能逐渐反映出更“偏离策略”的度量。我们通过将采样分布明确与一个过时优先的分布 <span class="math notranslate nohighlight">\(P_{C}\)</span>  混合，来缓解这种向 “off-policy-ness” 漂移的趋势：</p>
+<div class="math notranslate nohighlight">
+\[P_{C}\left(l_{i} \mid \Lambda_{\text {seen }}, C, c\right)=\frac{c-C_{i}}{\sum_{C_{j} \in C} c-C_{j}}\]</div>
+<div class="math notranslate nohighlight">
+\[P_{\text {replay }}\left(l_{i}\right)=(1-\rho) \cdot P_{S}\left(l_{i} \mid \Lambda_{\text {seen }}, S\right)+\rho \cdot P_{C}\left(l_{i} \mid \Lambda_{\text {seen }}, C, c\right)\]</div>
+</section>
+<section id="id5">
+<h2>伪代码<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>使用 PLR 的策略梯度训练循环</p>
+<img alt="../_images/PLR_1.png" src="../_images/PLR_1.png" />
+<p>使用PLR进行经验采集</p>
+<img alt="../_images/PLR_2.png" src="../_images/PLR_2.png" />
+</section>
+<section id="id6">
+<h2>基准测试<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<table class="colwidths-given docutils align-default" id="id9">
+<caption><span class="caption-text">Benchmark of PLR algorithm</span><a class="headerlink" href="#id9" title="Permalink to this table">¶</a></caption>
+<colgroup>
+<col style="width: 36%" />
+<col style="width: 43%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>environment</p></th>
+<th class="head"><p>evaluation results</p></th>
+<th class="head"><p>config link</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="line-block">
+<div class="line">BigFish</div>
+</div>
+</td>
+<td><img alt="../_images/PLR_result.png" src="../_images/PLR_result.png" />
+</td>
+<td><p><a class="reference external" href="https://github.com/opendilab/DI-engine/blob/main/dizoo/procgen/entry/bigfish_plr_config.py">config_link_p</a></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id7">
+<h2>参考文献<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<p>Minqi Jiang, Edward Grefenstette, Tim Rocktaschel: “Prioritized Level Replay”, 2021; arXiv:2010.03934.</p>
+</section>
+<section id="id8">
+<h2>其他开源实现<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>[facebookresearch](<a class="reference external" href="https://github.com/facebookresearch/level-replay">https://github.com/facebookresearch/level-replay</a>)</p></li>
 </ul>
+</section>
+</section>
+
 
               </article>
               
             </div>
             <footer>
+  
+  <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+    
+    <a href="../13_envs/index_zh.html" class="btn btn-neutral float-right" title="强化学习环境示例" accesskey="n"
+      rel="next">Next <img src="../_static/images/chevron-right-blue.svg"
+        class="next-page"></a>
+    
+    
+    <a href="mbpo_zh.html" class="btn btn-neutral" title="MBPO" accesskey="p"
+      rel="prev"><img src="../_static/images/chevron-right-blue.svg" class="previous-page"> Previous</a>
+    
+  </div>
   
 
   <hr>
@@ -458,7 +423,20 @@
         <div class="pytorch-content-right" id="pytorch-content-right">
           <div class="pytorch-right-menu" id="pytorch-right-menu">
             <div class="pytorch-side-scroll" id="pytorch-side-scroll-right">
-              
+              <ul>
+<li><a class="reference internal" href="#">PLR</a><ul>
+<li><a class="reference internal" href="#id1">概述</a></li>
+<li><a class="reference internal" href="#id2">核心要点</a></li>
+<li><a class="reference internal" href="#id3">关键框图</a></li>
+<li><a class="reference internal" href="#id4">关键方程</a></li>
+<li><a class="reference internal" href="#id5">伪代码</a></li>
+<li><a class="reference internal" href="#id6">基准测试</a></li>
+<li><a class="reference internal" href="#id7">参考文献</a></li>
+<li><a class="reference internal" href="#id8">其他开源实现</a></li>
+</ul>
+</li>
+</ul>
+
             </div>
           </div>
         </div>
@@ -477,6 +455,7 @@
   <script src="../_static/jquery.js"></script>
   <script src="../_static/underscore.js"></script>
   <script src="../_static/doctools.js"></script>
+  <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   
 
   
