@@ -55,17 +55,26 @@ class PoolEnvManager:
             seed = 0
         else:
             seed = self._seed
+        
+        kwargs = {}
+        if "episodic_life" in self._cfg:
+            kwargs["episodic_life"] = self._cfg.episodic_life
+        if "reward_clip" in self._cfg:
+            kwargs["reward_clip"] = self._cfg.reward_clip
+        if "stack_num" in self._cfg:
+            kwargs["stack_num"] = self._cfg.stack_num
+        if "gray_scale" in self._cfg:
+            kwargs["gray_scale"] = self._cfg.gray_scale
+        if "frame_skip" in self._cfg:
+            kwargs["frame_skip"] = self._cfg.frame_skip
+
         self._envs = envpool.make(
             task_id=self._cfg.env_id,
             env_type="gym",
             num_envs=self._env_num,
             batch_size=self._batch_size,
             seed=seed,
-            episodic_life=self._cfg.episodic_life,
-            reward_clip=self._cfg.reward_clip,
-            stack_num=self._cfg.stack_num,
-            gray_scale=self._cfg.gray_scale,
-            frame_skip=self._cfg.frame_skip
+            **kwargs
         )
         self._closed = False
         self.reset()
