@@ -72,7 +72,7 @@ def main(cfg, seed=0, max_iterations=int(1e10)):
     eps_cfg = cfg.policy.other.eps
     epsilon_greedy = get_epsilon_greedy_fn(eps_cfg.start, eps_cfg.end, eps_cfg.decay, eps_cfg.type)
 
-    while True:
+    while collector.envstep<max_iterations:
         if evaluator.should_eval(learner.train_iter):
             stop, reward = evaluator.eval(learner.save_checkpoint, learner.train_iter, collector.envstep)
             if stop:
@@ -88,4 +88,4 @@ def main(cfg, seed=0, max_iterations=int(1e10)):
 
 
 if __name__ == "__main__":
-    main(EasyDict(pong_dqn_envpool_config))
+    main(EasyDict(pong_dqn_envpool_config), max_iterations=1000000)
