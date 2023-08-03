@@ -7,7 +7,7 @@ cfg = dict(
         evaluator_env_num=8,
         env_id='LunarLander-v2',
         n_evaluator_episode=8,
-        stop_value=240,
+        stop_value=260,
     ),
     policy=dict(
         cuda=True,
@@ -35,4 +35,4 @@ cfg = dict(
 cfg = EasyDict(cfg)
 
 import ding.envs.gym_env
-env = ding.envs.gym_env.env,
+env = ding.envs.gym_env.env

@@ -6,7 +6,7 @@ cfg = dict(
         collector_env_num=8,
         evaluator_env_num=8,
         n_evaluator_episode=8,
-        stop_value=20,
+        stop_value=30,
         env_id='PongNoFrameskip-v4',
         frame_stack=4,
         env_wrapper='atari_default',
@@ -51,4 +51,4 @@ cfg = dict(
 cfg = EasyDict(cfg)
 
 import ding.envs.gym_env
-env = ding.envs.gym_env.env,
+env = ding.envs.gym_env.env
