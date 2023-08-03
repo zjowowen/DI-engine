@@ -8,7 +8,7 @@ spaceinvaders_dqn_envpool_config = dict(
         evaluator_env_num=8,
         evaluator_batch_size=8,
         n_evaluator_episode=8,
-        stop_value=20,
+        stop_value=10000000000,
         env_id='SpaceInvaders-v5',
         #'ALE/SpaceInvaders-v5' is available. But special setting is needed after gym make.
         frame_stack=4,
