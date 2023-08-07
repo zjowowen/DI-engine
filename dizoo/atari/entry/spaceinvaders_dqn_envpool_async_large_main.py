@@ -9,13 +9,11 @@ from ding.policy import DQNPolicy
 from ding.model import DQN
 from ding.utils import set_pkg_seed
 from ding.rl_utils import get_epsilon_greedy_fn
-from dizoo.atari.config.serial import pong_dqn_envpool_config
+from dizoo.atari.config.serial import spaceinvaders_dqn_envpool_config
 
 
 def main(cfg, seed=0, max_iterations=int(1e10)):
-    cfg.exp_name = 'pong_dqn_envpool_async'
-    pong_dqn_envpool_config.env.collector_env_num=32
-    pong_dqn_envpool_config.env.collector_batch_size=8
+    cfg.exp_name = 'spaceinvaders_dqn_envpool_async_large'
     cfg = compile_config(
         cfg,
         PoolEnvManager,
@@ -33,7 +31,7 @@ def main(cfg, seed=0, max_iterations=int(1e10)):
             'batch_size': cfg.env.collector_batch_size,
             # env wrappers
             'episodic_life': False,  # collector: True
-            'reward_clip': True,  # collector: True
+            'reward_clip': False,  # collector: True
             'gray_scale': cfg.env.get('gray_scale', True),
             'stack_num': cfg.env.get('stack_num', 4),
         }
@@ -88,4 +86,9 @@ def main(cfg, seed=0, max_iterations=int(1e10)):
 
 
 if __name__ == "__main__":
-    main(EasyDict(pong_dqn_envpool_config), max_iterations=10000000)
+    spaceinvaders_dqn_envpool_config.env.collector_env_num=56
+    spaceinvaders_dqn_envpool_config.env.collector_batch_size=16
+    import time
+    start_time = time.time()
+    main(EasyDict(spaceinvaders_dqn_envpool_config), max_iterations=10000000)
+    print(time.time()-start_time)

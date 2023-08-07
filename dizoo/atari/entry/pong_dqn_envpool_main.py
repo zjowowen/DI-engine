@@ -13,7 +13,7 @@ from dizoo.atari.config.serial import pong_dqn_envpool_config
 
 
 def main(cfg, seed=0, max_iterations=int(1e10)):
-    cfg.exp_name = 'atari_dqn_envpool'
+    cfg.exp_name = 'pong_dqn_envpool'
     cfg = compile_config(
         cfg,
         PoolEnvManager,

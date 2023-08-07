@@ -13,7 +13,7 @@ from dizoo.atari.config.serial import pong_dqn_envpool_config
 
 
 def main(cfg, seed=0, max_iterations=int(1e10)):
-    cfg.exp_name = 'pong_dqn_envpool_async'
+    cfg.exp_name = 'pong_dqn_envpool_async_large'
     pong_dqn_envpool_config.env.collector_env_num=32
     pong_dqn_envpool_config.env.collector_batch_size=8
     cfg = compile_config(
@@ -88,4 +88,9 @@ def main(cfg, seed=0, max_iterations=int(1e10)):
 
 
 if __name__ == "__main__":
+    pong_dqn_envpool_config.env.collector_env_num=56
+    pong_dqn_envpool_config.env.collector_batch_size=16
+    import time
+    start_time = time.time()
     main(EasyDict(pong_dqn_envpool_config), max_iterations=10000000)
+    print(time.time()-start_time)
