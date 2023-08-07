@@ -14,6 +14,8 @@ from dizoo.atari.config.serial import spaceinvaders_dqn_envpool_config
 
 def main(cfg, seed=0, max_iterations=int(1e10)):
     cfg.exp_name = 'spaceinvaders_dqn_envpool_async_large'
+    cfg.env.collector_env_num=56
+    cfg.env.collector_batch_size=16
     cfg = compile_config(
         cfg,
         PoolEnvManager,
@@ -86,8 +88,6 @@ def main(cfg, seed=0, max_iterations=int(1e10)):
 
 
 if __name__ == "__main__":
-    spaceinvaders_dqn_envpool_config.env.collector_env_num=56
-    spaceinvaders_dqn_envpool_config.env.collector_batch_size=16
     import time
     start_time = time.time()
     main(EasyDict(spaceinvaders_dqn_envpool_config), max_iterations=10000000)
