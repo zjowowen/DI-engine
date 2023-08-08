@@ -33,7 +33,7 @@ def main(cfg, seed=0, max_iterations=int(1e10)):
             'batch_size': cfg.env.collector_batch_size,
             # env wrappers
             'episodic_life': False,  # collector: True
-            'reward_clip': True,  # collector: True
+            'reward_clip': False,  # collector: True
             'gray_scale': cfg.env.get('gray_scale', True),
             'stack_num': cfg.env.get('stack_num', 4),
         }
