@@ -40,7 +40,7 @@ class BaseLearner(object):
             load_ckpt_before_run='',
             log_show_after_iter=100,
             save_ckpt_after_iter=10000,
-            save_ckpt_after_run=True,
+            save_ckpt_after_run=False,
         ),
     )
 
