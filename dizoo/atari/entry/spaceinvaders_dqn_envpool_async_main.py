@@ -10,20 +10,16 @@ from ding.model import DQN
 from ding.utils import set_pkg_seed
 from ding.rl_utils import get_epsilon_greedy_fn
 from dizoo.atari.config.serial import spaceinvaders_dqn_envpool_config
-
+import datetime
+import wandb
+import numpy as np
 
 def main(cfg, seed=0, max_iterations=int(1e10)):
-    cfg.exp_name = 'spaceinvaders_dqn_envpool_async'
-    cfg = compile_config(
-        cfg,
-        PoolEnvManager,
-        DQNPolicy,
-        BaseLearner,
-        SampleSerialCollector,
-        InteractionSerialEvaluator,
-        AdvancedReplayBuffer,
-        save_cfg=True
-    )
+
+    cfg.exp_name = 'spaceinvaders_dqn_envpool_async' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    cfg.env.collector_env_num=8
+    cfg.env.collector_batch_size=8
     collector_env_cfg = EasyDict(
         {
             'env_id': cfg.env.env_id,
@@ -36,7 +32,7 @@ def main(cfg, seed=0, max_iterations=int(1e10)):
             'stack_num': cfg.env.get('stack_num', 4),
         }
     )
-    collector_env = PoolEnvManager(collector_env_cfg)
+    cfg.env["collector_env_cfg"]=collector_env_cfg
     evaluator_env_cfg = EasyDict(
         {
             'env_id': cfg.env.env_id,
@@ -49,6 +45,19 @@ def main(cfg, seed=0, max_iterations=int(1e10)):
             'stack_num': cfg.env.get('stack_num', 4),
         }
     )
+    cfg.env["evaluator_env_cfg"]=evaluator_env_cfg
+    cfg = compile_config(
+        cfg,
+        PoolEnvManager,
+        DQNPolicy,
+        BaseLearner,
+        SampleSerialCollector,
+        InteractionSerialEvaluator,
+        AdvancedReplayBuffer,
+        save_cfg=True
+    )
+    wandb.init(project=cfg.env.env_id, name=cfg.exp_name, config=cfg)
+    collector_env = PoolEnvManager(collector_env_cfg)
     evaluator_env = PoolEnvManager(evaluator_env_cfg)
     collector_env.seed(seed)
     evaluator_env.seed(seed)
@@ -70,20 +79,33 @@ def main(cfg, seed=0, max_iterations=int(1e10)):
     eps_cfg = cfg.policy.other.eps
     epsilon_greedy = get_epsilon_greedy_fn(eps_cfg.start, eps_cfg.end, eps_cfg.decay, eps_cfg.type)
 
+    import time
+    start_time = time.time()
+
     while collector.envstep<max_iterations:
+        info_for_logging = {}
         if evaluator.should_eval(learner.train_iter):
             stop, reward = evaluator.eval(learner.save_checkpoint, learner.train_iter, collector.envstep)
+            info_for_logging['eval_reward_mean'] = np.array(reward['eval_episode_return']).mean()
+            info_for_logging['eval_reward_std'] = np.array(reward['eval_episode_return']).std()
+            info_for_logging['eval_reward_min'] = np.array(reward['eval_episode_return']).min()
+            info_for_logging['eval_reward_max'] = np.array(reward['eval_episode_return']).max()
             if stop:
                 break
         eps = epsilon_greedy(collector.envstep)
         new_data = collector.collect(train_iter=learner.train_iter, policy_kwargs={'eps': eps})
+        info_for_logging['envstep'] = collector.envstep
         replay_buffer.push(new_data, cur_collector_envstep=collector.envstep)
         for i in range(cfg.policy.learn.update_per_collect):
             batch_size = learner.policy.get_attribute('batch_size')
             train_data = replay_buffer.sample(batch_size, learner.train_iter)
             if train_data is not None:
                 learner.train(train_data, collector.envstep)
+                info_for_logging['train_iter'] = learner.train_iter
+        info_for_logging['time']=time.time()-start_time
+        wandb.log(data=info_for_logging, step=collector.envstep)
 
+    print(time.time()-start_time)
 
 if __name__ == "__main__":
     main(EasyDict(spaceinvaders_dqn_envpool_config), max_iterations=10000000)
