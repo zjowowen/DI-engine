@@ -76,6 +76,8 @@ class PoolEnvManager:
             seed=seed,
             **kwargs
         )
+        self.action_space = self._envs.action_space
+        self.observation_space = self._envs.observation_space
         self._closed = False
         self.reset()
 

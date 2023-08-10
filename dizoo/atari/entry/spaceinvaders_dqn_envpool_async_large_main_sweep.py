@@ -6,6 +6,7 @@ from ding.config import compile_config
 from ding.worker import BaseLearner, SampleSerialCollector, InteractionSerialEvaluator, AdvancedReplayBuffer
 from ding.envs.env_manager.envpool_env_manager import PoolEnvManager
 from ding.policy import DQNPolicy
+from ding.entry import random_collect
 from ding.model import DQN
 from ding.utils import set_pkg_seed
 from ding.rl_utils import get_epsilon_greedy_fn
@@ -77,6 +78,9 @@ def main(cfg, seed=0, max_iterations=int(1e10)):
     import time
     start_time = time.time()
 
+    if cfg.policy.random_collect_size > 0:
+        collect_kwargs = {'eps': epsilon_greedy(collector.envstep)}
+        random_collect(cfg.policy, policy, collector, collector_env, {}, replay_buffer, collect_kwargs=collect_kwargs)
     while collector.envstep<max_iterations:
         info_for_logging = {}
         if evaluator.should_eval(learner.train_iter):
