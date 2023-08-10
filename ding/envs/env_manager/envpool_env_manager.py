@@ -88,6 +88,7 @@ class PoolEnvManager:
             obs, _, _, info = self._envs.recv()
             env_id = info['env_id']
             obs = obs.astype(np.float32)
+            obs/=255.0
             self._ready_obs = deep_merge_dicts({i: o for i, o in zip(env_id, obs)}, self._ready_obs)
             if len(self._ready_obs) == self._env_num:
                 break
@@ -102,6 +103,7 @@ class PoolEnvManager:
 
         obs, rew, done, info = self._envs.recv()
         obs = obs.astype(np.float32)
+        obs/=255.0
         rew = rew.astype(np.float32)
         env_id = info['env_id']
         timesteps = {}
