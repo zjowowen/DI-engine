@@ -117,7 +117,7 @@ if __name__ == "__main__":
     #parse seed by "--seed"
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--collector_env_num", type=int, default=int(8))
-    parser.add_argument("collector_batch_size", type=int, default=int(8))
+    parser.add_argument("--collector_batch_size", type=int, default=int(8))
     args = parser.parse_args()
 
     main(EasyDict(pong_dqn_envpool_config), collector_env_num=args.collector_env_num, collector_batch_size=args.collector_batch_size, seed=args.seed, max_iterations=10000000)
