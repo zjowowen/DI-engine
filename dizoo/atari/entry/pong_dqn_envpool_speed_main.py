@@ -165,8 +165,8 @@ if __name__ == "__main__":
             },
         'parameters': 
         {
-            'collector_env_num': {'values': [8, 16, 24, 32, 40, 48, 56, 64]},
-            'collector_batch_size': {'values': [8, 16, 24, 32, 40, 48, 56, 64]},
+            'collector_env_num': {'values': [64, 56, 48, 40, 32, 24, 16, 8]},
+            'collector_batch_size': {'values': [64, 56, 48, 40, 32, 24, 16, 8]},
         }
     }
 
