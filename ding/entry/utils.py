@@ -49,6 +49,7 @@ def random_collect(
         postprocess_data_fn: Optional[Callable] = None,
         collect_kwargs: Optional[Dict] = None,
 ) -> None:  # noqa
+    time_info=None
     assert policy_cfg.random_collect_size > 0
     if policy_cfg.get('transition_with_policy_data', False):
         collector.reset_policy(policy.collect_mode)
@@ -61,7 +62,7 @@ def random_collect(
     if policy_cfg.collect.collector.type == 'episode':
         new_data = collector.collect(n_episode=policy_cfg.random_collect_size, policy_kwargs=collect_kwargs)
     else:
-        new_data = collector.collect(
+        new_data, time_info = collector.collect(
             n_sample=policy_cfg.random_collect_size,
             random_collect=True,
             record_random_collect=False,
@@ -71,3 +72,5 @@ def random_collect(
         new_data = postprocess_data_fn(new_data)
     replay_buffer.push(new_data, cur_collector_envstep=0)
     collector.reset_policy(policy.collect_mode)
+
+    return time_info if time_info is not None else {}

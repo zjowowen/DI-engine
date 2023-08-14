@@ -11,6 +11,7 @@ from ding.utils import build_logger, EasyTimer, SERIAL_COLLECTOR_REGISTRY, one_t
 from ding.torch_utils import to_tensor, to_ndarray
 from .base_serial_collector import ISerialCollector, CachePool, TrajBuffer, INF, to_tensor_transitions
 
+import time
 
 @SERIAL_COLLECTOR_REGISTRY.register('sample')
 class SampleSerialCollector(ISerialCollector):
@@ -252,26 +253,43 @@ class SampleSerialCollector(ISerialCollector):
         collected_episode = 0
         return_data = []
 
+        obs_preprocess_time = 0.0
+        policy_forward_time = 0.0
+        env_step_time = 0.0
+        actions_preprocess_time = 0.0
+        post_process_time = 0.0
+        log_time = 0.0
+
+
         while collected_sample < n_sample:
             with self._timer:
+                start_time = time.time()
                 # Get current env obs.
                 obs = self._env.ready_obs
                 # Policy forward.
                 self._obs_pool.update(obs)
                 if self._transform_obs:
                     obs = to_tensor(obs, dtype=torch.float32)
+                obs_preprocess_time += time.time() - start_time
+                start_time = time.time()
                 if self._policy_cfg.type == 'dreamer_command' and not random_collect:
                     policy_output = self._policy.forward(obs, **policy_kwargs, reset=self._resets, state=self._states)
                     #self._states = {env_id: output['state'] for env_id, output in policy_output.items()}
                     self._states = [output['state'] for output in policy_output.values()]
                 else:
                     policy_output = self._policy.forward(obs, **policy_kwargs)
+                policy_forward_time += time.time() - start_time
+                start_time = time.time()
                 self._policy_output_pool.update(policy_output)
                 # Interact with env.
                 actions = {env_id: output['action'] for env_id, output in policy_output.items()}
                 actions = to_ndarray(actions)
+                actions_preprocess_time += time.time() - start_time
+                start_time = time.time()
                 timesteps = self._env.step(actions)
+                env_step_time += time.time() - start_time
 
+            start_time = time.time()
             # TODO(nyz) this duration may be inaccurate in async env
             interaction_duration = self._timer.value / len(timesteps)
 
@@ -340,7 +358,9 @@ class SampleSerialCollector(ISerialCollector):
                     # Env reset is done by env_manager automatically
                     self._policy.reset([env_id])
                     self._reset_stat(env_id)
+            post_process_time += time.time() - start_time
 
+        start_time = time.time()
         collected_duration = sum([d['time'] for d in self._episode_info])
         # reduce data when enables DDP
         if self._world_size > 1:
@@ -362,10 +382,21 @@ class SampleSerialCollector(ISerialCollector):
             for env_id in range(self._env_num):
                 self._reset_stat(env_id)
 
+        log_time += time.time() - start_time
+
+        time_info={
+            'obs_preprocess_time': obs_preprocess_time,
+            'policy_forward_time': policy_forward_time,
+            'env_step_time': env_step_time,
+            'actions_preprocess_time': actions_preprocess_time,
+            'post_process_time': post_process_time,
+            'log_time': log_time,
+        }
+
         if drop_extra:
-            return return_data[:n_sample]
+            return return_data[:n_sample], time_info
         else:
-            return return_data
+            return return_data, time_info
 
     def _output_log(self, train_iter: int) -> None:
         """
