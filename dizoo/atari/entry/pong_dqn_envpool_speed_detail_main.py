@@ -84,6 +84,13 @@ def main(cfg, seed=0, max_iterations=int(1e10)):
     trainer_time_cost=0.0
     buffer_push_time_cost=0.0
     buffer_sample_time_cost=0.0
+    obs_preprocess_time = 0.0
+    policy_forward_time = 0.0
+    env_step_time = 0.0
+    actions_preprocess_time = 0.0
+    post_process_time = 0.0
+    log_time = 0.0
+
 
     if cfg.policy.random_collect_size > 0:
         collect_kwargs = {'eps': epsilon_greedy(collector.envstep)}
@@ -105,7 +112,18 @@ def main(cfg, seed=0, max_iterations=int(1e10)):
 
         start_time_2 = time.time()
         new_data, time_info = collector.collect(train_iter=learner.train_iter, policy_kwargs={'eps': eps})
-        info_for_logging.update(time_info)
+        obs_preprocess_time += time_info['obs_preprocess_time']
+        policy_forward_time += time_info['policy_forward_time']
+        env_step_time += time_info['env_step_time']
+        actions_preprocess_time += time_info['actions_preprocess_time']
+        post_process_time += time_info['post_process_time']
+        log_time += time_info['log_time']
+        info_for_logging['obs_preprocess_time']=obs_preprocess_time
+        info_for_logging['policy_forward_time']=policy_forward_time
+        info_for_logging['env_step_time']=env_step_time
+        info_for_logging['actions_preprocess_time']=actions_preprocess_time
+        info_for_logging['post_process_time']=post_process_time
+        info_for_logging['log_time']=log_time
         collector_time_cost+=time.time()-start_time_2
 
         info_for_logging['envstep'] = collector.envstep
