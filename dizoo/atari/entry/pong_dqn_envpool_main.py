@@ -97,7 +97,7 @@ def main(cfg, seed=0, max_iterations=int(1e10)):
             if stop:
                 break
         eps = epsilon_greedy(collector.envstep)
-        new_data = collector.collect(train_iter=learner.train_iter, policy_kwargs={'eps': eps})
+        new_data, _ = collector.collect(train_iter=learner.train_iter, policy_kwargs={'eps': eps})
         info_for_logging['envstep'] = collector.envstep
         replay_buffer.push(new_data, cur_collector_envstep=collector.envstep)
         for i in range(cfg.policy.learn.update_per_collect):
