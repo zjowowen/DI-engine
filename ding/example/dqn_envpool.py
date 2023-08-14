@@ -16,7 +16,8 @@ from ding.config import compile_config
 from ding.framework import task, ding_init
 from ding.framework.context import OnlineRLContext
 from ding.framework.middleware import OffPolicyLearner, StepCollector, interaction_evaluator, data_pusher, \
-    eps_greedy_handler, CkptSaver, ContextExchanger, ModelExchanger, online_logger, nstep_reward_enhancer
+    eps_greedy_handler, CkptSaver, ContextExchanger, ModelExchanger, online_logger, nstep_reward_enhancer, \
+    termination_checker
 from ding.utils import set_pkg_seed
 
 from dizoo.atari.config.serial import pong_dqn_envpool_config
@@ -98,7 +99,8 @@ def main(cfg):
         task.use(data_pusher(cfg, buffer_))
         task.use(OffPolicyLearner(cfg, policy.learn_mode, buffer_))
         task.use(online_logger(train_show_freq=10))
-        task.use(CkptSaver(policy, cfg.exp_name, train_freq=1000))
+        #task.use(CkptSaver(policy, cfg.exp_name, train_freq=1000))
+        task.use(termination_checker(max_env_step=10000000))
 
         task.run()
 
