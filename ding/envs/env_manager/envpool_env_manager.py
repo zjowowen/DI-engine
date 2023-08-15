@@ -150,6 +150,13 @@ class PoolEnvManager():
     def ready_obs(self) -> Dict[int, Any]:
         return self._ready_obs
 
+    @property
+    def observation_space(self) -> 'gym.spaces.Space':  # noqa
+        return self._observation_space
+
+    @property
+    def action_space(self) -> 'gym.spaces.Space':  # noqa
+        return self._action_space
 
 @ENV_MANAGER_REGISTRY.register('env_pool_v2')
 class PoolEnvManagerV2():
@@ -288,14 +295,10 @@ class PoolEnvManagerV2():
         else:
             raise NotImplementedError
 
-    # @property
-    # def ready_obs_id(self) -> List[int]:
-    #     # In BaseEnvManager, if env_episode_count equals episode_num, this env is done.
-    #     return [i for i, s in self._env_states.items() if s == EnvState.RUN]
-    
-    # @property
-    # def done(self) -> bool:
-    #     return all([s == EnvState.DONE for s in self._env_states.values()])
+    @property
+    def observation_space(self) -> 'gym.spaces.Space':  # noqa
+        return self._observation_space
 
-    # def env_state_done(self, env_id: int) -> bool:
-    #     return self._env_states[env_id] == EnvState.DONE
+    @property
+    def action_space(self) -> 'gym.spaces.Space':  # noqa
+        return self._action_space
