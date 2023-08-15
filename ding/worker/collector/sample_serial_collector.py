@@ -371,11 +371,6 @@ class SampleSerialCollector(ISerialCollector):
                     self._reset_stat(env_id)
                 policy_state_reset_time += time.time() - start_policy_state_reset_time
             post_process_time += time.time() - start_time
-            print("post_process_time:", post_process_time)
-            print("process_transition_time:", process_transition_time)
-            print("traj_buffer_time:", traj_buffer_time)
-            print("end_time:", end_time)
-            print("policy_state_reset_time:", policy_state_reset_time)
 
         start_time = time.time()
         collected_duration = sum([d['time'] for d in self._episode_info])
