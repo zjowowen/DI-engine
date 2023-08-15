@@ -49,7 +49,7 @@ def random_collect(
         postprocess_data_fn: Optional[Callable] = None,
         collect_kwargs: Optional[Dict] = None,
 ) -> None:  # noqa
-    time_info=None
+    time_info = None
     assert policy_cfg.random_collect_size > 0
     if policy_cfg.get('transition_with_policy_data', False):
         collector.reset_policy(policy.collect_mode)

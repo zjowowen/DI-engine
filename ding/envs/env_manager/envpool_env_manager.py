@@ -19,6 +19,7 @@ from ding.envs import BaseEnvTimestep
 from ding.utils import ENV_MANAGER_REGISTRY, deep_merge_dicts
 from ding.torch_utils import to_ndarray
 
+
 class EnvState(enum.IntEnum):
     VOID = 0
     INIT = 1
@@ -67,7 +68,7 @@ class PoolEnvManager():
             seed = 0
         else:
             seed = self._seed
-        
+
         kwargs = {}
         if "episodic_life" in self._cfg:
             kwargs["episodic_life"] = self._cfg.episodic_life
@@ -100,7 +101,7 @@ class PoolEnvManager():
             obs, _, _, info = self._envs.recv()
             env_id = info['env_id']
             obs = obs.astype(np.float32)
-            obs/=255.0
+            obs /= 255.0
             self._ready_obs = deep_merge_dicts({i: o for i, o in zip(env_id, obs)}, self._ready_obs)
             if len(self._ready_obs) == self._env_num:
                 break
@@ -115,7 +116,7 @@ class PoolEnvManager():
 
         obs, rew, done, info = self._envs.recv()
         obs = obs.astype(np.float32)
-        obs/=255.0
+        obs /= 255.0
         rew = rew.astype(np.float32)
         env_id = info['env_id']
         timesteps = {}
@@ -158,6 +159,7 @@ class PoolEnvManager():
     def action_space(self) -> 'gym.spaces.Space':  # noqa
         return self._action_space
 
+
 @ENV_MANAGER_REGISTRY.register('env_pool_v2')
 class PoolEnvManagerV2():
     '''
@@ -186,7 +188,6 @@ class PoolEnvManagerV2():
         super().__init__()
         self._cfg = cfg
         self._env_num = cfg.env_num
-        #self._env_states = {i: EnvState.VOID for i in range(self._env_num)}
         self._batch_size = cfg.batch_size
         self._ready_obs = {}
         self._closed = True
@@ -198,7 +199,7 @@ class PoolEnvManagerV2():
             seed = 0
         else:
             seed = self._seed
-        
+
         kwargs = {}
         if "episodic_life" in self._cfg:
             kwargs["episodic_life"] = self._cfg.episodic_life
@@ -231,13 +232,13 @@ class PoolEnvManagerV2():
             obs, _, _, info = self._envs.recv()
             env_id = info['env_id']
             obs = obs.astype(np.float32)
-            obs/=255.0
+            obs /= 255.0
             self._ready_obs = deep_merge_dicts({i: o for i, o in zip(env_id, obs)}, self._ready_obs)
             if len(self._ready_obs) == self._env_num:
                 break
         self._eval_episode_return = [0. for _ in range(self._env_num)]
 
-    def step(self, action: Union[List,np.ndarray]) -> Dict[int, namedtuple]:
+    def step(self, action: Union[List, np.ndarray]) -> Dict[int, namedtuple]:
         env_id = np.array(list(self._ready_obs.keys()))
         action = np.array(action)
         if len(action.shape) == 2:
@@ -246,11 +247,11 @@ class PoolEnvManagerV2():
 
         obs, rew, done, info = self._envs.recv()
         obs = obs.astype(np.float32)
-        obs/=255.0
+        obs /= 255.0
         rew = rew.astype(np.float32)
         env_id = info['env_id']
         timesteps = {}
-        new_data=[]
+        new_data = []
         self._ready_obs = {}
         for i in range(len(env_id)):
             d = bool(done[i])
@@ -259,7 +260,7 @@ class PoolEnvManagerV2():
             info_dict = {'env_id': i}
             timesteps[env_id[i]] = BaseEnvTimestep(obs[i], r, d, info=info_dict)
             if d:
-                info_dict['eval_episode_return']=self._eval_episode_return[env_id[i]]
+                info_dict['eval_episode_return'] = self._eval_episode_return[env_id[i]]
                 timesteps[env_id[i]].info['eval_episode_return'] = info_dict['eval_episode_return']
                 self._eval_episode_return[env_id[i]] = 0.
             new_data.append(tnp.array({'obs': obs[i], 'reward': r, 'done': d, 'info': info_dict, 'env_id': env_id[i]}))
@@ -287,10 +288,8 @@ class PoolEnvManagerV2():
 
     @property
     def ready_obs(self) -> tnp.array:
-        #active_env = [i for i, s in self._env_states.items() if s == EnvState.RUN]
-        #obs = [self._ready_obs[i] for i in active_env]
         if isinstance(self._ready_obs, dict):
-            obs = [tnp.array(o) for k,o in self._ready_obs.items()]
+            obs = [tnp.array(o) for k, o in self._ready_obs.items()]
             return tnp.stack(obs)
         else:
             raise NotImplementedError

@@ -13,6 +13,7 @@ from .base_serial_collector import ISerialCollector, CachePool, TrajBuffer, INF,
 
 import time
 
+
 @SERIAL_COLLECTOR_REGISTRY.register('sample')
 class SampleSerialCollector(ISerialCollector):
     """
@@ -52,7 +53,7 @@ class SampleSerialCollector(ISerialCollector):
         self._deepcopy_obs = cfg.deepcopy_obs  # whether to deepcopy each data
         self._transform_obs = cfg.transform_obs
         self._cfg = cfg
-        self._timer = EasyTimer()
+        self._timer = EasyTimer(cuda=False)
         self._end_flag = False
         self._rank = get_rank()
         self._world_size = get_world_size()
@@ -259,10 +260,10 @@ class SampleSerialCollector(ISerialCollector):
         actions_preprocess_time = 0.0
         post_process_time = 0.0
         log_time = 0.0
+        end_time = 0.0
         process_transition_time = 0.0
         traj_buffer_time = 0.0
         policy_state_reset_time = 0.0
-
 
         while collected_sample < n_sample:
             with self._timer:
@@ -298,6 +299,7 @@ class SampleSerialCollector(ISerialCollector):
 
             # TODO(nyz) vectorize this for loop
             for env_id, timestep in timesteps.items():
+                start_time_2 = time.time()
                 with self._timer:
                     start_process_transition_time = time.time()
                     if timestep.info.get('abnormal', False):
@@ -322,7 +324,7 @@ class SampleSerialCollector(ISerialCollector):
                             transition['seed'] = level_seeds[env_id]
                     # ``train_iter`` passed in from ``serial_entry``, indicates current collecting model's iteration.
                     transition['collect_iter'] = train_iter
-                    process_transition_time+=time.time()-start_process_transition_time
+                    process_transition_time += time.time() - start_process_transition_time
                     start_traj_buffer_time = time.time()
                     self._traj_buffer[env_id].append(transition)
                     self._env_info[env_id]['step'] += 1
@@ -348,7 +350,8 @@ class SampleSerialCollector(ISerialCollector):
                         collected_sample += len(train_sample)
                         self._traj_buffer[env_id].clear()
                     traj_buffer_time += time.time() - start_traj_buffer_time
-                
+
+                end_time += time.time() - start_time_2
                 start_policy_state_reset_time = time.time()
                 self._env_info[env_id]['time'] += self._timer.value + interaction_duration
 
@@ -368,6 +371,11 @@ class SampleSerialCollector(ISerialCollector):
                     self._reset_stat(env_id)
                 policy_state_reset_time += time.time() - start_policy_state_reset_time
             post_process_time += time.time() - start_time
+            print("post_process_time:", post_process_time)
+            print("process_transition_time:", process_transition_time)
+            print("traj_buffer_time:", traj_buffer_time)
+            print("end_time:", end_time)
+            print("policy_state_reset_time:", policy_state_reset_time)
 
         start_time = time.time()
         collected_duration = sum([d['time'] for d in self._episode_info])
@@ -393,7 +401,7 @@ class SampleSerialCollector(ISerialCollector):
 
         log_time += time.time() - start_time
 
-        time_info={
+        time_info = {
             'obs_preprocess_time': obs_preprocess_time,
             'policy_forward_time': policy_forward_time,
             'env_step_time': env_step_time,

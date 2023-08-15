@@ -1,4 +1,3 @@
-
 import gym
 import datetime
 import wandb
@@ -22,11 +21,12 @@ from ding.utils import set_pkg_seed
 
 from dizoo.atari.config.serial import pong_dqn_envpool_config
 
+
 def main(cfg):
     logging.getLogger().setLevel(logging.INFO)
     cfg.exp_name = 'pong_dqn_envpool_' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    cfg.env.collector_env_num=8
-    cfg.env.collector_batch_size=8
+    cfg.env.collector_env_num = 8
+    cfg.env.collector_batch_size = 8
     collector_env_cfg = EasyDict(
         {
             'env_id': cfg.env.env_id,
@@ -39,7 +39,7 @@ def main(cfg):
             'stack_num': cfg.env.get('stack_num', 4),
         }
     )
-    cfg.env["collector_env_cfg"]=collector_env_cfg
+    cfg.env["collector_env_cfg"] = collector_env_cfg
     evaluator_env_cfg = EasyDict(
         {
             'env_id': cfg.env.env_id,
@@ -52,17 +52,8 @@ def main(cfg):
             'stack_num': cfg.env.get('stack_num', 4),
         }
     )
-    cfg.env["evaluator_env_cfg"]=evaluator_env_cfg
-    cfg = compile_config(
-        cfg,
-        PoolEnvManagerV2,
-        DQNPolicy,
-        # BaseLearner,
-        # SampleSerialCollector,
-        # InteractionSerialEvaluator,
-        # AdvancedReplayBuffer,
-        save_cfg=task.router.node_id == 0
-    )
+    cfg.env["evaluator_env_cfg"] = evaluator_env_cfg
+    cfg = compile_config(cfg, PoolEnvManagerV2, DQNPolicy, save_cfg=task.router.node_id == 0)
     ding_init(cfg)
     with task.start(async_mode=False, ctx=OnlineRLContext()):
         collector_env = PoolEnvManagerV2(cfg.env.collector_env_cfg)
