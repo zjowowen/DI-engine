@@ -259,6 +259,9 @@ class SampleSerialCollector(ISerialCollector):
         actions_preprocess_time = 0.0
         post_process_time = 0.0
         log_time = 0.0
+        process_transition_time = 0.0
+        traj_buffer_time = 0.0
+        policy_state_reset_time = 0.0
 
 
         while collected_sample < n_sample:
@@ -296,6 +299,7 @@ class SampleSerialCollector(ISerialCollector):
             # TODO(nyz) vectorize this for loop
             for env_id, timestep in timesteps.items():
                 with self._timer:
+                    start_process_transition_time = time.time()
                     if timestep.info.get('abnormal', False):
                         # If there is an abnormal timestep, reset all the related variables(including this env).
                         # suppose there is no reset param, just reset this env
@@ -318,6 +322,8 @@ class SampleSerialCollector(ISerialCollector):
                             transition['seed'] = level_seeds[env_id]
                     # ``train_iter`` passed in from ``serial_entry``, indicates current collecting model's iteration.
                     transition['collect_iter'] = train_iter
+                    process_transition_time+=time.time()-start_process_transition_time
+                    start_traj_buffer_time = time.time()
                     self._traj_buffer[env_id].append(transition)
                     self._env_info[env_id]['step'] += 1
                     collected_step += 1
@@ -341,7 +347,9 @@ class SampleSerialCollector(ISerialCollector):
                         self._env_info[env_id]['train_sample'] += len(train_sample)
                         collected_sample += len(train_sample)
                         self._traj_buffer[env_id].clear()
-
+                    traj_buffer_time += time.time() - start_traj_buffer_time
+                
+                start_policy_state_reset_time = time.time()
                 self._env_info[env_id]['time'] += self._timer.value + interaction_duration
 
                 # If env is done, record episode info and reset
@@ -358,6 +366,7 @@ class SampleSerialCollector(ISerialCollector):
                     # Env reset is done by env_manager automatically
                     self._policy.reset([env_id])
                     self._reset_stat(env_id)
+                policy_state_reset_time += time.time() - start_policy_state_reset_time
             post_process_time += time.time() - start_time
 
         start_time = time.time()
@@ -391,6 +400,9 @@ class SampleSerialCollector(ISerialCollector):
             'actions_preprocess_time': actions_preprocess_time,
             'post_process_time': post_process_time,
             'log_time': log_time,
+            'process_transition_time': process_transition_time,
+            'traj_buffer_time': traj_buffer_time,
+            'policy_state_reset_time': policy_state_reset_time,
         }
 
         if drop_extra:

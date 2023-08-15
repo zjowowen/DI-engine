@@ -90,6 +90,9 @@ def main(cfg, seed=0, max_iterations=int(1e10)):
     actions_preprocess_time = 0.0
     post_process_time = 0.0
     log_time = 0.0
+    process_transition_time = 0.0
+    traj_buffer_time = 0.0
+    policy_state_reset_time = 0.0
 
 
     if cfg.policy.random_collect_size > 0:
@@ -118,12 +121,19 @@ def main(cfg, seed=0, max_iterations=int(1e10)):
         actions_preprocess_time += time_info['actions_preprocess_time']
         post_process_time += time_info['post_process_time']
         log_time += time_info['log_time']
+        process_transition_time += time_info['process_transition_time']
+        traj_buffer_time += time_info['traj_buffer_time']
+        policy_state_reset_time += time_info['policy_state_reset_time']
+
         info_for_logging['obs_preprocess_time']=obs_preprocess_time
         info_for_logging['policy_forward_time']=policy_forward_time
         info_for_logging['env_step_time']=env_step_time
         info_for_logging['actions_preprocess_time']=actions_preprocess_time
         info_for_logging['post_process_time']=post_process_time
         info_for_logging['log_time']=log_time
+        info_for_logging['process_transition_time']=process_transition_time
+        info_for_logging['traj_buffer_time']=traj_buffer_time
+        info_for_logging['policy_state_reset_time']=policy_state_reset_time
         collector_time_cost+=time.time()-start_time_2
 
         info_for_logging['envstep'] = collector.envstep
