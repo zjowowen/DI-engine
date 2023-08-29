@@ -35,9 +35,10 @@ def main(cfg):
         checkpoint_save_dir = os.path.join(cfg.exp_name, "ckpt")
 
         task.use(interaction_evaluator(cfg, policy.eval_mode, evaluator_env, render=True))
+        task.use(CkptSaver(policy, save_dir=checkpoint_save_dir, train_freq=100000))
         task.use(offline_data_fetcher(cfg, dataset))
         task.use(trainer(cfg, policy.learn_mode))
-        task.use(CkptSaver(policy, save_dir=checkpoint_save_dir, train_freq=100000))
+        
 
         task.use(
             wandb_offline_logger(
