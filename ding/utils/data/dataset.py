@@ -133,14 +133,12 @@ class HDF5Dataset(Dataset):
             logging.warning("not found h5py package, please install it trough `pip install h5py ")
             sys.exit(1)
         data_path = cfg.policy.collect.get('data_path', None)
-<<<<<<< Updated upstream
+        
         if 'dataset' in cfg:
             self.context_len = cfg.dataset.context_len
         else:
             self.context_len = 0
-        data = h5py.File(data_path, 'r')
-        self._load_data(data)
-=======
+        
         # chack if data_path is directory, find the all hdf5 file and load them
         if data_path is not None and os.path.isdir(data_path):
             data_path = [os.path.join(data_path, f) for f in os.listdir(data_path) if f.endswith('.hdf5')]
@@ -152,7 +150,6 @@ class HDF5Dataset(Dataset):
         for path in data_path:
             data = h5py.File(path, 'r')
             self._append_data(data)
->>>>>>> Stashed changes
         self._cal_statistics()
         try:
             if cfg.env.norm_obs.use_norm and cfg.env.norm_obs.offline_stats.use_offline_stats:
