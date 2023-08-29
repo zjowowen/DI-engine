@@ -3,7 +3,7 @@ from easydict import EasyDict
 change_obs_dtype_and_scale = True
 
 cfg = dict(
-    exp_name='Airstriker-Genesis-DQN',
+    exp_name='Airstriker-Genesis-CQLDiscrete',
     seed=0,
     env=dict(
         env_id='Airstriker-Genesis',
@@ -20,30 +20,25 @@ cfg = dict(
         random_collect_size=25000,
         priority=False,
         discount_factor=0.99,
-        nstep=3,
-        learn=dict(
-            update_per_collect=10,
-            batch_size=32,
-            learning_rate=0.0001,
-            # Frequency of target network update.
-            target_update_freq=500,
-            change_obs_dtype_and_scale=change_obs_dtype_and_scale,
-        ),
+        nstep=1,
         model=dict(
             obs_shape=[4, 84, 84],
             action_shape=6,
             encoder_hidden_size_list=[128, 128, 512],
         ),
-        collect=dict(n_sample=100, ),
-        eval=dict(render=True),
-        other=dict(
-            eps=dict(
-                type='exp',
-                start=1.,
-                end=0.05,
-                decay=10000000,
-            ), replay_buffer=dict(replay_buffer_size=400000, )
+        learn=dict(
+            train_epoch=30000,
+            batch_size=32,
+            learning_rate=0.0001,
+            # Frequency of target network update.
+            target_update_freq=500,
         ),
+        collect=dict(
+            data_type='hdf5',
+            data_path='./Airstriker-Genesis-SQL/data/output.hdf5',
+            collector_logit=False,
+        ),
+        eval=dict(render=True),
     ),
     wandb_logger=dict(
         gradient_logger=False,

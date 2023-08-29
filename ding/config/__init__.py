@@ -4,6 +4,8 @@ from .utils import parallel_transform, parallel_transform_slurm
 
 from . import A2C
 from . import C51
+from . import CQLDiscrete
+from . import CSQLDiscrete
 from . import DDPG
 from . import DQN
 from . import PG

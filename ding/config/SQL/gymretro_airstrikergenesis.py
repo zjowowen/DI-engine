@@ -1,6 +1,6 @@
 from easydict import EasyDict
 
-change_obs_dtype_and_scale=True
+change_obs_dtype_and_scale = True
 
 cfg = dict(
     exp_name='Airstriker-Genesis-SQL',
@@ -23,7 +23,7 @@ cfg = dict(
         nstep=3,
         model=dict(
             obs_shape=[4, 84, 84],
-            action_shape= 6,
+            action_shape=6,
             encoder_hidden_size_list=[128, 128, 512],
             dueling=True,
         ),
@@ -42,8 +42,7 @@ cfg = dict(
                 start=1.,
                 end=0.05,
                 decay=10000000,
-            ),
-            replay_buffer=dict(replay_buffer_size=400000, )
+            ), replay_buffer=dict(replay_buffer_size=400000, )
         ),
     ),
     wandb_logger=dict(

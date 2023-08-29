@@ -1,4 +1,5 @@
 from typing import List, Dict, Tuple
+import os
 from ditk import logging
 from copy import deepcopy
 from easydict import EasyDict
@@ -132,12 +133,26 @@ class HDF5Dataset(Dataset):
             logging.warning("not found h5py package, please install it trough `pip install h5py ")
             sys.exit(1)
         data_path = cfg.policy.collect.get('data_path', None)
+<<<<<<< Updated upstream
         if 'dataset' in cfg:
             self.context_len = cfg.dataset.context_len
         else:
             self.context_len = 0
         data = h5py.File(data_path, 'r')
         self._load_data(data)
+=======
+        # chack if data_path is directory, find the all hdf5 file and load them
+        if data_path is not None and os.path.isdir(data_path):
+            data_path = [os.path.join(data_path, f) for f in os.listdir(data_path) if f.endswith('.hdf5')]
+        elif data_path is not None and os.path.isfile(data_path):
+            data_path = [data_path]
+        else:
+            raise ValueError("invalid data_path: {}".format(data_path))
+
+        for path in data_path:
+            data = h5py.File(path, 'r')
+            self._append_data(data)
+>>>>>>> Stashed changes
         self._cal_statistics()
         try:
             if cfg.env.norm_obs.use_norm and cfg.env.norm_obs.offline_stats.use_offline_stats:
@@ -170,6 +185,16 @@ class HDF5Dataset(Dataset):
         for k in dataset.keys():
             logging.info(f'Load {k} data.')
             self._data[k] = dataset[k][:]
+
+    def _append_data(self, dataset: Dict[str, np.ndarray]) -> None:
+        if hasattr(self, "_data"):
+            for k in dataset.keys():
+                if k == "info":
+                    continue
+                logging.info(f'Load {k} data.')
+                self._data[k] = np.concatenate([self._data[k], dataset[k][:]], axis=0)
+        else:
+            self._load_data(dataset)
 
     def _cal_statistics(self, eps=1e-3):
         self._mean = self._data['obs'].mean(0)
@@ -841,6 +866,22 @@ def hdf5_save(exp_data, expert_data_path):
     dataset.create_dataset('reward', data=np.array([d['reward'].numpy() for d in exp_data]), compression='gzip')
     dataset.create_dataset('done', data=np.array([d['done'] for d in exp_data]), compression='gzip')
     dataset.create_dataset('next_obs', data=np.array([d['next_obs'].numpy() for d in exp_data]), compression='gzip')
+
+
+def hdf5_v2_save(exp_data, expert_data_path):
+    try:
+        import h5py
+    except ImportError:
+        import sys
+        logging.warning("not found h5py package, please install it trough 'pip install h5py' ")
+        sys.exit(1)
+    dataset = dataset = h5py.File('%s_demos.hdf5' % expert_data_path.replace('.pkl', ''), 'w')
+    dataset.create_dataset('obs', data=np.array([d['obs'].numpy() for d in exp_data]), compression='gzip')
+    dataset.create_dataset('action', data=np.array([d['action'].numpy() for d in exp_data]), compression='gzip')
+    dataset.create_dataset('reward', data=np.array([d['reward'].numpy() for d in exp_data]), compression='gzip')
+    dataset.create_dataset('done', data=np.array([d['done'] for d in exp_data]), compression='gzip')
+    dataset.create_dataset('next_obs', data=np.array([d['next_obs'].numpy() for d in exp_data]), compression='gzip')
+    # dataset.create_dataset('info', data=[d['info'].numpy() for d in exp_data], compression='gzip')
 
 
 def naive_save(exp_data, expert_data_path):

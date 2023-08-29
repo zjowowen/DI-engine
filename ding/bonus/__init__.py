@@ -1,6 +1,8 @@
 import ding.config
 from .a2c import A2CAgent
 from .c51 import C51Agent
+from .cql_discrete import CQLDiscreteAgent
+from .csql_discrete import CSQLDiscreteAgent
 from .ddpg import DDPGAgent
 from .dqn import DQNAgent
 from .pg import PGAgent
@@ -13,6 +15,8 @@ from .td3 import TD3Agent
 supported_algo = dict(
     A2C=A2CAgent,
     C51=C51Agent,
+    CQLDiscrete=CQLDiscreteAgent,
+    CSQLDiscrete=CSQLDiscreteAgent,
     DDPG=DDPGAgent,
     DQN=DQNAgent,
     PG=PGAgent,
@@ -36,6 +40,10 @@ def env_supported(algo: str = None) -> list:
             return list(ding.config.A2C.supported_env.keys())
         elif algo.upper() == "C51":
             return list(ding.config.C51.supported_env.keys())
+        elif algo.upper() == "CQLDISCRETE":
+            return list(ding.config.CQLDiscrete.supported_env.keys())
+        elif algo.upper() == "CSQLDISCRETE":
+            return list(ding.config.CSQLDiscrete.supported_env.keys())
         elif algo.upper() == "DDPG":
             return list(ding.config.DDPG.supported_env.keys())
         elif algo.upper() == "DQN":
@@ -58,6 +66,8 @@ def env_supported(algo: str = None) -> list:
         supported_env = set()
         supported_env.update(ding.config.A2C.supported_env.keys())
         supported_env.update(ding.config.C51.supported_env.keys())
+        supported_env.update(ding.config.CQLDiscrete.supported_env.keys())
+        supported_env.update(ding.config.CSQLDiscrete.supported_env.keys())
         supported_env.update(ding.config.DDPG.supported_env.keys())
         supported_env.update(ding.config.DQN.supported_env.keys())
         supported_env.update(ding.config.PG.supported_env.keys())
@@ -83,6 +93,10 @@ def algo_supported(env_id: str = None) -> list:
             algo.append("A2C")
         if env_id.upper() in [item.upper() for item in ding.config.C51.supported_env.keys()]:
             algo.append("C51")
+        if env_id.upper() in [item.upper() for item in ding.config.CQLDiscrete.supported_env.keys()]:
+            algo.append("CQLDiscrete")
+        if env_id.upper() in [item.upper() for item in ding.config.CSQLDiscrete.supported_env.keys()]:
+            algo.append("CSQLDiscrete")
         if env_id.upper() in [item.upper() for item in ding.config.DDPG.supported_env.keys()]:
             algo.append("DDPG")
         if env_id.upper() in [item.upper() for item in ding.config.DQN.supported_env.keys()]:

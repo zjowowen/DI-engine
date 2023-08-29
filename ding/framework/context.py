@@ -98,4 +98,4 @@ class OfflineRLContext(Context):
         # This method is called just after __init__ method. Here, concretely speaking,
         # this method is called just after the object initialize its fields.
         # We use this method here to keep the fields needed for each iteration.
-        self.keep('train_iter', 'last_eval_iter', 'wandb_url')
+        self.keep('env_step', 'train_iter', 'last_eval_iter', 'wandb_url')

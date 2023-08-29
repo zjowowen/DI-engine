@@ -817,25 +817,31 @@ class RewardScaleWrapper(gym.RewardWrapper):
 
 
 class ActionSpaceTransformWrapper(gym.ActionWrapper):
+
     def __init__(self, env, action_transform, action_space):
         super(ActionSpaceTransformWrapper, self).__init__(env)
         self._action_space = action_space
         self.action_transform = action_transform
+
     def step(self, action):
         return self.env.step(self.action_transform(action))
+
     def reset(self):
         return self.env.reset()
 
+
 class NoopWrapper(gym.ActionWrapper):
+
     def __init__(self, env, freq=5, noop_action=0):
         super(NoopWrapper, self).__init__(env)
         self.freq = freq
-        self.noop_action=noop_action
+        self.noop_action = noop_action
+
     def step(self, action):
         total_reward = 0.0
         done = False
         for i in range(self.freq):
-            if i==self.freq-1:
+            if i == self.freq - 1:
                 obs, reward, done, info = self.env.step(self.noop_action)
             else:
                 obs, reward, done, info = self.env.step(action)
@@ -1280,19 +1286,20 @@ class GymToGymnasiumWrapper(gym.Wrapper):
 
 
 class AgentLiveBonusWrapper(gym.Wrapper):
-    
-        def __init__(self, env, reward_bonus=0.000001):
-            super().__init__(env)
-            self.reward_bonus = reward_bonus
-    
-        def step(self, action):
-            obs, reward, done, info = self.env.step(action)
-            if not done:
-                reward += self.reward_bonus
-            return obs, reward, done, info
-        
-        def reset(self, **kwargs):
-            return self.env.reset(**kwargs)
+
+    def __init__(self, env, reward_bonus=0.000001):
+        super().__init__(env)
+        self.reward_bonus = reward_bonus
+
+    def step(self, action):
+        obs, reward, done, info = self.env.step(action)
+        if not done:
+            reward += self.reward_bonus
+        return obs, reward, done, info
+
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)
+
 
 
 @ENV_WRAPPER_REGISTRY.register('reward_in_obs')
