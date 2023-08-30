@@ -10,6 +10,7 @@ from ding.torch_utils import ResFCBlock, ResBlock, Flatten, normed_linear, norme
 from ding.torch_utils.network.dreamer import Conv2dSame, DreamerLayerNorm
 from ding.utils import SequenceType
 
+from ding.nn.parameter import Parameter
 
 def prod(iterable):
     """
@@ -25,8 +26,8 @@ class SobelConcatModule(nn.Module):
         super(SobelConcatModule, self).__init__()
         self.input_channel = input_channel
 
-        self.sobel_x_filter = torch.tensor([[1, 0, -1], [2, 0, -2], [1, 0, -1]], dtype=torch.float32).repeat(self.input_channel, 1, 1, 1)
-        self.sobel_y_filter = torch.tensor([[1, 2, 1], [0, 0, 0], [-1, -2, -1]], dtype=torch.float32).repeat(self.input_channel, 1, 1, 1)
+        self.sobel_x_filter = Parameter(torch.tensor([[1, 0, -1], [2, 0, -2], [1, 0, -1]], dtype=torch.float32).repeat(self.input_channel, 1, 1, 1), requires_grad=False)
+        self.sobel_y_filter = Parameter(torch.tensor([[1, 2, 1], [0, 0, 0], [-1, -2, -1]], dtype=torch.float32).repeat(self.input_channel, 1, 1, 1), requires_grad=False)
         
 
     def forward(self, x):
