@@ -5,12 +5,12 @@ import math
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
+from torch.nn.parameter import Parameter
 
 from ding.torch_utils import ResFCBlock, ResBlock, Flatten, normed_linear, normed_conv2d
 from ding.torch_utils.network.dreamer import Conv2dSame, DreamerLayerNorm
 from ding.utils import SequenceType
 
-from ding.nn.parameter import Parameter
 
 def prod(iterable):
     """
