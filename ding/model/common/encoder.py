@@ -20,6 +20,23 @@ def prod(iterable):
     return reduce(operator.mul, iterable, 1)
 
 
+class SobelConcatModule(nn.Module):
+    def __init__(self, input_channel:int=1):
+        super(SobelConcatModule, self).__init__()
+        self.input_channel = input_channel
+
+        self.sobel_x_filter = torch.tensor([[1, 0, -1], [2, 0, -2], [1, 0, -1]], dtype=torch.float32).repeat(self.input_channel, 1, 1, 1)
+        self.sobel_y_filter = torch.tensor([[1, 2, 1], [0, 0, 0], [-1, -2, -1]], dtype=torch.float32).repeat(self.input_channel, 1, 1, 1)
+        
+
+    def forward(self, x):
+        sobel_x = F.conv2d(x, self.sobel_x_filter, padding=1, groups=self.input_channel)
+        sobel_y = F.conv2d(x, self.sobel_y_filter, padding=1, groups=self.input_channel)
+        gradient_magnitude = torch.sqrt(sobel_x**2 + sobel_y**2)
+
+        output_tensor = torch.cat([x, gradient_magnitude], dim=1)
+        return output_tensor
+
 class ConvEncoder(nn.Module):
     """
     Overview:
@@ -37,6 +54,7 @@ class ConvEncoder(nn.Module):
             stride: SequenceType = [4, 2, 1],
             padding: Optional[SequenceType] = None,
             layer_norm: Optional[bool] = False,
+            sobel_operator: Optional[bool] = False,
             norm_type: Optional[str] = None
     ) -> None:
         """
@@ -64,7 +82,13 @@ class ConvEncoder(nn.Module):
             padding = [0 for _ in range(len(kernel_size))]
 
         layers = []
-        input_size = obs_shape[0]  # in_channel
+        self.sobel_operator = sobel_operator
+        if self.sobel_operator:
+            input_size = obs_shape[0] * 2
+            layers.append(SobelConcatModule(input_channel=obs_shape[0]))
+        else:
+            input_size = obs_shape[0]  # in_channel
+
         for i in range(len(kernel_size)):
             if layer_norm:
                 layers.append(

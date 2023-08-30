@@ -21,6 +21,7 @@ class DQN(nn.Module):
             head_hidden_size: Optional[int] = None,
             head_layer_num: int = 1,
             activation: Optional[nn.Module] = nn.ReLU(),
+            sobel_operator: bool = False,
             norm_type: Optional[str] = None,
             dropout: Optional[float] = None
     ) -> None:
@@ -55,7 +56,7 @@ class DQN(nn.Module):
         # Conv Encoder
         elif len(obs_shape) == 3:
             assert dropout is None, "dropout is not supported in ConvEncoder"
-            self.encoder = ConvEncoder(obs_shape, encoder_hidden_size_list, activation=activation, norm_type=norm_type)
+            self.encoder = ConvEncoder(obs_shape, encoder_hidden_size_list, activation=activation, sobel_operator=sobel_operator, norm_type=norm_type)
         else:
             raise RuntimeError(
                 "not support obs_shape for pre-defined encoder: {}, please customize your own DQN".format(obs_shape)
