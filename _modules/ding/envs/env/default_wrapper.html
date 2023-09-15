@@ -317,7 +317,6 @@
     <span class="k">assert</span> <span class="n">caller</span> <span class="o">==</span> <span class="s1">&#39;collector&#39;</span> <span class="ow">or</span> <span class="s1">&#39;evaluator&#39;</span><span class="p">,</span> <span class="n">caller</span>
     <span class="k">if</span> <span class="n">env_wrapper_name</span> <span class="o">==</span> <span class="s1">&#39;mujoco_default&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">[</span>
-            <span class="n">EasyDict</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;delay_reward&#39;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">delay_reward_step</span><span class="o">=</span><span class="mi">3</span><span class="p">)),</span>
             <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">eval_episode_return_wrapper</span><span class="p">),</span>
         <span class="p">]</span>
     <span class="k">elif</span> <span class="n">env_wrapper_name</span> <span class="o">==</span> <span class="s1">&#39;atari_default&#39;</span><span class="p">:</span>
