@@ -133,7 +133,8 @@ class DingEnvWrapper(BaseEnv):
             obs = to_ndarray(obs, dtype=np.float32)
         else:
             obs = to_ndarray(obs)
-        rew = to_ndarray([rew], np.float32)
+        if not isinstance(rew, np.ndarray):
+            rew = to_ndarray([rew], np.float32)
         return BaseEnvTimestep(obs, rew, done, info)
 
     def _judge_action_type(self, action: Union[np.ndarray, dict]) -> Union[np.ndarray, dict]:

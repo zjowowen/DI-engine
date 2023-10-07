@@ -35,6 +35,8 @@ class SlimeVolleyEnv(BaseEnv):
             assert isinstance(action, List) and all([isinstance(e, np.ndarray) for e in action])
             action1, action2 = action[0], action[1]
         else:
+            if isinstance(action, int):
+                action= np.array([action])
             assert isinstance(action, np.ndarray)
             action1, action2 = action, None
         assert isinstance(action1, np.ndarray), type(action1)
@@ -133,14 +135,28 @@ class SlimeVolleyEnv(BaseEnv):
 
     @property
     def observation_space(self) -> gym.spaces.Space:
+        if not hasattr(self, '_observation_space'):
+            self._env = gym.make(self._cfg.env_id)
+            ori_shape = self._env.observation_space.shape
+            self._observation_space = gym.spaces.Box(
+                low=float("-inf"),
+                high=float("inf"),
+                shape=(len(self.agents), ) + ori_shape if len(self.agents) >= 2 else ori_shape,
+                dtype=np.float32
+            )
+            self._env.close()
         return self._observation_space
 
     @property
     def action_space(self) -> gym.spaces.Space:
+        if not hasattr(self, '_action_space'):
+            self._action_space = gym.spaces.Discrete(6)
         return self._action_space
 
     @property
     def reward_space(self) -> gym.spaces.Space:
+        if not hasattr(self, '_reward_space'):
+            self._reward_space = gym.spaces.Box(low=-5, high=5, shape=(1, ), dtype=np.float32)
         return self._reward_space
 
     @property

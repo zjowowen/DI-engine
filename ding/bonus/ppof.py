@@ -51,6 +51,8 @@ class PPOF:
         'Hopper-v3',
         'HalfCheetah-v3',
         'Walker2d-v3',
+        # others
+        'SlimeVolley-v0'
     ]
 
     def __init__(

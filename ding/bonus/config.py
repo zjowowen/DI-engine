@@ -164,6 +164,29 @@ def get_instance_config(env_id: str, algorithm: str) -> EasyDict:
             cfg.batch_size = 320
             cfg.epoch_per_collect = 10
             cfg.learning_rate = 3e-4
+        elif env_id == 'SlimeVolley-v0':
+            cfg.exp_name = 'SlimeVolley-V0-PPO'
+            cfg.env_id = "SlimeVolley-v0"
+            cfg.action_space = 'discrete'
+
+            cfg.agent_vs_agent = False
+            cfg.stop_value = 5
+
+            # cfg.n_sample=4096
+            # cfg.epoch_per_collect=5
+            # cfg.batch_size=64
+
+            cfg.n_sample = 3200
+            cfg.batch_size = 320
+            cfg.epoch_per_collect = 1
+            cfg.learning_rate = 1e-3
+            cfg.entropy_weight = 0.01
+            cfg.lr_scheduler = (2000, 0.1)
+            cfg.model = dict(
+                encoder_hidden_size_list=[64, 64, 128],
+                actor_head_hidden_size=128,
+                critic_head_hidden_size=128,
+            )
         else:
             raise KeyError("not supported env type: {}".format(env_id))
     else:
@@ -312,6 +335,15 @@ def get_instance_env(env_id: str) -> BaseEnv:
         )
         cfg = EasyDict(cfg)
         return DriveEnvWrapper(MetaDrivePPOOriginEnv(cfg))
+    elif env_id == 'SlimeVolley-v0':
+        from dizoo.slime_volley.envs.slime_volley_env import SlimeVolleyEnv
+        cfg = {
+            'env_id': 'SlimeVolley-v0',
+            'agent_vs_agent': False,
+        }
+
+        cfg = EasyDict(cfg)
+        return DingEnvWrapper(SlimeVolleyEnv(cfg))
     else:
         raise KeyError("not supported env type: {}".format(env_id))
 
