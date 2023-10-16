@@ -3,6 +3,7 @@ from .a2c import A2CAgent
 from .c51 import C51Agent
 from .ddpg import DDPGAgent
 from .dqn import DQNAgent
+from .impala import IMPALAAgent
 from .pg import PGAgent
 from .ppof import PPOF
 from .ppo_offpolicy import PPOOffPolicyAgent
@@ -15,6 +16,7 @@ supported_algo = dict(
     C51=C51Agent,
     DDPG=DDPGAgent,
     DQN=DQNAgent,
+    IMPALA=IMPALAAgent,
     PG=PGAgent,
     PPOF=PPOF,
     PPOOffPolicy=PPOOffPolicyAgent,
@@ -40,6 +42,8 @@ def env_supported(algo: str = None) -> list:
             return list(ding.config.example.DDPG.supported_env.keys())
         elif algo.upper() == "DQN":
             return list(ding.config.example.DQN.supported_env.keys())
+        elif algo.upper() == "IMPALA":
+            return list(ding.config.example.IMPALA.supported_env.keys())
         elif algo.upper() == "PG":
             return list(ding.config.example.PG.supported_env.keys())
         elif algo.upper() == "PPOF":
@@ -60,6 +64,7 @@ def env_supported(algo: str = None) -> list:
         supported_env.update(ding.config.example.C51.supported_env.keys())
         supported_env.update(ding.config.example.DDPG.supported_env.keys())
         supported_env.update(ding.config.example.DQN.supported_env.keys())
+        supported_env.update(ding.config.example.IMPALA.supported_env.keys())
         supported_env.update(ding.config.example.PG.supported_env.keys())
         supported_env.update(ding.config.example.PPOF.supported_env.keys())
         supported_env.update(ding.config.example.PPOOffPolicy.supported_env.keys())
@@ -87,6 +92,8 @@ def algo_supported(env_id: str = None) -> list:
             algo.append("DDPG")
         if env_id.upper() in [item.upper() for item in ding.config.example.DQN.supported_env.keys()]:
             algo.append("DQN")
+        if env_id.upper() in [item.upper() for item in ding.config.example.IMPALA.supported_env.keys()]:
+            algo.append("IMPALA")
         if env_id.upper() in [item.upper() for item in ding.config.example.PG.supported_env.keys()]:
             algo.append("PG")
         if env_id.upper() in [item.upper() for item in ding.config.example.PPOF.supported_env.keys()]:

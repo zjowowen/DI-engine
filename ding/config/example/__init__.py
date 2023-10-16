@@ -2,6 +2,7 @@ from . import A2C
 from . import C51
 from . import DDPG
 from . import DQN
+from . import IMPALA
 from . import PG
 from . import PPOF
 from . import PPOOffPolicy
