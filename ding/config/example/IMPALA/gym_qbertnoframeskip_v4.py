@@ -56,7 +56,7 @@ cfg = dict(
             collector=dict(collect_print_freq=1000, ),
         ),
         eval=dict(evaluator=dict(eval_freq=5000, )),
-        other=dict(replay_buffer=dict(replay_buffer_size=10000, ), ),
+        other=dict(replay_buffer=dict(replay_buffer_size=10000, sliced=False), ),
     ),
     wandb_logger=dict(
         gradient_logger=True, video_logger=True, plot_logger=True, action_logger=True, return_logger=False
