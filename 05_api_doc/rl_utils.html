@@ -401,7 +401,7 @@
 <dt class="sig sig-object py" id="ding.rl_utils.acer_policy_error">
 <span class="sig-prename descclassname"><span class="pre">ding.rl_utils.</span></span><span class="sig-name descname"><span class="pre">acer_policy_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_values</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_retraces</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_pred</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_logit</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratio</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_clip_ratio</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/ding/rl_utils/acer.html#acer_policy_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ding.rl_utils.acer_policy_error" title="Permalink to this definition">¶</a></dt>
 <dd><dl>
-<dt>Overview:</dt><dd><p>Get ACER policy loss</p>
+<dt>Overview:</dt><dd><p>Get ACER policy loss.</p>
 </dd>
 <dt>Arguments:</dt><dd><ul class="simple">
 <li><p>q_values (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.Tensor</span></code>): Q values</p></li>
@@ -448,8 +448,8 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="ding.rl_utils.acer_value_error">
 <span class="sig-prename descclassname"><span class="pre">ding.rl_utils.</span></span><span class="sig-name descname"><span class="pre">acer_value_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_retraces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ding/rl_utils/acer.html#acer_value_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ding.rl_utils.acer_value_error" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Overview:</dt><dd><p>Get ACER critic loss</p>
+<dd><dl>
+<dt>Overview:</dt><dd><p>Get ACER critic loss.</p>
 </dd>
 <dt>Arguments:</dt><dd><ul class="simple">
 <li><p>q_values (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.Tensor</span></code>): Q values</p></li>
@@ -469,14 +469,14 @@
 <li><p>critic_loss (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((T, B, 1)\)</span></p></li>
 </ul>
 </dd>
-</dl>
-<p>Examples:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">q_values</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<dt>Examples:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">q_values</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">q_retraces</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">actions</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span> <span class="o">=</span> <span class="n">acer_value_error</span><span class="p">(</span><span class="n">q_values</span><span class="p">,</span> <span class="n">q_retraces</span><span class="p">,</span> <span class="n">actions</span><span class="p">)</span>
 </pre></div>
 </div>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -1207,8 +1207,8 @@ then call <code class="docutils literal notranslate"><span class="pre">create_no
 <li><p>action (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.LongTensor</span></code>): <span class="math notranslate nohighlight">\((B,)\)</span></p></li>
 <li><p>value_new (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((B, 1)\)</span></p></li>
 <li><p>value_old (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((B, 1)\)</span></p></li>
-<li><p><a href="#id3"><span class="problematic" id="id4">return_</span></a> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((B, 1)\)</span></p></li>
-<li><p>weight (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>): <span class="math notranslate nohighlight">\((B,)\)</span></p></li>
+<li><p>return (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((B, 1)\)</span></p></li>
+<li><p>weight (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((B,)\)</span></p></li>
 <li><p>auxiliary_loss (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\(()\)</span>, 0-dim tensor</p></li>
 <li><p>behavioral_cloning_loss (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\(()\)</span></p></li>
 </ul>
@@ -1254,8 +1254,8 @@ then call <code class="docutils literal notranslate"><span class="pre">create_no
 <section id="ppo-value-data">
 <h3>ppo_value_data<a class="headerlink" href="#ppo-value-data" title="Permalink to this headline">¶</a></h3>
 <dl class="py class">
-<dt class="sig sig-object py" id="ding.rl_utils.ppo.ppo_value_data">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ding.rl_utils.ppo.</span></span><span class="sig-name descname"><span class="pre">ppo_value_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_old</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ding.rl_utils.ppo.ppo_value_data" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ding.rl_utils.ppo.</span></span><span class="sig-name descname"><span class="pre">ppo_value_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value_new</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_old</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </section>
@@ -1359,8 +1359,8 @@ this part into ppo_error, you can refer to our examples for different ways.</p>
 <section id="ppo-policy-error">
 <h3>ppo_policy_error<a class="headerlink" href="#ppo-policy-error" title="Permalink to this headline">¶</a></h3>
 <dl class="py function">
-<dt class="sig sig-object py" id="ding.rl_utils.ppo.ppo_policy_error">
-<span class="sig-prename descclassname"><span class="pre">ding.rl_utils.ppo.</span></span><span class="sig-name descname"><span class="pre">ppo_policy_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">collections.namedtuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_ratio</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_clip</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">collections.namedtuple</span><span class="p"><span class="pre">,</span> </span><span class="pre">collections.namedtuple</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/ding/rl_utils/ppo.html#ppo_policy_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ding.rl_utils.ppo.ppo_policy_error" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">ding.rl_utils.ppo.</span></span><span class="sig-name descname"><span class="pre">ppo_policy_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">collections.namedtuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_ratio</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_clip</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">collections.namedtuple</span><span class="p"><span class="pre">,</span> </span><span class="pre">collections.namedtuple</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/ding/rl_utils/ppo.html#ppo_policy_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><dl>
 <dt>Overview:</dt><dd><p>Get PPO policy loss</p>
 </dd>
@@ -1404,8 +1404,8 @@ this part into ppo_error, you can refer to our examples for different ways.</p>
 <section id="ppo-value-error">
 <h3>ppo_value_error<a class="headerlink" href="#ppo-value-error" title="Permalink to this headline">¶</a></h3>
 <dl class="py function">
-<dt class="sig sig-object py" id="ding.rl_utils.ppo.ppo_value_error">
-<span class="sig-prename descclassname"><span class="pre">ding.rl_utils.ppo.</span></span><span class="sig-name descname"><span class="pre">ppo_value_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">collections.namedtuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_ratio</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_value_clip</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../_modules/ding/rl_utils/ppo.html#ppo_value_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ding.rl_utils.ppo.ppo_value_error" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">ding.rl_utils.ppo.</span></span><span class="sig-name descname"><span class="pre">ppo_value_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">collections.namedtuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clip_ratio</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_value_clip</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../_modules/ding/rl_utils/ppo.html#ppo_value_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
 <dd><dl>
 <dt>Overview:</dt><dd><p>Get PPO value loss</p>
 </dd>
@@ -1840,9 +1840,6 @@ this part into ppo_error, you can refer to our examples for different ways.</p>
 <dd></dd></dl>
 
 </section>
-<section id="nstep-return-error">
-<h3>nstep_return_error<a class="headerlink" href="#nstep-return-error" title="Permalink to this headline">¶</a></h3>
-</section>
 <section id="nstep-return">
 <h3>nstep_return<a class="headerlink" href="#nstep-return" title="Permalink to this headline">¶</a></h3>
 <dl class="py function">
@@ -1859,7 +1856,7 @@ this part into ppo_error, you can refer to our examples for different ways.</p>
 </ul>
 </dd>
 <dt>Returns:</dt><dd><ul class="simple">
-<li><p><a href="#id5"><span class="problematic" id="id6">return_</span></a> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.Tensor</span></code>): nstep return</p></li>
+<li><p>return (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.Tensor</span></code>): nstep return</p></li>
 </ul>
 </dd>
 <dt>Shapes:</dt><dd><ul class="simple">
@@ -2191,25 +2188,10 @@ this part into ppo_error, you can refer to our examples for different ways.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ding.rl_utils.td.bdq_nstep_td_error">
 <span class="sig-prename descclassname"><span class="pre">ding.rl_utils.td.</span></span><span class="sig-name descname"><span class="pre">bdq_nstep_td_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">data:</span> <span class="pre">collections.namedtuple,</span> <span class="pre">gamma:</span> <span class="pre">Union[float,</span> <span class="pre">list],</span> <span class="pre">nstep:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1,</span> <span class="pre">cum_reward:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False,</span> <span class="pre">value_gamma:</span> <span class="pre">Optional[torch.Tensor]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">criterion:</span> <span class="pre">&lt;module</span> <span class="pre">'torch.nn.modules'</span> <span class="pre">from</span> <span class="pre">'/opt/hostedtoolcache/Python/3.8.18/x64/lib/python3.8/site-packages/torch/nn/modules/__init__.py'&gt;</span> <span class="pre">=</span> <span class="pre">MSELoss()</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../_modules/ding/rl_utils/td.html#bdq_nstep_td_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ding.rl_utils.td.bdq_nstep_td_error" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><dl>
-<dt>Overview:</dt><dd><p>Multistep (1 step or n step) td_error for BDQ algorithm,             referenced paper Action Branching Architectures for Deep Reinforcement Learning             &lt;<a class="reference external" href="https://arxiv.org/pdf/1711.08946">https://arxiv.org/pdf/1711.08946</a>&gt;
-In fact, the original paper only provides the 1-step TD-error calculation method,             and here we extend the calculation method of n-step.</p>
-<blockquote>
-<div><dl class="simple">
-<dt>TD-error:</dt><dd><p>y_d = sigma_{t=0}^{nstep} gamma^t * r_t + gamma^{nstep} * Q_d’(s’, argmax Q_d(s’, a_d))
-TD-error =</p>
+<dd><dl>
+<dt>Overview:</dt><dd><p>Multistep (1 step or n step) td_error for BDQ algorithm, referenced paper “Action Branching Architectures         for Deep Reinforcement Learning”, link: <a class="reference external" href="https://arxiv.org/pdf/1711.08946">https://arxiv.org/pdf/1711.08946</a>.
+In fact, the original paper only provides the 1-step TD-error calculation method, and here we extend the         calculation method of n-step TD-error.</p>
 </dd>
-</dl>
-</div></blockquote>
-</dd>
-</dl>
-</div></blockquote>
-<dl>
-<dt>rac{1}{D} * (y_d - Q_d(s, a_d))^2</dt><dd><blockquote>
-<div><p>Loss = mean(TD-error)</p>
-</div></blockquote>
-<dl>
 <dt>Arguments:</dt><dd><ul class="simple">
 <li><p>data (<a class="reference internal" href="#ding.rl_utils.td.q_nstep_td_data" title="ding.rl_utils.td.q_nstep_td_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">q_nstep_td_data</span></code></a>): The input data, q_nstep_td_data to calculate loss</p></li>
 <li><p>gamma (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>): Discount factor</p></li>
@@ -2225,7 +2207,7 @@ TD-error =</p>
 </ul>
 </dd>
 <dt>Shapes:</dt><dd><ul class="simple">
-<li><p>data (<a class="reference internal" href="#ding.rl_utils.td.q_nstep_td_data" title="ding.rl_utils.td.q_nstep_td_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">q_nstep_td_data</span></code></a>): The q_nstep_td_data containing            [‘q’, ‘next_n_q’, ‘action’, ‘reward’, ‘done’]</p></li>
+<li><p>data (<a class="reference internal" href="#ding.rl_utils.td.q_nstep_td_data" title="ding.rl_utils.td.q_nstep_td_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">q_nstep_td_data</span></code></a>): The q_nstep_td_data containing             [‘q’, ‘next_n_q’, ‘action’, ‘reward’, ‘done’]</p></li>
 <li><p>q (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((B, D, N)\)</span> i.e. [batch_size, branch_num, action_bins_per_branch]</p></li>
 <li><p>next_n_q (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((B, D, N)\)</span></p></li>
 <li><p>action (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.LongTensor</span></code>): <span class="math notranslate nohighlight">\((B, D)\)</span></p></li>
@@ -2247,8 +2229,6 @@ TD-error =</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span><span class="p">,</span> <span class="n">td_error_per_sample</span> <span class="o">=</span> <span class="n">bdq_nstep_td_error</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">nstep</span><span class="o">=</span><span class="n">nstep</span><span class="p">)</span>
 </pre></div>
 </div>
-</dd>
-</dl>
 </dd>
 </dl>
 </dd></dl>
@@ -2526,53 +2506,9 @@ TD-error =</p>
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ding.rl_utils.td.</span></span><span class="sig-name descname"><span class="pre">iqn_nstep_td_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_n_q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">next_n_action</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">done</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replay_quantiles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#ding.rl_utils.td.iqn_nstep_td_data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-</section>
-<section id="iqn-nstep-td-error">
-<h3>iqn_nstep_td_error<a class="headerlink" href="#iqn-nstep-td-error" title="Permalink to this headline">¶</a></h3>
-<dl class="py function">
-<dt class="sig sig-object py" id="ding.rl_utils.td.iqn_nstep_td_error">
-<span class="sig-prename descclassname"><span class="pre">ding.rl_utils.td.</span></span><span class="sig-name descname"><span class="pre">iqn_nstep_td_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">collections.namedtuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nstep</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kappa</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_gamma</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference internal" href="../_modules/ding/rl_utils/td.html#iqn_nstep_td_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ding.rl_utils.td.iqn_nstep_td_error" title="Permalink to this definition">¶</a></dt>
-<dd><dl>
-<dt>Overview:</dt><dd><p>Multistep (1 step or n step) td_error with in IQN,             referenced paper Implicit Quantile Networks for Distributional Reinforcement Learning             &lt;<a class="reference external" href="https://arxiv.org/pdf/1806.06923.pdf">https://arxiv.org/pdf/1806.06923.pdf</a>&gt;</p>
-</dd>
-<dt>Arguments:</dt><dd><ul class="simple">
-<li><p>data (<a class="reference internal" href="#ding.rl_utils.td.iqn_nstep_td_data" title="ding.rl_utils.td.iqn_nstep_td_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iqn_nstep_td_data</span></code></a>): The input data, iqn_nstep_td_data to calculate loss</p></li>
-<li><p>gamma (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>): Discount factor</p></li>
-<li><p>nstep (<code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code>): nstep num, default set to 1</p></li>
-<li><p>criterion (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.modules</span></code>): Loss function criterion</p></li>
-<li><p>beta_function (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable</span></code>): The risk function</p></li>
-</ul>
-</dd>
-<dt>Returns:</dt><dd><ul class="simple">
-<li><p>loss (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.Tensor</span></code>): nstep td error, 0-dim tensor</p></li>
-</ul>
-</dd>
-<dt>Shapes:</dt><dd><ul class="simple">
-<li><p>data (<a class="reference internal" href="#ding.rl_utils.td.q_nstep_td_data" title="ding.rl_utils.td.q_nstep_td_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">q_nstep_td_data</span></code></a>): The q_nstep_td_data containing        [‘q’, ‘next_n_q’, ‘action’, ‘reward’, ‘done’]</p></li>
-<li><p>q (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((tau, B, N)\)</span> i.e. [tau x batch_size, action_dim]</p></li>
-<li><p>next_n_q (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((tau', B, N)\)</span></p></li>
-<li><p>action (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.LongTensor</span></code>): <span class="math notranslate nohighlight">\((B, )\)</span></p></li>
-<li><p>next_n_action (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.LongTensor</span></code>): <span class="math notranslate nohighlight">\((B, )\)</span></p></li>
-<li><p>reward (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((T, B)\)</span>, where T is timestep(nstep)</p></li>
-<li><p>done (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.BoolTensor</span></code>) <span class="math notranslate nohighlight">\((B, )\)</span>, whether done in last timestep</p></li>
-</ul>
-</dd>
-<dt>Examples:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">next_q</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">done</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">action</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">next_action</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">nstep</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">q</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">replay_quantile</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">reward</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">nstep</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">iqn_nstep_td_data</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">next_q</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">next_action</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">done</span><span class="p">,</span> <span class="n">replay_quantile</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">loss</span><span class="p">,</span> <span class="n">td_error_per_sample</span> <span class="o">=</span> <span class="n">iqn_nstep_td_error</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">nstep</span><span class="o">=</span><span class="n">nstep</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd>
-</dl>
-</dd></dl>
-
+<p>iqn_nstep_td_error
+~~~~~~~~~~~~~~~~~~~``
+.. autofunction:: ding.rl_utils.td.iqn_nstep_td_error</p>
 </section>
 <section id="fqf-nstep-td-data">
 <h3>fqf_nstep_td_data<a class="headerlink" href="#fqf-nstep-td-data" title="Permalink to this headline">¶</a></h3>
@@ -3007,7 +2943,7 @@ if the last state in trajectory is the terminal, just pass a 0 as bootstrap_term
 <dt>Shapes:</dt><dd><ul class="simple">
 <li><p>clipped_rhos (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((T, B)\)</span>, where T is timestep, B is batch size</p></li>
 <li><p>clipped_cs (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((T, B)\)</span></p></li>
-<li><p>reward: (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((T, B)\)</span></p></li>
+<li><p>reward (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((T, B)\)</span></p></li>
 <li><p>bootstrap_values (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((T+1, B)\)</span></p></li>
 <li><p>vtrace_return (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>):  <span class="math notranslate nohighlight">\((T, B)\)</span></p></li>
 </ul>
@@ -3030,10 +2966,10 @@ if the last state in trajectory is the terminal, just pass a 0 as bootstrap_term
 </dd>
 <dt>Shapes:</dt><dd><ul class="simple">
 <li><p>clipped_pg_rhos (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((T, B)\)</span>, where T is timestep, B is batch size</p></li>
-<li><p>reward: (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((T, B)\)</span></p></li>
-<li><p><a href="#id7"><span class="problematic" id="id8">return_</span></a> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>):  <span class="math notranslate nohighlight">\((T, B)\)</span></p></li>
+<li><p>reward (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((T, B)\)</span></p></li>
+<li><p>return (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((T, B)\)</span></p></li>
 <li><p>bootstrap_values (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((T, B)\)</span></p></li>
-<li><p>vtrace_advantage (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>):  <span class="math notranslate nohighlight">\((T, B)\)</span></p></li>
+<li><p>vtrace_advantage (<code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.FloatTensor</span></code>): <span class="math notranslate nohighlight">\((T, B)\)</span></p></li>
 </ul>
 </dd>
 </dl>
@@ -3305,7 +3241,6 @@ if the last state in trajectory is the terminal, just pass a 0 as bootstrap_term
 <li><a class="reference internal" href="#q-v-1step-td-data">q_v_1step_td_data</a></li>
 <li><a class="reference internal" href="#q-v-1step-td-error">q_v_1step_td_error</a></li>
 <li><a class="reference internal" href="#nstep-return-data">nstep_return_data</a></li>
-<li><a class="reference internal" href="#nstep-return-error">nstep_return_error</a></li>
 <li><a class="reference internal" href="#nstep-return">nstep_return</a></li>
 <li><a class="reference internal" href="#dist-1step-td-data">dist_1step_td_data</a></li>
 <li><a class="reference internal" href="#dist-1step-td-error">dist_1step_td_error</a></li>
@@ -3329,7 +3264,6 @@ if the last state in trajectory is the terminal, just pass a 0 as bootstrap_term
 <li><a class="reference internal" href="#qrdqn-nstep-td-error">qrdqn_nstep_td_error</a></li>
 <li><a class="reference internal" href="#q-nstep-sql-td-error">q_nstep_sql_td_error</a></li>
 <li><a class="reference internal" href="#iqn-nstep-td-data">iqn_nstep_td_data</a></li>
-<li><a class="reference internal" href="#iqn-nstep-td-error">iqn_nstep_td_error</a></li>
 <li><a class="reference internal" href="#fqf-nstep-td-data">fqf_nstep_td_data</a></li>
 <li><a class="reference internal" href="#fqf-nstep-td-error">fqf_nstep_td_error</a></li>
 <li><a class="reference internal" href="#evaluate-quantile-at-action">evaluate_quantile_at_action</a></li>
