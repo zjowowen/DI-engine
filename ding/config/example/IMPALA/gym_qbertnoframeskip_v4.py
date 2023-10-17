@@ -20,21 +20,21 @@ cfg = dict(
         model=dict(
             obs_shape=[4, 84, 84],
             action_shape=6,
-            encoder_hidden_size_list=[128, 128, 256, 512],
-            critic_head_hidden_size=512,
+            encoder_hidden_size_list=[128, 128, 256, 256],
+            critic_head_hidden_size=256,
             critic_head_layer_num=3,
-            actor_head_hidden_size=512,
+            actor_head_hidden_size=256,
             actor_head_layer_num=3,
         ),
         learn=dict(
             # (int) collect n_sample data, train model update_per_collect times
             # here we follow impala serial pipeline
-            update_per_collect=10,  # update_per_collect show be in [1, 10]
+            update_per_collect=2,  # update_per_collect show be in [1, 10]
             # (int) the number of data for a train iteration
             batch_size=128,
             grad_clip_type='clip_norm',
             clip_value=5,
-            learning_rate=0.0003,
+            learning_rate=0.0006,
             # (float) loss weight of the value network, the weight of policy network is set to 1
             value_weight=0.5,
             # (float) loss weight of the entropy regularization, the weight of policy network is set to 1
@@ -55,8 +55,8 @@ cfg = dict(
             n_sample=16,
             collector=dict(collect_print_freq=1000, ),
         ),
-        eval=dict(evaluator=dict(eval_freq=5000, )),
-        other=dict(replay_buffer=dict(replay_buffer_size=64000, sliced=False), ),
+        eval=dict(evaluator=dict(eval_freq=500, )),
+        other=dict(replay_buffer=dict(replay_buffer_size=64000, sliced=True), ),
     ),
     wandb_logger=dict(
         gradient_logger=True, video_logger=True, plot_logger=True, action_logger=True, return_logger=False
