@@ -16,8 +16,8 @@ cfg = dict(
     policy=dict(
         cuda=True,
         # (int) the trajectory length to calculate v-trace target
-        unroll_len=32,
-        random_collect_size=500,
+        unroll_len=64,
+        random_collect_size=5000,
         model=dict(
             obs_shape=[4, 84, 84],
             action_shape=6,
@@ -57,7 +57,7 @@ cfg = dict(
             collector=dict(collect_print_freq=1000, ),
         ),
         eval=dict(evaluator=dict(eval_freq=500, )),
-        other=dict(replay_buffer=dict(replay_buffer_size=100000, sliced=True), ),
+        other=dict(replay_buffer=dict(replay_buffer_size=64000, sliced=True), ),
     ),
     wandb_logger=dict(
         gradient_logger=True, video_logger=True, plot_logger=True, action_logger=True, return_logger=False
