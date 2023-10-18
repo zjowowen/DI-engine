@@ -16,7 +16,8 @@ cfg = dict(
     policy=dict(
         cuda=True,
         # (int) the trajectory length to calculate v-trace target
-        unroll_len=64,
+        unroll_len=16,
+        random_collect_size=8000,
         model=dict(
             obs_shape=[4, 84, 84],
             action_shape=6,
