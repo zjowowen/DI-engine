@@ -426,7 +426,8 @@
 <span class="sd">        Examples:</span>
 <span class="sd">            &gt;&gt;&gt; agent_num, bs, T = 4, 3, 8</span>
 <span class="sd">            &gt;&gt;&gt; obs_dim, global_obs_dim, action_dim = 32, 32 * 4, 9</span>
-<span class="sd">            &gt;&gt;&gt; coma_model = COMACriticNetwork(obs_dim - action_dim + global_obs_dim + 2 * action_dim * agent_num, action_dim)</span>
+<span class="sd">            &gt;&gt;&gt; coma_model = COMACriticNetwork(</span>
+<span class="sd">            &gt;&gt;&gt;     obs_dim - action_dim + global_obs_dim + 2 * action_dim * agent_num, action_dim)</span>
 <span class="sd">            &gt;&gt;&gt; data = {</span>
 <span class="sd">            &gt;&gt;&gt;     &#39;obs&#39;: {</span>
 <span class="sd">            &gt;&gt;&gt;         &#39;agent_state&#39;: torch.randn(T, bs, agent_num, obs_dim),</span>
