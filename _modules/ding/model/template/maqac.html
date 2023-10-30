@@ -307,7 +307,10 @@
 <span class="k">class</span> <span class="nc">DiscreteMAQAC</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Overview:</span>
-<span class="sd">        The discrete action Multi-Agent Q-value Actor-CritiC (MAQAC) model.</span>
+<span class="sd">        The neural network and computation graph of algorithms related to discrete action Multi-Agent Q-value \</span>
+<span class="sd">        Actor-CritiC (MAQAC) model. The model is composed of actor and critic, where actor is a MLP network and \</span>
+<span class="sd">        critic is a MLP network. The actor network is used to predict the action probability distribution, and the \</span>
+<span class="sd">        critic network is used to predict the Q value of the state-action pair.</span>
 <span class="sd">    Interfaces:</span>
 <span class="sd">        ``__init__``, ``forward``, ``compute_actor``, ``compute_critic``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -328,7 +331,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overview:</span>
-<span class="sd">            Init the DiscreteMAQAC Model according to arguments.</span>
+<span class="sd">            Initiate the DiscreteMAQAC Model according to arguments.</span>
 <span class="sd">        Arguments:</span>
 <span class="sd">            - agent_obs_shape (:obj:`Union[int, SequenceType]`): Agent&#39;s observation&#39;s space.</span>
 <span class="sd">            - global_obs_shape (:obj:`Union[int, SequenceType]`): Global observation&#39;s space.</span>
@@ -385,10 +388,9 @@
             <span class="p">)</span></div>
 
 <div class="viewcode-block" id="DiscreteMAQAC.forward"><a class="viewcode-back" href="../../../../05_api_doc/model.html#ding.model.DiscreteMAQAC.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Dict</span><span class="p">],</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overview:</span>
-<span class="sd">            Use observation and action tensor to predict output.</span>
-<span class="sd">            Parameter updates with QAC&#39;s MLPs forward setup.</span>
+<span class="sd">            Use observation and action tensor to predict output, with ``&#39;compute_actor&#39;`` or ``&#39;compute_critic&#39;`` mode.</span>
 <span class="sd">        Arguments:</span>
 <span class="sd">            Forward with ``&#39;compute_actor&#39;``:</span>
 <span class="sd">                - inputs (:obj:`torch.Tensor`):</span>
@@ -416,11 +418,9 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">compute_actor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overview:</span>
-<span class="sd">            Use encoded embedding tensor to predict output.</span>
-<span class="sd">            Execute parameter updates with ``&#39;compute_actor&#39;`` mode</span>
-<span class="sd">            Use encoded embedding tensor to predict output.</span>
+<span class="sd">            Use encoded embedding tensor to predict output of actor network.</span>
 <span class="sd">        Arguments:</span>
 <span class="sd">            - inputs (:obj:`torch.Tensor`):</span>
 <span class="sd">                The encoded embedding tensor, determined with given ``hidden_size``, i.e. ``(B, N=hidden_size)``.</span>
@@ -457,10 +457,9 @@
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;logit&#39;</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;logit&#39;</span><span class="p">],</span> <span class="s1">&#39;action_mask&#39;</span><span class="p">:</span> <span class="n">action_mask</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">compute_critic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overview:</span>
-<span class="sd">            Execute parameter updates with ``&#39;compute_critic&#39;`` mode</span>
-<span class="sd">            Use encoded embedding tensor to predict output.</span>
+<span class="sd">            use encoded embedding tensor to predict output of critic network.</span>
 <span class="sd">        Arguments:</span>
 <span class="sd">            - ``obs``, ``action`` encoded tensors.</span>
 <span class="sd">            - mode (:obj:`str`): Name of the forward mode.</span>
@@ -485,7 +484,10 @@
 <span class="k">class</span> <span class="nc">ContinuousMAQAC</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Overview:</span>
-<span class="sd">        The continuous action Multi-Agent Q-value Actor-CritiC (MAQAC) model.</span>
+<span class="sd">        The neural network and computation graph of algorithms related to continuous action Multi-Agent Q-value \</span>
+<span class="sd">        Actor-CritiC (MAQAC) model. The model is composed of actor and critic, where actor is a MLP network and \</span>
+<span class="sd">        critic is a MLP network. The actor network is used to predict the action probability distribution, and the \</span>
+<span class="sd">        critic network is used to predict the Q value of the state-action pair.</span>
 <span class="sd">    Interfaces:</span>
 <span class="sd">        ``__init__``, ``forward``, ``compute_actor``, ``compute_critic``</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -507,7 +509,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overview:</span>
-<span class="sd">            Init the QAC Model according to arguments.</span>
+<span class="sd">            Initiate the QAC Model according to arguments.</span>
 <span class="sd">        Arguments:</span>
 <span class="sd">            - obs_shape (:obj:`Union[int, SequenceType]`): Observation&#39;s space.</span>
 <span class="sd">            - action_shape (:obj:`Union[int, SequenceType, EasyDict]`): Action&#39;s space, such as 4, (3, )</span>
@@ -587,10 +589,9 @@
             <span class="p">)</span></div>
 
 <div class="viewcode-block" id="ContinuousMAQAC.forward"><a class="viewcode-back" href="../../../../05_api_doc/model.html#ding.model.ContinuousMAQAC.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Dict</span><span class="p">],</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overview:</span>
-<span class="sd">            Use observation and action tensor to predict output.</span>
-<span class="sd">            Parameter updates with QAC&#39;s MLPs forward setup.</span>
+<span class="sd">            Use observation and action tensor to predict output in ``&#39;compute_actor&#39;`` or ``&#39;compute_critic&#39;`` mode.</span>
 <span class="sd">        Arguments:</span>
 <span class="sd">            Forward with ``&#39;compute_actor&#39;``:</span>
 <span class="sd">                - inputs (:obj:`torch.Tensor`):</span>
@@ -641,11 +642,9 @@
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">)(</span><span class="n">inputs</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">compute_actor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overview:</span>
-<span class="sd">            Use encoded embedding tensor to predict output.</span>
-<span class="sd">            Execute parameter updates with ``&#39;compute_actor&#39;`` mode</span>
-<span class="sd">            Use encoded embedding tensor to predict output.</span>
+<span class="sd">            Use encoded embedding tensor to predict output of actor network.</span>
 <span class="sd">        Arguments:</span>
 <span class="sd">            - inputs (:obj:`torch.Tensor`):</span>
 <span class="sd">                The encoded embedding tensor, determined with given ``hidden_size``, i.e. ``(B, N=hidden_size)``.</span>
@@ -692,10 +691,9 @@
             <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;logit&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;mu&#39;</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">]]}</span>
 
     <span class="k">def</span> <span class="nf">compute_critic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overview:</span>
-<span class="sd">            Execute parameter updates with ``&#39;compute_critic&#39;`` mode</span>
-<span class="sd">            Use encoded embedding tensor to predict output.</span>
+<span class="sd">            Use encoded embedding tensor to predict output of critic network.</span>
 <span class="sd">        Arguments:</span>
 <span class="sd">            - inputs (:obj: `Dict`): ``obs``, ``action`` and ``logit` tensors.</span>
 <span class="sd">            - mode (:obj:`str`): Name of the forward mode.</span>
