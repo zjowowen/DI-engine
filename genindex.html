@@ -649,8 +649,6 @@
         <li><a href="05_api_doc/worker/replay_buffer/buffer.html#ding.worker.replay_buffer.episode_buffer.EpisodeReplayBuffer.__init__">(ding.worker.replay_buffer.episode_buffer.EpisodeReplayBuffer method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="05_api_doc/utils/data/dataloader.html#ding.utils.data.dataloader.AsyncDataLoader.__iter__">__iter__() (ding.utils.data.dataloader.AsyncDataLoader method)</a>
 </li>
       <li><a href="05_api_doc/league/payoff.html#ding.league.shared_payoff.BattleRecordDict.__mul__">__mul__() (ding.league.shared_payoff.BattleRecordDict method)</a>
@@ -673,18 +671,26 @@
 </li>
       <li><a href="05_api_doc/worker/collector/comm.html#ding.worker.collector.comm.base_comm_collector.BaseCommCollector._create_collector">_create_collector() (ding.worker.collector.comm.base_comm_collector.BaseCommCollector method)</a>
 </li>
+      <li><a href="05_api_doc/policy.html#ding.policy.Policy._create_model">_create_model() (ding.policy.Policy method)</a>
+</li>
       <li><a href="05_api_doc/config.html#ding.config.Config._file_to_dict">_file_to_dict() (ding.config.Config static method)</a>
 </li>
       <li><a href="05_api_doc/policy.html#ding.policy.DDPGPolicy._forward_collect">_forward_collect() (ding.policy.DDPGPolicy method)</a>
 
       <ul>
+        <li><a href="05_api_doc/policy.html#ding.policy.DiscreteSACPolicy._forward_collect">(ding.policy.DiscreteSACPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.DQNPolicy._forward_collect">(ding.policy.DQNPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.IMPALAPolicy._forward_collect">(ding.policy.IMPALAPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PDQNPolicy._forward_collect">(ding.policy.PDQNPolicy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.Policy._forward_collect">(ding.policy.Policy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.PPOOffPolicy._forward_collect">(ding.policy.PPOOffPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOPGPolicy._forward_collect">(ding.policy.PPOPGPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PPOPolicy._forward_collect">(ding.policy.PPOPolicy method)</a>
 </li>
@@ -692,29 +698,51 @@
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.R2D2Policy._forward_collect">(ding.policy.R2D2Policy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.SACPolicy._forward_collect">(ding.policy.SACPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.TD3Policy._forward_collect">(ding.policy.TD3Policy method)</a>
 </li>
       </ul></li>
-      <li><a href="05_api_doc/policy.html#ding.policy.DDPGPolicy._forward_eval">_forward_eval() (ding.policy.DDPGPolicy method)</a>
+      <li><a href="05_api_doc/policy.html#ding.policy.BehaviourCloningPolicy._forward_eval">_forward_eval() (ding.policy.BehaviourCloningPolicy method)</a>
 
       <ul>
+        <li><a href="05_api_doc/policy.html#ding.policy.DDPGPolicy._forward_eval">(ding.policy.DDPGPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DiscreteSACPolicy._forward_eval">(ding.policy.DiscreteSACPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.DQNPolicy._forward_eval">(ding.policy.DQNPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DTPolicy._forward_eval">(ding.policy.DTPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.IMPALAPolicy._forward_eval">(ding.policy.IMPALAPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PDQNPolicy._forward_eval">(ding.policy.PDQNPolicy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.Policy._forward_eval">(ding.policy.Policy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.PPOOffPolicy._forward_eval">(ding.policy.PPOOffPolicy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOPGPolicy._forward_eval">(ding.policy.PPOPGPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.PPOPolicy._forward_eval">(ding.policy.PPOPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.SACPolicy._forward_eval">(ding.policy.SACPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.TD3Policy._forward_eval">(ding.policy.TD3Policy method)</a>
 </li>
       </ul></li>
-      <li><a href="05_api_doc/policy.html#ding.policy.CQLPolicy._forward_learn">_forward_learn() (ding.policy.CQLPolicy method)</a>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="05_api_doc/policy.html#ding.policy.BehaviourCloningPolicy._forward_learn">_forward_learn() (ding.policy.BehaviourCloningPolicy method)</a>
 
       <ul>
+        <li><a href="05_api_doc/policy.html#ding.policy.CQLPolicy._forward_learn">(ding.policy.CQLPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.DDPGPolicy._forward_learn">(ding.policy.DDPGPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DiscreteCQLPolicy._forward_learn">(ding.policy.DiscreteCQLPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DiscreteSACPolicy._forward_learn">(ding.policy.DiscreteSACPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.DQNPolicy._forward_learn">(ding.policy.DQNPolicy method)</a>
 </li>
@@ -728,7 +756,11 @@
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PDQNPolicy._forward_learn">(ding.policy.PDQNPolicy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.Policy._forward_learn">(ding.policy.Policy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.PPOOffPolicy._forward_learn">(ding.policy.PPOOffPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOPGPolicy._forward_learn">(ding.policy.PPOPGPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PPOPolicy._forward_learn">(ding.policy.PPOPolicy method)</a>
 </li>
@@ -738,23 +770,43 @@
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.R2D2Policy._forward_learn">(ding.policy.R2D2Policy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.SACPolicy._forward_learn">(ding.policy.SACPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.SQILSACPolicy._forward_learn">(ding.policy.SQILSACPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.TD3Policy._forward_learn">(ding.policy.TD3Policy method)</a>
 </li>
       </ul></li>
       <li><a href="05_api_doc/reward_model/pwil_irl_model.html#ding.reward_model.pwil_irl_model.PwilRewardModel._get_action_distance">_get_action_distance() (ding.reward_model.pwil_irl_model.PwilRewardModel method)</a>
 </li>
+      <li><a href="05_api_doc/policy.html#ding.policy.Policy._get_attribute">_get_attribute() (ding.policy.Policy method)</a>
+</li>
       <li><a href="05_api_doc/rl_utils.html#ding.rl_utils.adder.Adder._get_null_transition">_get_null_transition() (ding.rl_utils.adder.Adder class method)</a>
+</li>
+      <li><a href="05_api_doc/policy.html#ding.policy.CommandModePolicy._get_setting_collect">_get_setting_collect() (ding.policy.CommandModePolicy method)</a>
+</li>
+      <li><a href="05_api_doc/policy.html#ding.policy.CommandModePolicy._get_setting_eval">_get_setting_eval() (ding.policy.CommandModePolicy method)</a>
+</li>
+      <li><a href="05_api_doc/policy.html#ding.policy.CommandModePolicy._get_setting_learn">_get_setting_learn() (ding.policy.CommandModePolicy method)</a>
 </li>
       <li><a href="05_api_doc/reward_model/pwil_irl_model.html#ding.reward_model.pwil_irl_model.PwilRewardModel._get_state_distance">_get_state_distance() (ding.reward_model.pwil_irl_model.PwilRewardModel method)</a>
 </li>
-      <li><a href="05_api_doc/policy.html#ding.policy.DQNPolicy._get_train_sample">_get_train_sample() (ding.policy.DQNPolicy method)</a>
+      <li><a href="05_api_doc/policy.html#ding.policy.DDPGPolicy._get_train_sample">_get_train_sample() (ding.policy.DDPGPolicy method)</a>
 
       <ul>
+        <li><a href="05_api_doc/policy.html#ding.policy.DiscreteSACPolicy._get_train_sample">(ding.policy.DiscreteSACPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DQNPolicy._get_train_sample">(ding.policy.DQNPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.IMPALAPolicy._get_train_sample">(ding.policy.IMPALAPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PDQNPolicy._get_train_sample">(ding.policy.PDQNPolicy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.Policy._get_train_sample">(ding.policy.Policy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.PPOOffPolicy._get_train_sample">(ding.policy.PPOOffPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOPGPolicy._get_train_sample">(ding.policy.PPOPGPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PPOPolicy._get_train_sample">(ding.policy.PPOPolicy method)</a>
 </li>
@@ -762,11 +814,17 @@
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.R2D2Policy._get_train_sample">(ding.policy.R2D2Policy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.SACPolicy._get_train_sample">(ding.policy.SACPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.TD3Policy._get_train_sample">(ding.policy.TD3Policy method)</a>
+</li>
       </ul></li>
       <li><a href="05_api_doc/policy.html#ding.policy.BehaviourCloningPolicy._init_collect">_init_collect() (ding.policy.BehaviourCloningPolicy method)</a>
 
       <ul>
         <li><a href="05_api_doc/policy.html#ding.policy.DDPGPolicy._init_collect">(ding.policy.DDPGPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DiscreteSACPolicy._init_collect">(ding.policy.DiscreteSACPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.DQNPolicy._init_collect">(ding.policy.DQNPolicy method)</a>
 </li>
@@ -774,7 +832,11 @@
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PDQNPolicy._init_collect">(ding.policy.PDQNPolicy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.Policy._init_collect">(ding.policy.Policy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.PPOOffPolicy._init_collect">(ding.policy.PPOOffPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOPGPolicy._init_collect">(ding.policy.PPOPGPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PPOPolicy._init_collect">(ding.policy.PPOPolicy method)</a>
 </li>
@@ -782,12 +844,20 @@
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.R2D2Policy._init_collect">(ding.policy.R2D2Policy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.SACPolicy._init_collect">(ding.policy.SACPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.TD3Policy._init_collect">(ding.policy.TD3Policy method)</a>
 </li>
       </ul></li>
-      <li><a href="05_api_doc/policy.html#ding.policy.DDPGPolicy._init_eval">_init_eval() (ding.policy.DDPGPolicy method)</a>
+      <li><a href="05_api_doc/policy.html#ding.policy.CommandModePolicy._init_command">_init_command() (ding.policy.CommandModePolicy method)</a>
+</li>
+      <li><a href="05_api_doc/policy.html#ding.policy.BehaviourCloningPolicy._init_eval">_init_eval() (ding.policy.BehaviourCloningPolicy method)</a>
 
       <ul>
+        <li><a href="05_api_doc/policy.html#ding.policy.DDPGPolicy._init_eval">(ding.policy.DDPGPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DiscreteSACPolicy._init_eval">(ding.policy.DiscreteSACPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.DQNPolicy._init_eval">(ding.policy.DQNPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.DTPolicy._init_eval">(ding.policy.DTPolicy method)</a>
@@ -796,17 +866,29 @@
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PDQNPolicy._init_eval">(ding.policy.PDQNPolicy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.Policy._init_eval">(ding.policy.Policy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.PPOOffPolicy._init_eval">(ding.policy.PPOOffPolicy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOPGPolicy._init_eval">(ding.policy.PPOPGPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.PPOPolicy._init_eval">(ding.policy.PPOPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.SACPolicy._init_eval">(ding.policy.SACPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.TD3Policy._init_eval">(ding.policy.TD3Policy method)</a>
 </li>
       </ul></li>
-      <li><a href="05_api_doc/policy.html#ding.policy.CQLPolicy._init_learn">_init_learn() (ding.policy.CQLPolicy method)</a>
+      <li><a href="05_api_doc/policy.html#ding.policy.BehaviourCloningPolicy._init_learn">_init_learn() (ding.policy.BehaviourCloningPolicy method)</a>
 
       <ul>
+        <li><a href="05_api_doc/policy.html#ding.policy.CQLPolicy._init_learn">(ding.policy.CQLPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.DDPGPolicy._init_learn">(ding.policy.DDPGPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DiscreteCQLPolicy._init_learn">(ding.policy.DiscreteCQLPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DiscreteSACPolicy._init_learn">(ding.policy.DiscreteSACPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.DQNPolicy._init_learn">(ding.policy.DQNPolicy method)</a>
 </li>
@@ -820,7 +902,11 @@
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PDQNPolicy._init_learn">(ding.policy.PDQNPolicy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.Policy._init_learn">(ding.policy.Policy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.PPOOffPolicy._init_learn">(ding.policy.PPOOffPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOPGPolicy._init_learn">(ding.policy.PPOPGPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PPOPolicy._init_learn">(ding.policy.PPOPolicy method)</a>
 </li>
@@ -830,17 +916,41 @@
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.R2D2Policy._init_learn">(ding.policy.R2D2Policy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.SACPolicy._init_learn">(ding.policy.SACPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.SQILSACPolicy._init_learn">(ding.policy.SQILSACPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.TD3Policy._init_learn">(ding.policy.TD3Policy method)</a>
 </li>
       </ul></li>
-      <li><a href="05_api_doc/policy.html#ding.policy.DQNPolicy._load_state_dict_learn">_load_state_dict_learn() (ding.policy.DQNPolicy method)</a>
+      <li><a href="05_api_doc/policy.html#ding.policy.Policy._init_multi_gpu_setting">_init_multi_gpu_setting() (ding.policy.Policy method)</a>
+</li>
+      <li><a href="05_api_doc/policy.html#ding.policy.Policy._load_state_dict_collect">_load_state_dict_collect() (ding.policy.Policy method)</a>
+</li>
+      <li><a href="05_api_doc/policy.html#ding.policy.Policy._load_state_dict_eval">_load_state_dict_eval() (ding.policy.Policy method)</a>
+</li>
+      <li><a href="05_api_doc/policy.html#ding.policy.DDPGPolicy._load_state_dict_learn">_load_state_dict_learn() (ding.policy.DDPGPolicy method)</a>
 
       <ul>
+        <li><a href="05_api_doc/policy.html#ding.policy.DiscreteSACPolicy._load_state_dict_learn">(ding.policy.DiscreteSACPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DQNPolicy._load_state_dict_learn">(ding.policy.DQNPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.DQNSTDIMPolicy._load_state_dict_learn">(ding.policy.DQNSTDIMPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PDQNPolicy._load_state_dict_learn">(ding.policy.PDQNPolicy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.Policy._load_state_dict_learn">(ding.policy.Policy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOSTDIMPolicy._load_state_dict_learn">(ding.policy.PPOSTDIMPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.QMIXPolicy._load_state_dict_learn">(ding.policy.QMIXPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.R2D2Policy._load_state_dict_learn">(ding.policy.R2D2Policy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.SACPolicy._load_state_dict_learn">(ding.policy.SACPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.TD3Policy._load_state_dict_learn">(ding.policy.TD3Policy method)</a>
 </li>
       </ul></li>
       <li><a href="05_api_doc/policy.html#ding.policy.DQNSTDIMPolicy._model_encode">_model_encode() (ding.policy.DQNSTDIMPolicy method)</a>
@@ -849,14 +959,44 @@
         <li><a href="05_api_doc/policy.html#ding.policy.PPOSTDIMPolicy._model_encode">(ding.policy.PPOSTDIMPolicy method)</a>
 </li>
       </ul></li>
-      <li><a href="05_api_doc/policy.html#ding.policy.DDPGPolicy._monitor_vars_learn">_monitor_vars_learn() (ding.policy.DDPGPolicy method)</a>
+      <li><a href="05_api_doc/policy.html#ding.policy.BehaviourCloningPolicy._monitor_vars_learn">_monitor_vars_learn() (ding.policy.BehaviourCloningPolicy method)</a>
 
       <ul>
+        <li><a href="05_api_doc/policy.html#ding.policy.DDPGPolicy._monitor_vars_learn">(ding.policy.DDPGPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DiscreteCQLPolicy._monitor_vars_learn">(ding.policy.DiscreteCQLPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DiscreteSACPolicy._monitor_vars_learn">(ding.policy.DiscreteSACPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DQNPolicy._monitor_vars_learn">(ding.policy.DQNPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DQNSTDIMPolicy._monitor_vars_learn">(ding.policy.DQNSTDIMPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DTPolicy._monitor_vars_learn">(ding.policy.DTPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.IMPALAPolicy._monitor_vars_learn">(ding.policy.IMPALAPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.MDQNPolicy._monitor_vars_learn">(ding.policy.MDQNPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PDQNPolicy._monitor_vars_learn">(ding.policy.PDQNPolicy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.Policy._monitor_vars_learn">(ding.policy.Policy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOOffPolicy._monitor_vars_learn">(ding.policy.PPOOffPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOPGPolicy._monitor_vars_learn">(ding.policy.PPOPGPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOPolicy._monitor_vars_learn">(ding.policy.PPOPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOSTDIMPolicy._monitor_vars_learn">(ding.policy.PPOSTDIMPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.QMIXPolicy._monitor_vars_learn">(ding.policy.QMIXPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.R2D2Policy._monitor_vars_learn">(ding.policy.R2D2Policy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.SACPolicy._monitor_vars_learn">(ding.policy.SACPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.SQILSACPolicy._monitor_vars_learn">(ding.policy.SQILSACPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.TD3Policy._monitor_vars_learn">(ding.policy.TD3Policy method)</a>
 </li>
@@ -876,13 +1016,19 @@
       <li><a href="05_api_doc/policy.html#ding.policy.DDPGPolicy._process_transition">_process_transition() (ding.policy.DDPGPolicy method)</a>
 
       <ul>
+        <li><a href="05_api_doc/policy.html#ding.policy.DiscreteSACPolicy._process_transition">(ding.policy.DiscreteSACPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.DQNPolicy._process_transition">(ding.policy.DQNPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.IMPALAPolicy._process_transition">(ding.policy.IMPALAPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PDQNPolicy._process_transition">(ding.policy.PDQNPolicy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.Policy._process_transition">(ding.policy.Policy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.PPOOffPolicy._process_transition">(ding.policy.PPOOffPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOPGPolicy._process_transition">(ding.policy.PPOPGPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PPOPolicy._process_transition">(ding.policy.PPOPolicy method)</a>
 </li>
@@ -890,33 +1036,75 @@
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.R2D2Policy._process_transition">(ding.policy.R2D2Policy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.SACPolicy._process_transition">(ding.policy.SACPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.TD3Policy._process_transition">(ding.policy.TD3Policy method)</a>
 </li>
       </ul></li>
-      <li><a href="05_api_doc/policy.html#ding.policy.QMIXPolicy._reset_collect">_reset_collect() (ding.policy.QMIXPolicy method)</a>
+      <li><a href="05_api_doc/policy.html#ding.policy.Policy._reset_collect">_reset_collect() (ding.policy.Policy method)</a>
+
+      <ul>
+        <li><a href="05_api_doc/policy.html#ding.policy.QMIXPolicy._reset_collect">(ding.policy.QMIXPolicy method)</a>
 </li>
-      <li><a href="05_api_doc/policy.html#ding.policy.QMIXPolicy._reset_eval">_reset_eval() (ding.policy.QMIXPolicy method)</a>
+        <li><a href="05_api_doc/policy.html#ding.policy.R2D2Policy._reset_collect">(ding.policy.R2D2Policy method)</a>
 </li>
-      <li><a href="05_api_doc/policy.html#ding.policy.QMIXPolicy._reset_learn">_reset_learn() (ding.policy.QMIXPolicy method)</a>
+      </ul></li>
+      <li><a href="05_api_doc/policy.html#ding.policy.DTPolicy._reset_eval">_reset_eval() (ding.policy.DTPolicy method)</a>
+
+      <ul>
+        <li><a href="05_api_doc/policy.html#ding.policy.Policy._reset_eval">(ding.policy.Policy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.QMIXPolicy._reset_eval">(ding.policy.QMIXPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.R2D2Policy._reset_eval">(ding.policy.R2D2Policy method)</a>
+</li>
+      </ul></li>
+      <li><a href="05_api_doc/policy.html#ding.policy.Policy._reset_learn">_reset_learn() (ding.policy.Policy method)</a>
+
+      <ul>
+        <li><a href="05_api_doc/policy.html#ding.policy.QMIXPolicy._reset_learn">(ding.policy.QMIXPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.R2D2Policy._reset_learn">(ding.policy.R2D2Policy method)</a>
+</li>
+      </ul></li>
       <li><a href="05_api_doc/worker/collector/episode_serial_collector.html#ding.worker.collector.episode_serial_collector.EpisodeSerialCollector._reset_stat">_reset_stat() (ding.worker.collector.episode_serial_collector.EpisodeSerialCollector method)</a>
 
       <ul>
         <li><a href="05_api_doc/worker/collector/sample_serial_collector.html#ding.worker.collector.sample_serial_collector.SampleSerialCollector._reset_stat">(ding.worker.collector.sample_serial_collector.SampleSerialCollector method)</a>
 </li>
       </ul></li>
+      <li><a href="05_api_doc/policy.html#ding.policy.Policy._set_attribute">_set_attribute() (ding.policy.Policy method)</a>
+</li>
       <li><a href="05_api_doc/worker/learner/learner.html#ding.worker.learner.base_learner.BaseLearner._setup_hook">_setup_hook() (ding.worker.learner.base_learner.BaseLearner method)</a>
 </li>
       <li><a href="05_api_doc/worker/learner/learner.html#ding.worker.learner.base_learner.BaseLearner._setup_wrapper">_setup_wrapper() (ding.worker.learner.base_learner.BaseLearner method)</a>
 </li>
-      <li><a href="05_api_doc/policy.html#ding.policy.DQNPolicy._state_dict_learn">_state_dict_learn() (ding.policy.DQNPolicy method)</a>
+      <li><a href="05_api_doc/policy.html#ding.policy.Policy._state_dict_collect">_state_dict_collect() (ding.policy.Policy method)</a>
+</li>
+      <li><a href="05_api_doc/policy.html#ding.policy.Policy._state_dict_eval">_state_dict_eval() (ding.policy.Policy method)</a>
+</li>
+      <li><a href="05_api_doc/policy.html#ding.policy.DDPGPolicy._state_dict_learn">_state_dict_learn() (ding.policy.DDPGPolicy method)</a>
 
       <ul>
+        <li><a href="05_api_doc/policy.html#ding.policy.DiscreteSACPolicy._state_dict_learn">(ding.policy.DiscreteSACPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DQNPolicy._state_dict_learn">(ding.policy.DQNPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.DQNSTDIMPolicy._state_dict_learn">(ding.policy.DQNSTDIMPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.PDQNPolicy._state_dict_learn">(ding.policy.PDQNPolicy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.Policy._state_dict_learn">(ding.policy.Policy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOSTDIMPolicy._state_dict_learn">(ding.policy.PPOSTDIMPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.QMIXPolicy._state_dict_learn">(ding.policy.QMIXPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.R2D2Policy._state_dict_learn">(ding.policy.R2D2Policy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.SACPolicy._state_dict_learn">(ding.policy.SACPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.TD3Policy._state_dict_learn">(ding.policy.TD3Policy method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -941,6 +1129,8 @@
 
       <ul>
         <li><a href="05_api_doc/env.html#ding.envs.BaseEnvManagerV2.action_space">(ding.envs.BaseEnvManagerV2 property)</a>
+</li>
+        <li><a href="05_api_doc/env.html#ding.envs.DingEnvWrapper.action_space">(ding.envs.DingEnvWrapper property)</a>
 </li>
       </ul></li>
       <li><a href="05_api_doc/model.html#ding.model.wrapper.model_wrappers.ActionNoiseWrapper">ActionNoiseWrapper (class in ding.model.wrapper.model_wrappers)</a>
@@ -1091,6 +1281,8 @@
       </ul></li>
       <li><a href="05_api_doc/env.html#ding.envs.ClipRewardWrapper">ClipRewardWrapper (class in ding.envs)</a>
 </li>
+      <li><a href="05_api_doc/env.html#ding.envs.DingEnvWrapper.clone">clone() (ding.envs.DingEnvWrapper method)</a>
+</li>
       <li><a href="05_api_doc/data/buffer/middleware/clone_object.html#ding.data.buffer.middleware.clone_object.clone_object">clone_object() (in module ding.data.buffer.middleware.clone_object)</a>
 </li>
       <li><a href="05_api_doc/env.html#ding.envs.AsyncSubprocessEnvManager.close">close() (ding.envs.AsyncSubprocessEnvManager method)</a>
@@ -1171,6 +1363,8 @@
         <li><a href="05_api_doc/reward_model/red_irl_model.html#ding.reward_model.red_irl_model.RedRewardModel.collect_data">(ding.reward_model.red_irl_model.RedRewardModel method)</a>
 </li>
       </ul></li>
+      <li><a href="05_api_doc/policy.html#ding.policy.Policy.collect_mode">collect_mode (ding.policy.Policy property)</a>
+</li>
       <li><a href="05_api_doc/worker/collector/comm.html#ding.worker.collector.comm.flask_fs_collector.CollectorSlave">CollectorSlave (class in ding.worker.collector.comm.flask_fs_collector)</a>
 </li>
       <li><a href="05_api_doc/rl_utils.html#ding.rl_utils.coma_error">coma_error() (in module ding.rl_utils)</a>
@@ -1178,6 +1372,8 @@
       <li><a href="05_api_doc/model.html#ding.model.wrapper.model_wrappers.CombinationArgmaxSampleWrapper">CombinationArgmaxSampleWrapper (class in ding.model.wrapper.model_wrappers)</a>
 </li>
       <li><a href="05_api_doc/model.html#ding.model.wrapper.model_wrappers.CombinationMultinomialSampleWrapper">CombinationMultinomialSampleWrapper (class in ding.model.wrapper.model_wrappers)</a>
+</li>
+      <li><a href="05_api_doc/policy.html#ding.policy.CommandModePolicy.command_mode">command_mode (ding.policy.CommandModePolicy property)</a>
 </li>
       <li><a href="05_api_doc/policy.html#ding.policy.CommandModePolicy">CommandModePolicy (class in ding.policy)</a>
 </li>
@@ -1308,6 +1504,8 @@
 </li>
         <li><a href="05_api_doc/env.html#ding.envs.SyncSubprocessEnvManager.default_config">(ding.envs.SyncSubprocessEnvManager class method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.Policy.default_config">(ding.policy.Policy class method)</a>
+</li>
         <li><a href="05_api_doc/worker/collector/base_serial_collector.html#ding.worker.collector.base_serial_collector.ISerialCollector.default_config">(ding.worker.collector.base_serial_collector.ISerialCollector class method)</a>
 </li>
         <li><a href="05_api_doc/worker/collector/base_serial_evaluator.html#ding.worker.collector.base_serial_evaluator.ISerialEvaluator.default_config">(ding.worker.collector.base_serial_evaluator.ISerialEvaluator class method)</a>
@@ -1321,14 +1519,38 @@
         <li><a href="05_api_doc/worker/replay_buffer/buffer.html#ding.worker.replay_buffer.naive_buffer.NaiveReplayBuffer.default_config">(ding.worker.replay_buffer.naive_buffer.NaiveReplayBuffer class method)</a>
 </li>
       </ul></li>
-      <li><a href="05_api_doc/policy.html#ding.policy.DQNPolicy.default_model">default_model() (ding.policy.DQNPolicy method)</a>
+      <li><a href="05_api_doc/policy.html#ding.policy.BehaviourCloningPolicy.default_model">default_model() (ding.policy.BehaviourCloningPolicy method)</a>
 
       <ul>
+        <li><a href="05_api_doc/policy.html#ding.policy.DDPGPolicy.default_model">(ding.policy.DDPGPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DiscreteSACPolicy.default_model">(ding.policy.DiscreteSACPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.DQNPolicy.default_model">(ding.policy.DQNPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.IMPALAPolicy.default_model">(ding.policy.IMPALAPolicy method)</a>
+</li>
         <li><a href="05_api_doc/policy.html#ding.policy.PDQNPolicy.default_model">(ding.policy.PDQNPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.Policy.default_model">(ding.policy.Policy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOOffPolicy.default_model">(ding.policy.PPOOffPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOPGPolicy.default_model">(ding.policy.PPOPGPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.PPOPolicy.default_model">(ding.policy.PPOPolicy method)</a>
 </li>
         <li><a href="05_api_doc/policy.html#ding.policy.QMIXPolicy.default_model">(ding.policy.QMIXPolicy method)</a>
 </li>
+        <li><a href="05_api_doc/policy.html#ding.policy.R2D2Policy.default_model">(ding.policy.R2D2Policy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.SACPolicy.default_model">(ding.policy.SACPolicy method)</a>
+</li>
+        <li><a href="05_api_doc/policy.html#ding.policy.TD3Policy.default_model">(ding.policy.TD3Policy method)</a>
+</li>
       </ul></li>
+      <li><a href="05_api_doc/policy.html#ding.policy.default_preprocess_learn">default_preprocess_learn() (in module ding.policy)</a>
+</li>
       <li><a href="05_api_doc/env.html#ding.envs.DelayRewardWrapper">DelayRewardWrapper (class in ding.envs)</a>
 </li>
       <li><a href="05_api_doc/data/buffer/buffer.html#ding.data.buffer.buffer.Buffer.delete">delete() (ding.data.buffer.buffer.Buffer method)</a>
@@ -1684,6 +1906,8 @@
         <li><a href="05_api_doc/utils/default_helper.html#module-ding.utils.default_helper.default_get">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     ding.utils.default_helper.dicts_to_lists
 
@@ -1698,8 +1922,6 @@
         <li><a href="05_api_doc/utils/default_helper.html#module-ding.utils.default_helper.error_wrapper">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     ding.utils.default_helper.flatten_dict
 
@@ -2096,11 +2318,15 @@
 </li>
       <li><a href="05_api_doc/model.html#ding.model.DiscreteBC">DiscreteBC (class in ding.model)</a>
 </li>
+      <li><a href="05_api_doc/policy.html#ding.policy.DiscreteCQLPolicy">DiscreteCQLPolicy (class in ding.policy)</a>
+</li>
       <li><a href="05_api_doc/model.html#ding.model.DiscreteHead">DiscreteHead (class in ding.model)</a>
 </li>
       <li><a href="05_api_doc/model.html#ding.model.DiscreteMAQAC">DiscreteMAQAC (class in ding.model)</a>
 </li>
       <li><a href="05_api_doc/model.html#ding.model.DiscreteQAC">DiscreteQAC (class in ding.model)</a>
+</li>
+      <li><a href="05_api_doc/policy.html#ding.policy.DiscreteSACPolicy">DiscreteSACPolicy (class in ding.policy)</a>
 </li>
       <li><a href="05_api_doc/rl_utils.html#ding.rl_utils.td.dist_1step_td_data">dist_1step_td_data (class in ding.rl_utils.td)</a>
 </li>
@@ -2238,6 +2464,8 @@
         <li><a href="05_api_doc/reward_model/red_irl_model.html#ding.reward_model.red_irl_model.RedRewardModel.estimate">(ding.reward_model.red_irl_model.RedRewardModel method)</a>
 </li>
       </ul></li>
+      <li><a href="05_api_doc/policy.html#ding.policy.Policy.eval_mode">eval_mode (ding.policy.Policy property)</a>
+</li>
       <li><a href="05_api_doc/env.html#ding.envs.EvalEpisodeReturnWrapper">EvalEpisodeReturnWrapper (class in ding.envs)</a>
 </li>
       <li><a href="05_api_doc/rl_utils.html#ding.rl_utils.td.evaluate_quantile_at_action">evaluate_quantile_at_action() (in module ding.rl_utils.td)</a>
@@ -2562,8 +2790,12 @@
         <li><a href="05_api_doc/worker/collector/comm.html#ding.worker.collector.comm.flask_fs_collector.FlaskFileSystemCollector.get_policy_update_info">(ding.worker.collector.comm.flask_fs_collector.FlaskFileSystemCollector method)</a>
 </li>
       </ul></li>
-      <li><a href="05_api_doc/policy.html#ding.policy.get_random_policy">get_random_policy() (in module ding.policy)</a>
+      <li><a href="05_api_doc/policy.html#ding.policy.PolicyFactory.get_random_policy">get_random_policy() (ding.policy.PolicyFactory static method)</a>
+
+      <ul>
+        <li><a href="05_api_doc/policy.html#ding.policy.get_random_policy">(in module ding.policy)</a>
 </li>
+      </ul></li>
       <li><a href="05_api_doc/utils/default_helper.html#ding.utils.default_helper.LimitedSpaceContainer.get_residual_space">get_residual_space() (ding.utils.default_helper.LimitedSpaceContainer method)</a>
 </li>
       <li><a href="05_api_doc/utils/log_helper.html#ding.utils.log_helper.LoggerFactory.get_tabulate_vars">get_tabulate_vars() (in module ding.utils.log_helper.LoggerFactory)</a>
@@ -2727,6 +2959,8 @@
 </li>
       </ul></li>
       <li><a href="05_api_doc/league/player.html#ding.league.starcraft_player.LeagueExploiter">LeagueExploiter (class in ding.league.starcraft_player)</a>
+</li>
+      <li><a href="05_api_doc/policy.html#ding.policy.Policy.learn_mode">learn_mode (ding.policy.Policy property)</a>
 </li>
       <li><a href="05_api_doc/worker/learner/learner.html#ding.worker.learner.learner_hook.LearnerHook">LearnerHook (class in ding.worker.learner.learner_hook)</a>
 </li>
@@ -3119,9 +3353,11 @@
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="05_api_doc/env.html#ding.envs.ObsNormWrapper.observation">observation() (ding.envs.ObsNormWrapper method)</a>
+      <li><a href="05_api_doc/env.html#ding.envs.FlatObsWrapper.observation">observation() (ding.envs.FlatObsWrapper method)</a>, <a href="05_api_doc/env.html#id0">[1]</a>
 
       <ul>
+        <li><a href="05_api_doc/env.html#ding.envs.ObsNormWrapper.observation">(ding.envs.ObsNormWrapper method)</a>
+</li>
         <li><a href="05_api_doc/env.html#ding.envs.ObsTransposeWrapper.observation">(ding.envs.ObsTransposeWrapper method)</a>
 </li>
         <li><a href="05_api_doc/env.html#ding.envs.ScaledFloatFrameWrapper.observation">(ding.envs.ScaledFloatFrameWrapper method)</a>
@@ -3136,13 +3372,15 @@
       <ul>
         <li><a href="05_api_doc/env.html#ding.envs.BaseEnvManagerV2.observation_space">(ding.envs.BaseEnvManagerV2 property)</a>
 </li>
+        <li><a href="05_api_doc/env.html#ding.envs.DingEnvWrapper.observation_space">(ding.envs.DingEnvWrapper property)</a>
+</li>
       </ul></li>
       <li><a href="05_api_doc/env.html#ding.envs.ObsNormWrapper">ObsNormWrapper (class in ding.envs)</a>
 </li>
-      <li><a href="05_api_doc/env.html#ding.envs.ObsPlusPrevActRewWrapper">ObsPlusPrevActRewWrapper (class in ding.envs)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="05_api_doc/env.html#ding.envs.ObsPlusPrevActRewWrapper">ObsPlusPrevActRewWrapper (class in ding.envs)</a>
+</li>
       <li><a href="05_api_doc/env.html#ding.envs.ObsTransposeWrapper">ObsTransposeWrapper (class in ding.envs)</a>
 </li>
       <li><a href="05_api_doc/framework/middleware/functional/data_processor.html#ding.framework.middleware.functional.data_processor.offline_data_fetcher">offline_data_fetcher() (in module ding.framework.middleware.functional.data_processor)</a>
@@ -3498,6 +3736,8 @@
       <ul>
         <li><a href="05_api_doc/env.html#ding.envs.BaseEnvManagerV2.reward_space">(ding.envs.BaseEnvManagerV2 property)</a>
 </li>
+        <li><a href="05_api_doc/env.html#ding.envs.DingEnvWrapper.reward_space">(ding.envs.DingEnvWrapper property)</a>
+</li>
       </ul></li>
       <li><a href="05_api_doc/env.html#ding.envs.RewardNormWrapper">RewardNormWrapper (class in ding.envs)</a>
 </li>
@@ -3784,6 +4024,8 @@
       <li><a href="05_api_doc/utils/segment_tree.html#ding.utils.segment_tree.SumSegmentTree">SumSegmentTree (class in ding.utils.segment_tree)</a>
 </li>
       <li><a href="05_api_doc/rl_utils.html#ding.rl_utils.value_rescale.symlog">symlog() (in module ding.rl_utils.value_rescale)</a>
+</li>
+      <li><a href="05_api_doc/policy.html#ding.policy.Policy.sync_gradients">sync_gradients() (ding.policy.Policy method)</a>
 </li>
       <li><a href="05_api_doc/env.html#ding.envs.SyncSubprocessEnvManager">SyncSubprocessEnvManager (class in ding.envs)</a>
 </li>
