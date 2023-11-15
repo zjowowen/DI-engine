@@ -7,7 +7,7 @@ except RuntimeError:
 from easydict import EasyDict
 from ditk import logging
 from ding.model import DQN
-from ding.policy import DQNFastPolicy
+from ding.policy import DQNPolicy
 from ding.envs.env_manager.envpool_env_manager import PoolEnvManagerV2
 from ding.data import DequeBuffer
 from ding.config import compile_config
@@ -15,7 +15,7 @@ from ding.framework import task, ding_init
 from ding.framework.context import OnlineRLContext
 from ding.framework.middleware import envpool_evaluator, data_pusher, \
     eps_greedy_handler, CkptSaver, ContextExchanger, ModelExchanger, online_logger, \
-    termination_checker, wandb_online_logger, epoch_timer, EnvpoolStepCollector, EnvpoolOffPolicyLearner
+    termination_checker, wandb_online_logger, epoch_timer, EnvpoolStepCollector, OffPolicyLearner
 from ding.utils import set_pkg_seed
 
 from dizoo.atari.config.serial import pong_dqn_envpool_config
@@ -23,7 +23,7 @@ from dizoo.atari.config.serial import pong_dqn_envpool_config
 
 def main(cfg):
     logging.getLogger().setLevel(logging.INFO)
-    cfg.exp_name = 'Pong-v5-DQN-envpool-' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    cfg.exp_name = 'Pong-v5-DQN-envpool-old-learner-' + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
     collector_env_cfg = EasyDict(
         {
@@ -51,7 +51,7 @@ def main(cfg):
         }
     )
     cfg.env["evaluator_env_cfg"] = evaluator_env_cfg
-    cfg = compile_config(cfg, PoolEnvManagerV2, DQNFastPolicy, save_cfg=task.router.node_id == 0)
+    cfg = compile_config(cfg, PoolEnvManagerV2, DQNPolicy, save_cfg=task.router.node_id == 0)
     ding_init(cfg)
     with task.start(async_mode=False, ctx=OnlineRLContext()):
         collector_env = PoolEnvManagerV2(cfg.env.collector_env_cfg)
@@ -62,7 +62,7 @@ def main(cfg):
 
         model = DQN(**cfg.policy.model)
         buffer_ = DequeBuffer(size=cfg.policy.other.replay_buffer.replay_buffer_size)
-        policy = DQNFastPolicy(cfg.policy, model=model)
+        policy = DQNPolicy(cfg.policy, model=model)
 
         # Consider the case with multiple processes
         if task.router.is_active:
@@ -94,7 +94,7 @@ def main(cfg):
                     )
                 )
         task.use(data_pusher(cfg, buffer_))
-        task.use(EnvpoolOffPolicyLearner(cfg, policy, buffer_))
+        task.use(OffPolicyLearner(cfg, policy.learn_mode, buffer_))
         task.use(online_logger(train_show_freq=10))
         task.use(
             wandb_online_logger(

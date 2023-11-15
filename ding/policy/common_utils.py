@@ -60,10 +60,12 @@ def default_preprocess_learn(
     if use_nstep:
         # reward reshaping for n-step
         reward = data['reward']
+        reward = torch.stack(reward)
         if len(reward.shape) == 1:
             reward = reward.unsqueeze(1)
         # reward: (batch_size, nstep) -> (nstep, batch_size)
-        data['reward'] = reward.permute(1, 0).contiguous()
+        # data['reward'] = reward.permute(1, 0).contiguous()
+        data['reward'] = reward
     else:
         if data['reward'].dim() == 2 and data['reward'].shape[1] == 1:
             data['reward'] = data['reward'].squeeze(-1)
@@ -104,7 +106,7 @@ def fast_preprocess_learn(
             next_n_obs = to_device(next_n_obs, device=device)
         processes_data['next_n_obs'] = next_n_obs
 
-    reward = torch.tensor(np.array([data[i]['reward'] for i in range(len(data))]))
+    reward = torch.tensor(np.array([data[i]['reward'] for i in range(len(data))], dtype=np.float32))
     if cuda:
         reward = to_device(reward, device=device)
     reward = reward.permute(1, 0).contiguous()

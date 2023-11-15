@@ -81,6 +81,7 @@ class OffPolicyLearner:
         Output of ctx:
             - train_output (:obj:`Deque`): The training output in deque.
         """
+        start_time=time.time()
         train_output_queue = []
         for _ in range(self.cfg.policy.learn.update_per_collect):
             self._fetcher(ctx)
@@ -92,6 +93,8 @@ class OffPolicyLearner:
             train_output_queue.append(ctx.train_output)
             ctx.train_output_for_post_process = ctx.train_output
         ctx.train_output = train_output_queue
+        end_time=time.time()
+        print("train one batch time:{}".format(end_time-start_time))
 
 
 class EnvpoolOffPolicyLearner:
@@ -144,6 +147,7 @@ class EnvpoolOffPolicyLearner:
         Output of ctx:
             - train_output (:obj:`Deque`): The training output in deque.
         """
+        start_time=time.time()
         train_output_queue = []
         data_counter = 0
         for _ in range(self.cfg.policy.learn.update_per_collect):
@@ -169,6 +173,9 @@ class EnvpoolOffPolicyLearner:
             ctx.train_output_for_post_process = ctx.train_output
 
         ctx.train_output = train_output_queue
+
+        end_time=time.time()
+        print("train one batch time:{}".format(end_time-start_time))
 
         yield
 
