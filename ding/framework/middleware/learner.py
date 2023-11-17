@@ -93,8 +93,7 @@ class OffPolicyLearner:
             train_output_queue.append(ctx.train_output)
             ctx.train_output_for_post_process = ctx.train_output
         ctx.train_output = train_output_queue
-        end_time=time.time()
-        print("train one batch time:{}".format(end_time-start_time))
+        ctx.learner_time += time.time() - start_time
 
 
 class EnvpoolOffPolicyLearner:
@@ -174,8 +173,7 @@ class EnvpoolOffPolicyLearner:
 
         ctx.train_output = train_output_queue
 
-        end_time=time.time()
-        print("train one batch time:{}".format(end_time-start_time))
+        ctx.learner_time += time.time() - start_time
 
         yield
 

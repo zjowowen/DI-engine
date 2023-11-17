@@ -334,6 +334,8 @@ def envpool_evaluator(cfg: EasyDict, policy: Policy, env: BaseEnvManager, render
             - eval_value (:obj:`float`): The average reward in the current evaluation.
         """
 
+        start_time=time.time()
+
         # evaluation will be executed if the task begins or enough train_iter after last evaluation
         if ctx.last_eval_iter != -1 and \
            (ctx.train_iter - ctx.last_eval_iter < cfg.policy.eval.evaluator.eval_freq):
@@ -424,6 +426,8 @@ def envpool_evaluator(cfg: EasyDict, policy: Policy, env: BaseEnvManager, render
 
         if stop_flag:
             task.finish = True
+
+        ctx.evaluator_time += time.time()-start_time
 
     return _evaluate
 
