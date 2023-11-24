@@ -17,6 +17,7 @@ except ImportError:
     envpool = None
 
 from ding.envs import BaseEnvTimestep
+from ding.envs.env_manager import BaseEnvManagerV2
 from ding.utils import ENV_MANAGER_REGISTRY, deep_merge_dicts
 from ding.torch_utils import to_ndarray
 
@@ -147,6 +148,10 @@ class PoolEnvManager:
         logging.warning("envpool doesn't support dynamic_seed in different episode")
 
     @property
+    def closed(self) -> None:
+        return self._closed
+
+    @property
     def env_num(self) -> int:
         return self._env_num
 
@@ -172,7 +177,6 @@ class PoolEnvManager:
             self.close()
             return self._action_space
 
-
 @ENV_MANAGER_REGISTRY.register('envpool_v2')
 class PoolEnvManagerV2:
     """
@@ -192,6 +196,8 @@ class PoolEnvManagerV2:
 
     config = dict(
         type='envpool_v2',
+        # Sync  mode: batch_size == env_num
+        # Async mode: batch_size <  env_num
         env_num=8,
         batch_size=8,
         image_observation=True,
@@ -203,12 +209,11 @@ class PoolEnvManagerV2:
     )
 
     def __init__(self, cfg: EasyDict) -> None:
-        super().__init__()
         self._cfg = self.default_config()
         self._cfg.update(cfg)
         self._env_num = cfg.env_num
         self._batch_size = cfg.batch_size
-
+        self._ready_obs = {}
         self._closed = True
         self._seed = None
 
@@ -234,36 +239,75 @@ class PoolEnvManagerV2:
         self._action_space = self._envs.action_space
         self._observation_space = self._envs.observation_space
         self._closed = False
-        return self.reset()
+        self.reset()
 
     def reset(self) -> None:
+        self._ready_obs = {}
         self._envs.async_reset()
-        ready_obs = {}
         while True:
             obs, _, _, info = self._envs.recv()
             env_id = info['env_id']
             obs = obs.astype(np.float32)
             if self._cfg.image_observation:
                 obs /= 255.0
-            for i in range(len(list(env_id))):
-                ready_obs[env_id[i]] = obs[i]
-            if len(ready_obs) == self._env_num:
+            self._ready_obs = deep_merge_dicts({i: o for i, o in zip(env_id, obs)}, self._ready_obs)
+            if len(self._ready_obs) == self._env_num:
                 break
         self._eval_episode_return = [0. for _ in range(self._env_num)]
 
-        return ready_obs
-
-    def send_action(self, action, env_id) -> Dict[int, namedtuple]:
+    def step(self, action: tnp.array) -> Dict[int, namedtuple]:
+        env_id = np.array(self.ready_obs_id)
+        action = np.array(action)
+        if len(action.shape) == 2:
+            action = action.squeeze(1)
         self._envs.send(action, env_id)
 
-    def receive_data(self):
-        next_obs, rew, done, info = self._envs.recv()
-        next_obs = next_obs.astype(np.float32)
+        obs, rew, done, info = self._envs.recv()
+        obs = obs.astype(np.float32)
         if self._cfg.image_observation:
-            next_obs /= 255.0
+            obs /= 255.0
         rew = rew.astype(np.float32)
+        env_id = info['env_id']
+        new_data = []
 
-        return next_obs, rew, done, info
+        self._ready_obs = {}
+        for i in range(len(env_id)):
+            d = bool(done[i])
+            r = to_ndarray([rew[i]])
+            self._eval_episode_return[env_id[i]] += r
+
+            if d:
+                new_data.append(
+                    tnp.array(
+                        {
+                            'obs': obs[i],
+                            'reward': r,
+                            'done': d,
+                            'info': {
+                                'env_id': i,
+                                'eval_episode_return': self._eval_episode_return[env_id[i]]
+                            },
+                            'env_id': i
+                        }
+                    )
+                )
+                self._eval_episode_return[env_id[i]] = 0.
+            else:
+                new_data.append(tnp.array({'obs': obs[i], 'reward': r, 'done': d, 'info': {'env_id': i}, 'env_id': i}))
+
+            self._ready_obs[env_id[i]] = obs[i]
+
+        return new_data
+
+    @property
+    def ready_obs_id(self) -> List[int]:
+        # In BaseEnvManager, if env_episode_count equals episode_num, this env is done.
+        return list(self._ready_obs.keys())
+
+    @property
+    def ready_obs(self) -> tnp.array:
+        obs = list(self._ready_obs.values())
+        return tnp.stack(obs)
 
     def close(self) -> None:
         if self._closed:
@@ -271,14 +315,14 @@ class PoolEnvManagerV2:
         # Envpool has no `close` API
         self._closed = True
 
-    @property
-    def closed(self) -> None:
-        return self._closed
-
     def seed(self, seed: int, dynamic_seed=False) -> None:
         # The i-th environment seed in Envpool will be set with i+seed, so we don't do extra transformation here
         self._seed = seed
         logging.warning("envpool doesn't support dynamic_seed in different episode")
+
+    @property
+    def closed(self) -> None:
+        return self._closed
 
     @property
     def env_num(self) -> int:
@@ -291,7 +335,6 @@ class PoolEnvManagerV2:
         except AttributeError:
             self.launch()
             self.close()
-            self._ready_obs = {}
             return self._observation_space
 
     @property
@@ -301,5 +344,4 @@ class PoolEnvManagerV2:
         except AttributeError:
             self.launch()
             self.close()
-            self._ready_obs = {}
             return self._action_space

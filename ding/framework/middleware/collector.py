@@ -5,13 +5,13 @@ import treetensor.torch as ttorch
 from ding.policy import get_random_policy
 from ding.envs import BaseEnvManager
 from ding.framework import task
-from .functional import inferencer, rolloutor, TransitionList
+from .functional import inferencer, inferencer_async, rolloutor, rolloutor_async, TransitionList
 
 if TYPE_CHECKING:
     from ding.framework import OnlineRLContext
 
-import numpy as np
-import torch
+from ding.worker.collector.base_serial_collector import CachePool
+import time
 
 
 class StepCollector:
@@ -71,12 +71,17 @@ class StepCollector:
                 break
 
 
-class EnvpoolStepCollector:
+class StepCollectorAsync:
+    """
+    Overview:
+        The class of the collector running by steps, including model inference and transition \
+            process. Use the `__call__` method to execute the whole collection process.
+    """
 
     def __new__(cls, *args, **kwargs):
         if task.router.is_active and not task.has_role(task.role.COLLECTOR):
             return task.void()
-        return super(EnvpoolStepCollector, cls).__new__(cls)
+        return super(StepCollectorAsync, cls).__new__(cls)
 
     def __init__(self, cfg: EasyDict, policy, env: BaseEnvManager, random_collect_size: int = 0) -> None:
         """
@@ -90,16 +95,17 @@ class EnvpoolStepCollector:
         """
         self.cfg = cfg
         self.env = env
-
-        self._ready_obs_receive = {}
-        self._ready_obs_send = {}
-        self._ready_action_send = {}
-        self._trajectory = {i: [] for i in range(env.env_num)}
-        self._nsteps = self.cfg.policy.nstep if hasattr(self.cfg.policy, 'nstep') else 1
-        self._discount_ratio_list = [self.cfg.policy.discount_factor ** (i + 1) for i in range(self._nsteps)]
-        self._nsteps_range = list(range(1, self._nsteps))
         self.policy = policy
         self.random_collect_size = random_collect_size
+        self._transitions = TransitionList(self.env.env_num)
+
+        self._obs_pool = CachePool('obs', self.env.env_num, deepcopy=True)
+        self._policy_output_pool = CachePool('policy_output', self.env.env_num)
+
+        self._inferencer = task.wrap(inferencer_async(cfg.seed, policy, env, self._obs_pool, self._policy_output_pool))
+        self._rolloutor = task.wrap(
+            rolloutor_async(policy, env, self._transitions, self._obs_pool, self._policy_output_pool)
+        )
 
     def __call__(self, ctx: "OnlineRLContext") -> None:
         """
@@ -109,148 +115,30 @@ class EnvpoolStepCollector:
         Input of ctx:
             - env_step (:obj:`int`): The env steps which will increase during collection.
         """
-        old = ctx.env_step
 
+        start_time = time.time()
+
+        old = ctx.env_step
         if self.random_collect_size > 0 and old < self.random_collect_size:
             target_size = self.random_collect_size - old
-            random = True
+            random_policy = get_random_policy(self.cfg, self.policy, self.env)
+            current_inferencer = task.wrap(
+                inferencer_async(self.cfg.seed, random_policy, self.env, self._obs_pool, self._policy_output_pool)
+            )
         else:
+            # compatible with old config, a train sample = unroll_len step
             target_size = self.cfg.policy.collect.n_sample * self.cfg.policy.collect.unroll_len
-            random = False
-
-        if self.env.closed:
-            self._ready_obs_receive = self.env.launch()
-
-        counter = 0
+            current_inferencer = self._inferencer
 
         while True:
-            if len(self._ready_obs_receive.keys()) > 0:
-                if random:
-                    action_to_send = {
-                        i: {
-                            "action": np.array([self.env.action_space.sample()])
-                        }
-                        for i in self._ready_obs_receive.keys()
-                    }
-                else:
-                    action_by_policy = self.policy.forward(self._ready_obs_receive, **ctx.collect_kwargs)
-
-                    if isinstance(list(action_by_policy.values())[0]['action'], torch.Tensor):
-                        # transfer to numpy
-                        action_to_send = {
-                            i: {
-                                "action": action_by_policy[i]['action'].cpu().numpy()
-                            }
-                            for i in action_by_policy.keys()
-                        }
-                    else:
-                        action_to_send = action_by_policy
-                self._ready_obs_send.update(self._ready_obs_receive)
-                self._ready_obs_receive = {}
-                self._ready_action_send.update(action_to_send)
-
-                action_send = np.array([action_to_send[i]['action'] for i in action_to_send.keys()])
-                if action_send.ndim == 2 and action_send.shape[1] == 1:
-                    action_send = action_send.squeeze(1)
-                env_id_send = np.array(list(action_to_send.keys()))
-                self.env.send_action(action_send, env_id_send)
-
-            next_obs, rew, done, info = self.env.receive_data()
-            env_id_receive = info['env_id']
-            counter += len(env_id_receive)
-            self._ready_obs_receive.update({i: next_obs[i] for i in range(len(next_obs))})
-
-            #todo
-            for i in range(len(env_id_receive)):
-                current_reward = rew[i]
-                if self._nsteps > 1:
-                    self._trajectory[env_id_receive[i]].append(
-                        {
-                            'obs': self._ready_obs_send[env_id_receive[i]],
-                            'action': self._ready_action_send[env_id_receive[i]]['action'],
-                            'next_obs': next_obs[i],
-                            # n-step reward
-                            'reward': [current_reward],
-                            'done': done[i],
-                        }
-                    )
-                else:
-                    self._trajectory[env_id_receive[i]].append(
-                        {
-                            'obs': self._ready_obs_send[env_id_receive[i]],
-                            'action': self._ready_action_send[env_id_receive[i]]['action'],
-                            'next_obs': next_obs[i],
-                            # n-step reward
-                            'reward': current_reward,
-                            'done': done[i],
-                        }
-                    )
-
-                if self._nsteps > 1:
-                    if done[i] is False and counter < target_size:
-                        reverse_record_position = min(self._nsteps, len(self._trajectory[env_id_receive[i]]))
-                        real_reverse_record_position = reverse_record_position
-
-                        for j in range(1, reverse_record_position + 1):
-                            if j == 1:
-                                pass
-                            else:
-                                if self._trajectory[env_id_receive[i]][-j]['done'] is True:
-                                    real_reverse_record_position = j - 1
-                                    break
-                                else:
-                                    self._trajectory[env_id_receive[i]][-j]['reward'].append(current_reward)
-
-                        if real_reverse_record_position == self._nsteps:
-                            self._trajectory[env_id_receive[i]
-                                             ][-real_reverse_record_position]['next_n_obs'] = next_obs[i]
-                            self._trajectory[env_id_receive[i]][-real_reverse_record_position][
-                                'value_gamma'] = self._discount_ratio_list[real_reverse_record_position - 1]
-
-                    else:  # done[i] is True or counter >= target_size
-
-                        reverse_record_position = min(self._nsteps, len(self._trajectory[env_id_receive[i]]))
-                        real_reverse_record_position = reverse_record_position
-
-                        for j in range(1, reverse_record_position + 1):
-                            if j == 1:
-                                self._trajectory[env_id_receive[i]][-j]['reward'].extend(
-                                    [
-                                        0.0 for _ in
-                                        range(self._nsteps - len(self._trajectory[env_id_receive[i]][-j]['reward']))
-                                    ]
-                                )
-                                self._trajectory[env_id_receive[i]][-j]['next_n_obs'] = next_obs[i]
-                                self._trajectory[env_id_receive[i]][-j]['value_gamma'] = self._discount_ratio_list[j -
-                                                                                                                   1]
-                            else:
-                                if self._trajectory[env_id_receive[i]][-j]['done'] is True:
-                                    real_reverse_record_position = j
-                                    break
-                                else:
-                                    self._trajectory[env_id_receive[i]][-j]['reward'].append(current_reward)
-                                    self._trajectory[env_id_receive[i]][-j]['reward'].extend(
-                                        [
-                                            0.0 for _ in range(
-                                                self._nsteps - len(self._trajectory[env_id_receive[i]][-j]['reward'])
-                                            )
-                                        ]
-                                    )
-                                    self._trajectory[env_id_receive[i]][-j]['next_n_obs'] = next_obs[i]
-                                    self._trajectory[env_id_receive[i]][-j]['value_gamma'] = self._discount_ratio_list[
-                                        j - 1]
-
-                else:
-                    self._trajectory[env_id_receive[i]][-1]['value_gamma'] = self._discount_ratio_list[0]
-
-            if counter >= target_size:
+            current_inferencer(ctx)
+            self._rolloutor(ctx)
+            if ctx.env_step - old >= target_size:
+                ctx.trajectories, ctx.trajectory_end_idx = self._transitions.to_trajectories()
+                self._transitions.clear()
                 break
 
-        ctx.trajectories = []
-        for i in range(self.env.env_num):
-            ctx.trajectories.extend(self._trajectory[i])
-            self._trajectory[i] = []
-        ctx.env_step += len(ctx.trajectories)
+        ctx.collector_time += time.time() - start_time
 
 
 class PPOFStepCollector:
