@@ -8,7 +8,8 @@ import torch.nn.functional as F
 from torch.distributions import Normal, Independent
 
 from ding.torch_utils import Adam, to_device
-from ding.rl_utils import v_1step_td_data, v_1step_td_error, get_train_sample, q_v_1step_td_error, q_v_1step_td_data
+from ding.rl_utils import v_1step_td_data, v_1step_td_error, get_train_sample, q_v_1step_td_error, q_v_1step_td_data, \
+                        v_1step_td_error_V2
 from ding.model import model_wrap
 from ding.utils import POLICY_REGISTRY
 from ding.utils.data import default_collate, default_decollate
@@ -1137,6 +1138,409 @@ class SACPolicy(Policy):
             'td_error',
             'transformed_log_prob',
         ] + twin_critic + alpha_loss
+
+
+def to_float32(x: Union[dict, torch.Tensor]) -> Union[dict, torch.Tensor]:
+    # x is a dict in [str: torch.tensor] or torch.tensor,
+    # transform obs and next_obs to dtype float32
+    if isinstance(x, dict):
+        for k, v in x.items():
+            if isinstance(v, torch.Tensor):
+                x[k] = v.float()
+    elif isinstance(x, torch.Tensor):
+        x = x.float()
+    else:
+        raise TypeError('x should be dict or torch.Tensor')
+    return x
+
+
+@POLICY_REGISTRY.register('sac_general')
+class SACGeneralPolicy(Policy):
+
+    config = dict(
+        # (str) RL policy register name (refer to function "POLICY_REGISTRY").
+        type='sac_general',
+        # (bool) Whether to use cuda for network and loss computation.
+        cuda=False,
+        # (bool) Whether to belong to on-policy or off-policy algorithm, SAC is an off-policy algorithm.
+        on_policy=False,
+        # (bool) Whether to use priority sampling in buffer. Default to False in SAC.
+        priority=False,
+        # (bool) Whether use Importance Sampling weight to correct biased update. If True, priority must be True.
+        priority_IS_weight=False,
+        # (int) Number of training samples (randomly collected) in replay buffer when training starts.
+        random_collect_size=10000,
+        # (bool) Whether to need policy-specific data in process transition.
+        transition_with_policy_data=True,
+        # (bool) Whether to enable multi-agent training setting.
+        multi_agent=False,
+        # action_space can be 'reparameterization' or 'general'.
+        action_space='general',
+        model=dict(
+            # (bool) Whether to use double-soft-q-net for target q computation.
+            # For more details, please refer to TD3 about Clipped Double-Q Learning trick.
+            twin_critic=True,
+            # (str) Use reparameterization trick for continous action.
+            # action_space can be 'reparameterization' or 'general'.
+            action_space='general',
+        ),
+        learn=dict(
+            # (int) How many updates (iterations) to train after collector's one collection.
+            # Bigger "update_per_collect" means bigger off-policy.
+            update_per_collect=1,
+            # (int) Minibatch size for one gradient descent.
+            batch_size=256,
+            # (float) Learning rate for soft q network.
+            learning_rate_q=3e-4,
+            # (float) Learning rate for policy network.
+            learning_rate_policy=3e-4,
+            # (float) Learning rate for auto temperature parameter `\alpha`.
+            learning_rate_alpha=3e-4,
+            # (float) Used for soft update of the target network,
+            # aka. Interpolation factor in EMA update for target network.
+            target_theta=0.005,
+            # (float) discount factor for the discounted sum of rewards, aka. gamma.
+            discount_factor=0.99,
+            # (float) Entropy regularization coefficient in SAC.
+            # Please check out the original SAC paper (arXiv 1801.01290): Eq 1 for more details.
+            # If auto_alpha is set  to `True`, alpha is initialization for auto `\alpha`.
+            alpha=0.2,
+            # (bool) Whether to use auto temperature parameter `\alpha` .
+            # Temperature parameter `\alpha` determines the relative importance of the entropy term against the reward.
+            # Please check out the original SAC paper (arXiv 1801.01290): Eq 1 for more details.
+            # Note that: Using auto alpha needs to set the above `learning_rate_alpha`.
+            auto_alpha=True,
+            # (bool) Whether to use auto `\alpha` in log space.
+            log_space=True,
+            # (float) Target policy entropy value for auto temperature (alpha) adjustment.
+            target_entropy=None,
+            # (bool) Whether ignore done(usually for max step termination env. e.g. pendulum)
+            # Note: Gym wraps the MuJoCo envs by default with TimeLimit environment wrappers.
+            # These limit HalfCheetah, and several other MuJoCo envs, to max length of 1000.
+            # However, interaction with HalfCheetah always gets done with False,
+            # Since we inplace done==True with done==False to keep
+            # TD-error accurate computation(``gamma * (1 - done) * next_v + reward``),
+            # when the episode step is greater than max episode step.
+            ignore_done=False,
+            # (float) Weight uniform initialization max range in the last output layer.
+            init_w=3e-3,
+            # (float) Weight decay for optimizer.
+            weight_decay=0.0,
+            # (float) Gradient clip for optimizer.
+            q_grad_clip=None,
+            # (float) Gradient clip for optimizer.
+            policy_grad_clip=None,
+        ),
+        collect=dict(
+            # (int) How many training samples collected in one collection procedure.
+            n_sample=1,
+            # (int) Split episodes or trajectories into pieces with length `unroll_len`.
+            unroll_len=1,
+            # (bool) Whether to collect logit in `process_transition`.
+            # In some algorithm like guided cost learning, we need to use logit to train the reward model.
+            collector_logit=False,
+        ),
+        other=dict(
+            replay_buffer=dict(
+                # (int) Maximum size of replay buffer. Usually, larger buffer size is good
+                # for SAC but cost more storage.
+                replay_buffer_size=1000000,
+            ),
+        ),
+    )
+
+    def default_model(self) -> Tuple[str, List[str]]:
+        return 'base_qac', ['ding.model.template.qac']
+
+    def _init_learn(self) -> None:
+        self._priority = self._cfg.priority
+        self._priority_IS_weight = self._cfg.priority_IS_weight
+        self._twin_critic = self._cfg.model.twin_critic
+
+        self._optimizer_q = Adam(
+            self._model.critic.parameters(),
+            lr=self._cfg.learn.learning_rate_q,
+            weight_decay=self._cfg.learn.weight_decay,
+        )
+        self._optimizer_policy = Adam(
+            self._model.actor.parameters(),
+            lr=self._cfg.learn.learning_rate_policy,
+            weight_decay=self._cfg.learn.weight_decay,
+        )
+
+        if self._cfg.learn.q_grad_clip is not None:
+            q_grad_clip = torch.tensor(self._cfg.learn.q_grad_clip)
+            self.q_grad_clip = q_grad_clip * 2 if self._twin_critic else q_grad_clip
+        else:
+            self.q_grad_clip = torch.inf
+
+        if self._cfg.learn.policy_grad_clip is not None:
+            policy_grad_clip = torch.tensor(self._cfg.learn.policy_grad_clip)
+            self.policy_grad_clip = policy_grad_clip * 2 if self._twin_critic else policy_grad_clip
+        else:
+            self.policy_grad_clip = torch.inf
+
+        # Algorithm-Specific Config
+        self._gamma = self._cfg.learn.discount_factor
+        if self._cfg.learn.auto_alpha:
+            if self._cfg.learn.target_entropy is None:
+                assert 'action_shape' in self._cfg.model, "SAC need network model with action_shape variable"
+                self._target_entropy = -np.prod(self._cfg.model.action_shape)
+            else:
+                self._target_entropy = self._cfg.learn.target_entropy
+            if self._cfg.learn.log_space:
+                self._log_alpha = torch.log(torch.FloatTensor([self._cfg.learn.alpha]))
+                self._log_alpha = self._log_alpha.to(self._device).requires_grad_()
+                self._alpha_optim = torch.optim.Adam([self._log_alpha], lr=self._cfg.learn.learning_rate_alpha)
+                assert self._log_alpha.shape == torch.Size([1]) and self._log_alpha.requires_grad
+                self._alpha = self._log_alpha.detach().exp()
+                self._auto_alpha = True
+                self._log_space = True
+            else:
+                self._alpha = torch.FloatTensor([self._cfg.learn.alpha]).to(self._device).requires_grad_()
+                self._alpha_optim = torch.optim.Adam([self._alpha], lr=self._cfg.learn.learning_rate_alpha)
+                self._auto_alpha = True
+                self._log_space = False
+        else:
+            self._alpha = torch.tensor(
+                [self._cfg.learn.alpha], requires_grad=False, device=self._device, dtype=torch.float32
+            )
+            self._auto_alpha = False
+
+        # Main and target models
+        # TODO: only value net should be updated in target model
+        self._target_model = copy.deepcopy(self._model)
+        self._target_model = model_wrap(
+            self._target_model,
+            wrapper_name='target',
+            update_type='momentum',
+            update_kwargs={'theta': self._cfg.learn.target_theta}
+        )
+
+        self._learn_model = model_wrap(self._model, wrapper_name='base')
+        self._learn_model.reset()
+        self._target_model.reset()
+
+    def _forward_learn(self, data: dict) -> Dict[str, Any]:
+        loss_dict = {}
+        data = default_preprocess_learn(
+            data,
+            use_priority=self._priority,
+            use_priority_IS_weight=self._cfg.priority_IS_weight,
+            ignore_done=self._cfg.learn.ignore_done,
+            use_nstep=False
+        )
+        if self._cuda:
+            data = to_device(data, self._device)
+
+        self._learn_model.train()
+        self._target_model.train()
+        data['obs'] = to_float32(data['obs'])
+        obs = data['obs']
+        data['next_obs'] = to_float32(data['next_obs'])
+        next_obs = data['next_obs']
+        reward = to_float32(data['reward'])
+        done = data['done']
+
+        # 1. predict q value
+        q_value = self._learn_model.forward(data, mode='compute_critic')['q_value']
+        if q_value.ndim > 1:
+            q_value = [q_value[:, i] for i in range(q_value.shape[1])]
+
+        # 2. predict target value
+        with torch.no_grad():
+
+            next_action_output = self._learn_model.forward(next_obs, mode='compute_actor')
+            next_action = next_action_output['action']
+            next_log_prob = next_action_output['log_prob']
+
+            next_data = {'obs': next_obs, 'action': next_action}
+            next_q_value = self._target_model.forward(next_data, mode='compute_critic')['q_value']
+            if next_q_value.ndim > 1:
+                next_q_value = [next_q_value[:, i] for i in range(next_q_value.shape[1])]
+            # the value of a policy according to the maximum entropy objective
+            if self._twin_critic:
+                # find minimum q value to calculate v value
+                next_v_value = torch.min(next_q_value[0], next_q_value[1]) - self._alpha * next_log_prob
+            else:
+                next_v_value = next_q_value - self._alpha * next_log_prob
+
+        # 3. compute q loss
+        if self._twin_critic:
+            q_data0 = v_1step_td_data(q_value[0], next_v_value, reward, done, data['weight'])
+            critic_loss, td_error_per_sample0, target_q_value = v_1step_td_error_V2(q_data0, self._gamma)
+            q_data1 = v_1step_td_data(q_value[1], next_v_value, reward, done, data['weight'])
+            twin_critic_loss, td_error_per_sample1, target_q_value_twin = v_1step_td_error_V2(q_data1, self._gamma)
+            td_error_per_sample = (td_error_per_sample0 + td_error_per_sample1) / 2
+            target_q_value = (target_q_value + target_q_value_twin) / 2
+        else:
+            q_data = v_1step_td_data(q_value, next_v_value, reward, done, data['weight'])
+            critic_loss, td_error_per_sample, target_q_value = v_1step_td_error_V2(q_data, self._gamma)
+
+        # 4. update q network
+        self._optimizer_q.zero_grad()
+        if self._twin_critic:
+            (critic_loss + twin_critic_loss).backward()
+        else:
+            critic_loss.backward()
+        q_grad_norm = torch.nn.utils.clip_grad_norm_(
+            self._learn_model._model._model.critic.parameters(),
+            2 * self.q_grad_clip if self._twin_critic else self.q_grad_clip
+        )
+        self._optimizer_q.step()
+
+        # 5. evaluate to get action distribution
+        action_output = self._learn_model.forward(next_obs, mode='compute_actor')
+        action = action_output['action']
+        log_prob = action_output['log_prob']
+        new_q_value = self._learn_model._model._model.critic.min_q(data['obs'], action)
+        policy_loss = (self._alpha * log_prob - new_q_value).mean()
+
+        # 7. update policy network
+        self._optimizer_policy.zero_grad()
+        policy_loss.backward()
+        policy_grad_norm = torch.nn.utils.clip_grad_norm_(
+            self._learn_model._model._model.actor.parameters(), self.policy_grad_clip
+        )
+        self._optimizer_policy.step()
+
+        # 8. compute alpha loss
+        if self._auto_alpha:
+            if self._log_space:
+                average_action_entropy = -torch.mean(log_prob)
+                alpha_loss = torch.exp(self._log_alpha) * (average_action_entropy.detach() - self._target_entropy)
+
+                self._alpha_optim.zero_grad()
+                alpha_loss.backward()
+                self._alpha_optim.step()
+                self._alpha = self._log_alpha.detach().exp()
+            else:
+                average_action_entropy = -torch.mean(log_prob)
+                alpha_loss = self._alpha * (average_action_entropy.detach() - self._target_entropy)
+
+                self._alpha_optim.zero_grad()
+                alpha_loss.backward()
+                self._alpha_optim.step()
+                self._alpha = max(0, self._alpha)
+
+        loss_dict = {
+            'policy_loss': policy_loss.detach().item(),
+            'critic_loss': critic_loss.detach().item(),
+            'total_loss': (policy_loss +
+                           (critic_loss + twin_critic_loss if self._twin_critic else 0) / 2).detach().item(),
+        }
+        if self._auto_alpha:
+            loss_dict.update({'alpha_loss': alpha_loss.detach().item()})
+        if self._twin_critic:
+            loss_dict.update({'twin_critic_loss': twin_critic_loss.detach().item()})
+
+        # target update
+        self._target_model.update(self._learn_model.state_dict())
+        return {
+            'cur_lr_q': self._optimizer_q.defaults['lr'],
+            'cur_lr_p': self._optimizer_policy.defaults['lr'],
+            'priority': td_error_per_sample.abs().tolist(),
+            'td_error': td_error_per_sample.detach().mean().item(),
+            'alpha': self._alpha.item(),
+            'average_action_entropy': average_action_entropy.detach().item(),
+            'target_q_value': target_q_value.detach().mean().item(),
+            'transformed_log_prob': log_prob.mean().item(),
+            'q_grad_norm': q_grad_norm.detach().item() / 2 if self._twin_critic else q_grad_norm.detach().item(),
+            'policy_grad_norm': policy_grad_norm.detach().item(),
+            **loss_dict
+        }
+
+    def _state_dict_learn(self) -> Dict[str, Any]:
+        ret = {
+            'model': self._learn_model.state_dict(),
+            'target_model': self._target_model.state_dict(),
+            'optimizer_q': self._optimizer_q.state_dict(),
+            'optimizer_policy': self._optimizer_policy.state_dict(),
+        }
+        if self._auto_alpha:
+            ret.update({'optimizer_alpha': self._alpha_optim.state_dict()})
+        return ret
+
+    def _load_state_dict_learn(self, state_dict: Dict[str, Any]) -> None:
+        self._learn_model.load_state_dict(state_dict['model'])
+        self._target_model.load_state_dict(state_dict['target_model'])
+        self._optimizer_q.load_state_dict(state_dict['optimizer_q'])
+        self._optimizer_policy.load_state_dict(state_dict['optimizer_policy'])
+        if self._auto_alpha:
+            self._alpha_optim.load_state_dict(state_dict['optimizer_alpha'])
+
+    def _init_collect(self) -> None:
+        self._unroll_len = self._cfg.collect.unroll_len
+        self._collect_model = model_wrap(self._model, wrapper_name='base')
+        self._collect_model.reset()
+
+    def _forward_collect(self, data: dict) -> dict:
+        data_id = list(data.keys())
+        data = default_collate(list(data.values()))
+        if self._cuda:
+            data = to_device(data, self._device)
+        self._collect_model.eval()
+        with torch.no_grad():
+            output = self._collect_model.forward(data, mode='compute_actor')
+
+        if self._cuda:
+            output = to_device(output, 'cpu')
+        output = default_decollate(output)
+        return {i: d for i, d in zip(data_id, output)}
+
+    def _process_transition(self, obs: Any, policy_output: dict, timestep: namedtuple) -> dict:
+        transition = {
+            'obs': obs,
+            'next_obs': timestep.obs,
+            'action': policy_output['action'],
+            'log_prob': policy_output['log_prob'],
+            'reward': timestep.reward,
+            'done': timestep.done,
+        }
+        return transition
+
+    def _get_train_sample(self, data: list) -> Union[None, List[Any]]:
+        return get_train_sample(data, self._unroll_len)
+
+    def _init_eval(self) -> None:
+        self._eval_model = model_wrap(self._model, wrapper_name='base')
+        self._eval_model.reset()
+
+    def _forward_eval(self, data: dict) -> dict:
+        data_id = list(data.keys())
+        data = default_collate(list(data.values()))
+        if self._cuda:
+            data = to_device(data, self._device)
+        self._eval_model.eval()
+        with torch.no_grad():
+            output = self._collect_model.forward(data, mode='compute_actor')
+
+        if self._cuda:
+            output = to_device(output, 'cpu')
+        output = default_decollate(output)
+        return {i: d for i, d in zip(data_id, output)}
+
+    def _monitor_vars_learn(self) -> List[str]:
+        twin_critic = ['twin_critic_loss'] if self._twin_critic else []
+        alpha_loss = ['alpha_loss'] if self._auto_alpha else []
+        return [
+            'value_loss'
+            'alpha_loss',
+            'policy_loss',
+            'critic_loss',
+            'cur_lr_q',
+            'cur_lr_p',
+            'target_q_value',
+            'alpha',
+            'average_action_entropy',
+            'q_grad_norm',
+            'policy_grad_norm',
+            'td_error',
+            'transformed_log_prob',
+        ] + twin_critic + alpha_loss
+
+    def monitor_vars(self) -> List[str]:
+        return self._monitor_vars_learn()
 
 
 @POLICY_REGISTRY.register('sqil_sac')

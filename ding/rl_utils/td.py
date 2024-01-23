@@ -569,6 +569,28 @@ def v_1step_td_error(
     return (td_error_per_sample * weight).mean(), td_error_per_sample
 
 
+def v_1step_td_error_V2(
+        data: namedtuple,
+        gamma: float,
+        criterion: torch.nn.modules = nn.MSELoss(reduction='none')  # noqa
+) -> torch.Tensor:
+    v, next_v, reward, done, weight = data
+    if weight is None:
+        weight = torch.ones_like(v)
+    if len(v.shape) == len(reward.shape):
+        if done is not None:
+            target_v = gamma * (1 - done) * next_v + reward
+        else:
+            target_v = gamma * next_v + reward
+    else:
+        if done is not None:
+            target_v = gamma * (1 - done).unsqueeze(1) * next_v + reward.unsqueeze(1)
+        else:
+            target_v = gamma * next_v + reward.unsqueeze(1)
+    td_error_per_sample = criterion(v, target_v.detach())
+    return (td_error_per_sample * weight).mean(), td_error_per_sample, target_v
+
+
 v_nstep_td_data = namedtuple('v_nstep_td_data', ['v', 'next_n_v', 'reward', 'done', 'weight', 'value_gamma'])
 
 

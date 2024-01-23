@@ -17,7 +17,7 @@ from .dt import DTPolicy
 from .pg import PGPolicy
 from .a2c import A2CPolicy
 from .ppo import PPOPolicy, PPOPGPolicy, PPOOffPolicy
-from .sac import SACPolicy, DiscreteSACPolicy, SQILSACPolicy
+from .sac import SACPolicy, DiscreteSACPolicy, SQILSACPolicy, SACGeneralPolicy
 from .cql import CQLPolicy, DiscreteCQLPolicy
 from .edac import EDACPolicy
 from .impala import IMPALAPolicy

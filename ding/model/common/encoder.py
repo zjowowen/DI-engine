@@ -20,6 +20,44 @@ def prod(iterable):
     return reduce(operator.mul, iterable, 1)
 
 
+class OneHotEncoder(nn.Module):
+    """
+    Overview:
+        The one-hot encoder is used to encode discrete input variable.
+    """
+
+    def __init__(self, obs_shape: int) -> None:
+        """
+        Overview:
+            Initialize the one-hot encoder according to the provided arguments.
+        Arguments:
+            - obs_shape (:obj:`int`): Observation shape.
+        """
+        super(OneHotEncoder, self).__init__()
+        self.obs_shape = obs_shape
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Overview:
+            Return output one-hot encoding tensor of the env observation.
+        Arguments:
+            - x (:obj:`torch.Tensor`): Env raw observation.
+        Returns:
+            - outputs (:obj:`torch.Tensor`): Output one-hot encoding tensor.
+        Shapes:
+            - x : :math:`(B, M)`, where ``M = obs_shape``.
+            - outputs: :math:`(B, M)`, where ``M = obs_shape``.
+        Examples:
+            >>> one_hot = OneHotEncoder(obs_shape=4)
+            >>> x = torch.randn(1, 4)
+            >>> output = one_hot(x)
+        """
+        if len(x.shape) == 2 and x.shape[1] == 1:
+            x = x.squeeze(1)
+        x = F.one_hot(x.long(), self.obs_shape).float()
+        return x
+
+
 class ConvEncoder(nn.Module):
     """
     Overview:
@@ -29,15 +67,17 @@ class ConvEncoder(nn.Module):
     """
 
     def __init__(
-            self,
-            obs_shape: SequenceType,
-            hidden_size_list: SequenceType = [32, 64, 64, 128],
-            activation: Optional[nn.Module] = nn.ReLU(),
-            kernel_size: SequenceType = [8, 4, 3],
-            stride: SequenceType = [4, 2, 1],
-            padding: Optional[SequenceType] = None,
-            layer_norm: Optional[bool] = False,
-            norm_type: Optional[str] = None
+        self,
+        obs_shape: SequenceType,
+        hidden_size_list: SequenceType = [32, 64, 64, 128],
+        activation: Optional[nn.Module] = nn.ReLU(),
+        kernel_size: SequenceType = [8, 4, 3],
+        stride: SequenceType = [4, 2, 1],
+        padding: Optional[SequenceType] = None,
+        layer_norm: Optional[bool] = False,
+        norm_type: Optional[str] = None,
+        channel_first: Optional[bool] = True,
+        obs_scale_ratio: Optional[float] = None,
     ) -> None:
         """
         Overview:
@@ -58,6 +98,8 @@ class ConvEncoder(nn.Module):
                 for more details. Default is ``None``.
         """
         super(ConvEncoder, self).__init__()
+        self.channel_first = channel_first
+        self.obs_scale_ratio = obs_scale_ratio
         self.obs_shape = obs_shape
         self.act = activation
         self.hidden_size_list = hidden_size_list
@@ -149,6 +191,11 @@ class ConvEncoder(nn.Module):
             >>> x = torch.randn(1, 4, 84, 84)
             >>> output = conv(x)
         """
+        if self.obs_scale_ratio:
+            x = x / self.obs_scale_ratio
+        if not self.channel_first:
+            assert len(x.shape) == 4, "Input shape should be (B, C, H, W)"
+            x = x.permute(0, 3, 1, 2)
         x = self.main(x)
         x = self.mid(x)
         return x

@@ -539,3 +539,72 @@ class DiscreteQAC(nn.Module):
         else:
             x = self.critic_head(inputs)['logit']
         return {'q_value': x}
+
+
+@MODEL_REGISTRY.register('base_qac')
+class BaseQAC(nn.Module):
+    """
+    Overview:
+        The QAC model.
+        (This is an ugly base class, only for compatibility with old algo pipeline.)
+    Interfaces:
+        ``__init__``, ``forward``, ``compute_actor``, ``compute_critic``
+    """
+    mode = ['compute_actor', 'compute_critic', 'compute_actor_critic']
+
+    def __init__(
+            self,
+            actor: nn.Module = None,
+            critic: nn.Module = None,
+            share_obs_encoder: bool = False,
+            obs_encoder: nn.Module = None,
+            action_encoder: nn.Module = None,
+            actor_net: nn.Module = None,
+            critic_net: nn.Module = None,
+    ) -> None:
+        super(BaseQAC, self).__init__()
+        self.actor = actor
+        self.critic = critic
+        self.share_obs_encoder = share_obs_encoder
+        self.obs_encoder = obs_encoder
+        self.action_encoder = action_encoder
+        self.actor_net = actor_net
+        self.critic_net = critic_net
+
+    def forward(self, inputs: Union[torch.Tensor, Dict], mode: str):
+        assert mode in self.mode, "not support forward mode: {}/{}".format(mode, self.mode)
+        if mode == 'compute_actor':
+            return self.compute_actor(inputs)
+        elif mode == 'compute_critic':
+            return self.compute_critic(inputs['obs'], inputs['action'])
+        elif mode == 'compute_actor_critic':
+            return self.compute_actor_critic(inputs)
+        else:
+            raise NotImplementedError
+
+    def compute_actor(self, obs: torch.Tensor):
+        if self.share_obs_encoder:
+            obs_hidden = self.obs_encoder(obs)
+            action, log_prob = self.actor_net(obs_hidden)
+        else:
+            action, log_prob = self.actor(obs)
+        return {'action': action, 'log_prob': log_prob}
+
+    def compute_critic(self, obs: torch.Tensor, action: torch.Tensor):
+        if self.share_obs_encoder:
+            obs_hidden = self.obs_encoder(obs)
+            action_hidden = self.action_encoder(action)
+            q_value = self.critic_net(obs_hidden, action_hidden)
+        else:
+            q_value = self.critic(obs, action)
+        return {'q_value': q_value}
+
+    def compute_actor_critic(self, obs: torch.Tensor):
+        if self.share_obs_encoder:
+            obs_hidden = self.obs_encoder(obs)
+            action_hidden = self.action_encoder(action)
+            action, log_prob = self.actor_net(obs_hidden)
+            q_value = self.critic_net(obs_hidden, action_hidden)
+        else:
+            q_value = self.critic(obs, action)
+        return {'action': action, 'log_prob': log_prob, 'q_value': q_value}
